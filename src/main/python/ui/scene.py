@@ -5,7 +5,6 @@ import imageio
 from .polygon import Polygon
 from .polygonVertex import PolygonVertex
 from .circle import Circle
-import numpy as np
 
 
 class Scene(QGraphicsScene):
@@ -18,8 +17,8 @@ class Scene(QGraphicsScene):
         self.setSceneRect(0, 0, width, height)
 
         self.image = image
-        self.rotate = 0
-        self.mirror_v = 1
+        self.rotate = 90
+        self.mirror_v = -1
         self.mirror_h = 1
 
     def display_image(self, image_path=None):
@@ -60,7 +59,7 @@ class Scene(QGraphicsScene):
         self.addPixmap(pixmap_reflect)
 
         # Reset the scene size
-        self.setSceneRect(0, 0, self.image.width(), self.image.height())
+        self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
 
     # def removeCompositeLine(self):
     #     """

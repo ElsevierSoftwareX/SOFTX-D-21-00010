@@ -1,28 +1,20 @@
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot
-from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QMainWindow, QGridLayout, QFileDialog, \
-    QFileSystemModel, QApplication, QAction, QPlainTextEdit
-from datetime import date
-import shutil
-import webbrowser
-import lorem
-
-# from .ui.config.py import *
-import pyqtgraph.parametertree.parameterTypes as pTypes
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtWidgets import  QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit
 from pyqtgraph.parametertree import Parameter, ParameterTree
-import requests
-import sys
+from datetime import date
+from pathlib import Path
+import pyqtgraph as pg
+import webbrowser
+import imageio
+import shutil
 import os
 from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
 from ui.bookkeeper import BookKeeper
-from pathlib import Path
-import pyqtgraph as pg
-import imageio
 
 
 class MainWindow(QMainWindow):
@@ -73,7 +65,7 @@ class MainWindow(QMainWindow):
         self.config_file_name = None
         self.run_number = 1
 
-        img = imageio.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../resources/img/Img0052.jpg"))
+        img = imageio.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../resources/img/pyPOCQuantSplash-01.png"))
         print(img.shape)
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0)
