@@ -1,0 +1,66 @@
+import multiprocessing
+
+params = [
+    {'name': 'Basic parameters', 'type': 'group', 'children': [
+        {'name': 'Raw auto stretch', 'type': 'bool', 'value': False, 'tip': "Set true if raw image should be auto "
+                                                                            "streched"},
+        {'name': 'Raw auto wb', 'type': 'bool', 'value': False, 'tip': "Set true if raw image' white balance should be"
+                                                                       " set automatically"},
+        {'name': 'POCT size', 'type': 'group', 'children': [
+            {'name': 'width', 'type': 'int', 'value': 10},
+            {'name': 'height', 'type': 'int', 'value': 10},
+        ]},
+        {'name': 'Sensor center', 'type': 'group', 'children': [
+            {'name': 'x', 'type': 'int', 'value': 10},
+            {'name': 'y', 'type': 'int', 'value': 10},
+        ]},
+        {'name': 'Sensor size', 'type': 'group', 'children': [
+            {'name': 'width', 'type': 'int', 'value': 10},
+            {'name': 'height', 'type': 'int', 'value': 10},
+        ]},
+        {'name': 'Sensor border', 'type': 'group', 'children': [
+            {'name': 'x', 'type': 'int', 'value': 7},
+            {'name': 'y', 'type': 'int', 'value': 7},
+        ]},
+        {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
+        {'name': 'Sensor search area', 'type': 'group', 'children': [
+            {'name': 'x', 'type': 'int', 'value': 7},
+            {'name': 'y', 'type': 'int', 'value': 7},
+        ]},
+        {'name': 'Sensor threshold factor', 'type': 'int', 'value': 2},
+        {'name': 'Min sensor score', 'type': 'float', 'value': .85, 'step': 0.01},
+        {'name': 'QR code border', 'type': 'int', 'value': 40},
+        {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
+        {'name': 'Peak expected relative location', 'type': 'group', 'children': [
+            {'name': 'IgM', 'type': 'float', 'value': 0.25},
+            {'name': 'IgG', 'type': 'float', 'value': 0.53},
+            {'name': 'Ctl', 'type': 'float', 'value': 0.79},
+        ]},
+        {'name': 'Number of cores (min=1;max={})'.format(multiprocessing.cpu_count()), 'type': 'int', 'value': 2,
+         'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"},
+        {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
+        {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"},
+        {'name': 'File version', 'type': 'int', 'value': 1},
+    ]}]
+
+key_map = {
+    'raw_auto_stretch': 'raw_auto_stretch',
+    'raw_auto_wb': 'raw_auto_wb',
+    'strip_text_to_search': 'strip_text_to_search',
+    'strip_text_on_right': 'strip_text_on_right',
+    'poct_size': 'strip_size',
+    'sensor_center': 'sensor_center',
+    'sensor_size': 'sensor_size',
+    'sensor_border': 'sensor_border',
+    'perform_sensor_search': 'perform_sensor_search',
+    'sensor_search_area': 'sensor_search_area',
+    'sensor_threshold_factor': 'sensor_thresh_factor',
+    'min_sensor_score': 'min_sensor_score',
+    'qr_code_border': 'qr_code_border',
+    'subtract_background': 'subtract_background',
+    'peak_expected_relative_location': 'peak_expected_relative_location',
+    'number_of_cores_(min=1;max=8)': 'max_workers',
+    'qc': 'qc',
+    'verbose': 'verbose',
+    'file_version': 'file_version'
+}
