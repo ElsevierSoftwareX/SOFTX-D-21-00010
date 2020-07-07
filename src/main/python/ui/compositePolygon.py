@@ -44,6 +44,15 @@ class CompositePolygon:
             if cm is not None:
                 self._scene.addItem(Circle(cm.x(), cm.y()))
 
+    def addVertex(self, pos):
+        """
+        Add a Vertex to the underlying Polygon.
+        """
+        # print('print item', pos)
+        # print(self._scene)
+        # print('print item', self._scene.mapToScene(pos))
+        self._polygon_item.add_vertex(pos)
+
     def getCenterOfMass(self):
         return self._polygon_item.updateCenterOfMass()
 
@@ -69,11 +78,7 @@ class CompositePolygon:
         #     center_of_mass[2] = abs(area / 2)
         #     return self._polygon_item.mapToScene(QPointF(center_of_mass[0], center_of_mass[1]))
 
-    def addVertex(self, pos):
-        """
-        Add a Vertex to the underlying Polygon.
-        """
-        self._polygon_item.add_vertex(pos)
+
 
     # def itemMovedTo(self, item, newPos):
     #     """Called when the passed Item has been moved."""

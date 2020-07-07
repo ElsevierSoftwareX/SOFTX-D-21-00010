@@ -1,7 +1,7 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot
+from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint
 from PyQt5.QtGui import QTextCursor
-from PyQt5.QtWidgets import  QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit
+from PyQt5.QtWidgets import  QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -70,23 +70,32 @@ class MainWindow(QMainWindow):
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0)
         self.view = View(self.scene)
-        self.gridLayout_3.addWidget(self.view, 0, 1, 0, 4)
+        self.gridLayout_3.replaceWidget(self.viewO, self.view)
+        self.viewO.deleteLater()
         self.scene.display_image()
+        self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
 
         # Setup parameter tree
         self.p = Parameter.create(name='params', type='group', children=params)
-        self.t = ParameterTree()
-        self.t.setParameters(self.p, showTop=False)
+        # self.t = ParameterTree()
+        self.paramTree.setParameters(self.p, showTop=False)
 
         # @todo fix layout
         # self.gridlayout.removeWidget(self.entries[row])
         # self.entries[row].deleteLater()
-        self.gridLayout_3.replaceWidget(self.graphicsView, self.t)
-        self.graphicsView.deleteLater()
-        self.t.setMinimumSize(QSize(350, 300))
-        self.label_2.setMaximumSize(QSize(350, 20))
-        self.label_3.setMaximumSize(QSize(350, 20))
-        self.listView.setMinimumSize(QSize(350, 200))
+        # self.verticalLayout_2.replaceWidget(self.graphicsView, self.t)
+        # self.verticalLayout_2.addWidget(self.t)
+        # self.graphicsView.deleteLater()
+        # self.t.setFixedSize(QSize(400, 300))
+        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        # sizePolicy.setHeightForWidth(False)
+        # self.graphicsView.setSizePolicy(sizePolicy)
+        # self.label_2.setStyleSheet('background: yellow')
+        # self.label.setStyleSheet('background: yellow')
+        # print(self.label.frameGeometry())
+        # self.label_2.setMaximumSize(QSize(350, 20))
+        # self.label_3.setMaximumSize(QSize(350, 20))
+        # self.listView.setMinimumSize(QSize(350, 200))
         # self.itemAt(4).insertWidget(0, self.t)
 
         # self.gridLayout_3.addWidget(self.t, 7, 0)
@@ -295,6 +304,7 @@ class MainWindow(QMainWindow):
         for ix in selected.indexes():
             self.log.appendPlainText(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
+            self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
             self.image_filename = ix.data()
 
     def get_filename(self):
@@ -374,15 +384,21 @@ class MainWindow(QMainWindow):
         # Mouse press
 
         # @todo fix this annoying coordintnate mapping of view/scene is in a gridLayout
-        print(event.globalPos())
-        print(event.pos())
-        pos = self.view.mapToScene(event.pos())
-        print(pos)
+        # print('---------')
+        # print('global', event.globalPos())
+        #
+        # print('pos', event.pos())
+        # pos = self.view.mapToScene(event.pos())
+        pos = event.pos()
+        # print('maptoscne', pos)
+        # # print('maptoscne', event.pos())
         viewPos = self.view.rect()
-        newPos = QPointF(pos.x()-viewPos.width(), pos.y())
-        print('new pos', newPos)
-        print('delta', self.view.zoom)
-        print(self.view.rect())
+        newPos = QPoint(pos.x()-viewPos.width(), pos.y())
+        # print('new pos', newPos)
+        pp = self.view.mapToScene(pos) #self.view.mapToScene(newPos)
+        # pp = self.view.mapToScene(event.pos())
+        # print('delta', self.view.zoom)
+        # print(self.view.rect())
 
         if self.is_draw_sensor is True:
             currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -399,7 +415,7 @@ class MainWindow(QMainWindow):
 
             # Add the vertices
             if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
-                currentSensorPolygon._polygon_item.add_vertex(newPos)
+                currentSensorPolygon.addVertex(pp)
             self.set_sensor_and_strip_parameter()
 
         elif self.is_draw_strip is True:
@@ -417,7 +433,7 @@ class MainWindow(QMainWindow):
 
             # Add the vertices
             if len(currentStripPolygon._polygon_item.polygon_vertices) < 4:
-                currentStripPolygon._polygon_item.add_vertex(newPos)
+                currentStripPolygon.addVertex(pp)
             self.set_sensor_and_strip_parameter()
 
         else:

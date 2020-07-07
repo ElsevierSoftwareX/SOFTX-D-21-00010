@@ -17,6 +17,7 @@ class Scene(QGraphicsScene):
         self.setSceneRect(0, 0, width, height)
 
         self.image = image
+        self.pixmap = None
         self.rotate = 90
         self.mirror_v = -1
         self.mirror_h = 1
@@ -61,6 +62,8 @@ class Scene(QGraphicsScene):
         # Reset the scene size
         self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
 
+        self.pixmap = pixmap_reflect
+
     # def removeCompositeLine(self):
     #     """
     #     Remove CompositeLine if it exists from the scene, but does not
@@ -69,6 +72,12 @@ class Scene(QGraphicsScene):
     #     for item in self.items():
     #         if type(item) is ui.Vertex or type(item) is ui.Line:
     #             self.removeItem(item)
+
+    # def mousePressEvent(self, event):
+    #      print('-')
+    #      print(event.scenePos())
+    #      print(event.pos())
+    #      print('-')
 
     def removeCompositePolygon(self):
         """
