@@ -50,6 +50,9 @@
         <property name="sizeConstraint">
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -226,7 +229,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_open_settings_file"/>
+    <addaction name="action_load_settings_file"/>
     <addaction name="action_save_settings_file"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -258,9 +261,9 @@
     </layout>
    </widget>
   </widget>
-  <action name="action_open_settings_file">
+  <action name="action_load_settings_file">
    <property name="text">
-    <string>Open settings file</string>
+    <string>Load settings file</string>
    </property>
   </action>
   <action name="action_save_settings_file">
