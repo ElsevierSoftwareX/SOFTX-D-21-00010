@@ -1,4 +1,6 @@
 import multiprocessing
+import ast
+
 
 params = [
     {'name': 'Basic parameters', 'type': 'group', 'children': [
@@ -6,7 +8,7 @@ params = [
                                                                             "streched"},
         {'name': 'Raw auto wb', 'type': 'bool', 'value': False, 'tip': "Set true if raw image' white balance should be"
                                                                        " set automatically"},
-        {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'tip': "Use prominent text such as"
+        {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '""', 'tip': "Use prominent text such as"
                                                                                           " COVID"},
         {'name': 'Strip text is on the right', 'type': 'bool', 'value': False, 'tip': "Set true if test is right of the"
                                                                                       " sensor"},
@@ -68,3 +70,21 @@ key_map = {
     'verbose': 'verbose',
     'file_version': 'file_version'
 }
+
+
+def load_settings(filename):
+    """Loads settings from file and returns them in a dictionary."""
+    settings_dictionary = {}
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    for line in lines:
+        key, value = line.split("=")
+        settings_dictionary[key.strip()] = ast.literal_eval(value.strip())
+    return settings_dictionary
+
+
+def save_settings(settings_dictionary, filename):
+    """Save settings from a dictionary to file."""
+    with open(filename, "w+") as f:
+        for key in settings_dictionary:
+            f.write(f"{key}={settings_dictionary[key]}\n")

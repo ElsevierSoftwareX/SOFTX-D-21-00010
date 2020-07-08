@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool
 from PyQt5.QtGui import QTextCursor
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -10,7 +10,7 @@ import webbrowser
 import imageio
 import shutil
 import os
-from ui.config import params, key_map
+from ui.config import params, key_map, save_settings, load_settings
 from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
@@ -26,6 +26,11 @@ class MainWindow(QMainWindow):
         uic.loadUi(ui, self)
 
         self.setWindowTitle('pyPOCQuant:: Point of Care Test Quantification tool')
+
+        # Add filemenu
+        self.action_save_settings_file.triggered.connect(self.on_save_settings_file)
+        self.action_load_settings_file.triggered.connect(self.on_load_settings_file)
+        self.actionQuit.triggered.connect(self.close)
 
         # Add toolbar
         tb = self.addToolBar("File")
@@ -140,7 +145,7 @@ class MainWindow(QMainWindow):
         # 3. Create config file form param tree
         settings = self.get_parameters()
         # Save parameters into input folder with timestamp
-        self.save_settings(settings, str(self.test_dir / self.get_filename()))
+        save_settings(settings, str(self.test_dir / self.get_filename()))
         self.run_number = +1
         # 4. Run pipeline on this one image only with QC == True
         settings['qc'] = True
@@ -154,7 +159,7 @@ class MainWindow(QMainWindow):
         # Get parameter values and save them to a config file
         settings = self.get_parameters()
         # Save into input folder with timestamp
-        self.save_settings(settings, str(self.input_dir / self.get_filename()))
+        save_settings(settings, str(self.input_dir / self.get_filename()))
         # Run full pipeline
         self.run_worker(input_dir=self.input_dir, output_dir=self.output_dir, settings=settings)
         # Display control images by opening the output folder
@@ -182,6 +187,43 @@ class MainWindow(QMainWindow):
             self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
             self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
             self.image_filename = ix.data()
+
+    def on_save_settings_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+                                                  "All Files (*);;Text Files (*.txt)", options=options)
+        if file_name:
+            settings = self.get_parameters()
+            # Save parameters into input folder with timestamp
+            save_settings(settings, file_name + '.conf')
+            self.log.appendPlainText(f"Saved config file under: {file_name}")
+
+    def on_load_settings_file(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, 'Open file', '', "All Files (*);;Text Files (*.txt);; "
+                                                                       "Config Files (*.conf)")
+        if file_name:
+            settings = load_settings(file_name)
+            self.load_parameters(settings)
+            self.log.appendPlainText(f"Loaded config : {file_name}")
+
+    def load_parameters(self, settings):
+        # Populate parameter tree
+        for c in self.p.children():
+            for gc in self.p.param(c.name()):
+                if gc.hasChildren():
+                    for idx, ggc in enumerate(self.p.param(c.name()).param(gc.name())):
+                        key = gc.name().lower().replace(' ', '_')
+                        if key in key_map:
+                            new_key = key_map[key]
+                            if new_key in settings:
+                                ggc.setValue(settings[new_key][idx])
+                else:
+                    key = gc.name().lower().replace(' ', '_')
+                    if key in key_map:
+                        new_key = key_map[key]
+                        if new_key in settings:
+                            gc.setValue(settings[new_key])
 
     def run_pipeline(self, input_dir, output_dir, settings):
         # Inform the user
@@ -261,19 +303,13 @@ class MainWindow(QMainWindow):
                         # print(keyy, '->', valuee[0])
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
+            print(parameters)
             return parameters
 
     @staticmethod
     def change_parameter_keys(parameters, key_map):
         parameter_out = dict((key_map[key], value) for (key, value) in parameters.items())
         return parameter_out
-
-    @staticmethod
-    def save_settings(settings_dictionary, filename):
-        """Save settings from a dictionary to file."""
-        with open(filename, "w+") as f:
-            for key in settings_dictionary:
-                f.write(f"{key}={settings_dictionary[key]}\n")
 
     def set_sensor_and_strip_parameter(self):
 
@@ -354,3 +390,14 @@ class MainWindow(QMainWindow):
             self.set_sensor_and_strip_parameter()
             pass
             super().mousePressEvent(event)
+
+    def closeEvent(self, event):
+
+        quit_msg = "Are you sure you want to exit the program?"
+        reply = QMessageBox.question(self, 'Message',
+                                           quit_msg, QMessageBox.Yes, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
