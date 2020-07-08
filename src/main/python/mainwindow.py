@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint
+from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import  QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy
 from pyqtgraph.parametertree import Parameter, ParameterTree
@@ -15,6 +15,8 @@ from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
 from ui.bookkeeper import BookKeeper
+from ui.worker import Worker
+from pyPOCQuant.pipeline_FH import run_FH
 
 
 class MainWindow(QMainWindow):
@@ -100,6 +102,8 @@ class MainWindow(QMainWindow):
 
         # self.gridLayout_3.addWidget(self.t, 7, 0)
 
+        self.threadpool = QThreadPool()
+
         # Setup buttons
         self.input_btn.clicked.connect(self.on_select_input)
         self.output_btn.clicked.connect(self.on_select_output)
@@ -163,11 +167,13 @@ class MainWindow(QMainWindow):
         self.log.appendPlainText(f"")
         self.log.appendPlainText(f"Starting analysis with parameters:")
         self.log.appendPlainText(f"               Settings file version: {settings['file_version']}")
-        self.log.appendPlainText(f"                               Input: {self.input_dir}")
-        self.log.appendPlainText(f"                              Output: {self.output_dir}")
+        self.log.appendPlainText(f"                               Input: {self.test_dir}")
+        self.log.appendPlainText(f"                              Output: {self.test_dir}")
         self.log.appendPlainText(f"                 Max number of cores: {settings['max_workers']}")
         self.log.appendPlainText(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
         self.log.appendPlainText(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
+        self.log.appendPlainText(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
+        self.log.appendPlainText(f"          Strip text is on the right: {settings['strip_text_on_right']}")
         self.log.appendPlainText(f"                          Strip size: {settings['strip_size']}")
         self.log.appendPlainText(f"                           Min score: {settings['min_sensor_score']:.2f}")
         self.log.appendPlainText(f"                      QR code border: {settings['qr_code_border']}")
@@ -184,34 +190,7 @@ class MainWindow(QMainWindow):
         self.log.appendPlainText(f"")
 
         # Run the pipeline
-        # run_TPH(
-        #     self.input_dir,
-        #     self.output_dir,
-        #     nef_auto_stretch=settings['nef_auto_stretch'],
-        #     nef_auto_wb=settings['nef_auto_wb'],
-        #     strip_size=settings['strip_size'],
-        #     min_strip_corr_coeff=settings['min_strip_corr_coeff'],
-        #     min_sensor_score=settings['min_sensor_score'],
-        #     lower_bound_range=settings['lower_bound_range'],
-        #     upper_bound_range=settings['upper_bound_range'],
-        #     qr_code_border=settings['qr_code_border'],
-        #     qr_code_spacer=settings['qr_code_spacer'],
-        #     barcode_border=settings['barcode_border'],
-        #     skip_strip_registration=settings['skip_strip_registration'],
-        #     perform_sensor_search=settings['perform_sensor_search'],
-        #     sensor_size=settings['sensor_size'],
-        #     sensor_center=settings['sensor_center'],
-        #     sensor_search_area=settings['sensor_search_area'],
-        #     force_sensor_size=settings['force_sensor_size'],
-        #     sensor_thresh_factor=settings['sensor_thresh_factor'],
-        #     sensor_border_x=settings['sensor_border_x'],
-        #     sensor_border_y=settings['sensor_border_y'],
-        #     peak_expected_relative_location=settings['peak_expected_relative_location'],
-        #     subtract_background=settings['subtract_background'],
-        #     verbose=settings['verbose'],
-        #     qc=settings['qc'],
-        #     max_workers=settings['max_workers']
-        # )
+        self.run_worker(input_dir=self.test_dir, output_dir=self.test_dir, settings=settings)
 
         # 5. Display control images by opening the test folder
         webbrowser.open(str(self.test_dir))
@@ -306,6 +285,35 @@ class MainWindow(QMainWindow):
             self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
             self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
             self.image_filename = ix.data()
+
+    def run_pipeline(self, input_dir, output_dir, settings):
+        # Run the pipeline
+        run_FH(
+            input_dir,
+            output_dir,
+            raw_auto_stretch=settings['raw_auto_stretch'],
+            raw_auto_wb=settings['raw_auto_wb'],
+            strip_text_to_search=settings['strip_text_to_search'],
+            strip_text_on_right=settings['strip_text_on_right'],
+            min_sensor_score=settings['min_sensor_score'],
+            qr_code_border=settings['qr_code_border'],
+            perform_sensor_search=settings['perform_sensor_search'],
+            sensor_size=settings['sensor_size'],
+            sensor_center=settings['sensor_center'],
+            sensor_search_area=settings['sensor_search_area'],
+            sensor_thresh_factor=settings['sensor_thresh_factor'],
+            sensor_border_x=settings['sensor_border'][0],
+            sensor_border_y=settings['sensor_border'][1],
+            peak_expected_relative_location=settings['peak_expected_relative_location'],
+            subtract_background=settings['subtract_background'],
+            verbose=settings['verbose'],
+            qc=settings['qc'],
+            max_workers=settings['max_workers']
+        )
+
+    def run_worker(self, input_dir, output_dir, settings):
+        worker = Worker(self.run_pipeline(input_dir, output_dir, settings))
+        self.threadpool.start(worker)
 
     def get_filename(self):
         today = date.today()

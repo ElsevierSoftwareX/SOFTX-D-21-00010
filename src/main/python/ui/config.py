@@ -6,6 +6,10 @@ params = [
                                                                             "streched"},
         {'name': 'Raw auto wb', 'type': 'bool', 'value': False, 'tip': "Set true if raw image' white balance should be"
                                                                        " set automatically"},
+        {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'tip': "Use prominent text such as"
+                                                                                          " COVID"},
+        {'name': 'Strip text is on the right', 'type': 'bool', 'value': False, 'tip': "Set true if test is right of the"
+                                                                                      " sensor"},
         {'name': 'POCT size', 'type': 'group', 'children': [
             {'name': 'width', 'type': 'int', 'value': 10},
             {'name': 'height', 'type': 'int', 'value': 10},
@@ -46,8 +50,8 @@ params = [
 key_map = {
     'raw_auto_stretch': 'raw_auto_stretch',
     'raw_auto_wb': 'raw_auto_wb',
-    'strip_text_to_search': 'strip_text_to_search',
-    'strip_text_on_right': 'strip_text_on_right',
+    'strip_text_to_search_(orientation)': 'strip_text_to_search',
+    'strip_text_is_on_the_right': 'strip_text_on_right',
     'poct_size': 'strip_size',
     'sensor_center': 'sensor_center',
     'sensor_size': 'sensor_size',
