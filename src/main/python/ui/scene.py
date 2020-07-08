@@ -68,7 +68,7 @@ class Scene(QGraphicsScene):
 
         self.pixmap = pixmap_reflect
 
-        self.addPolygonItems()
+        self.addCompositePolygon()
 
     def addCompositePolygon(self):
         """
