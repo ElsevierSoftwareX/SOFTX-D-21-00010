@@ -68,20 +68,18 @@ class Scene(QGraphicsScene):
 
         self.pixmap = pixmap_reflect
 
-    # def removeCompositeLine(self):
-    #     """
-    #     Remove CompositeLine if it exists from the scene, but does not
-    #     delete the object.
-    #     """
-    #     for item in self.items():
-    #         if type(item) is ui.Vertex or type(item) is ui.Line:
-    #             self.removeItem(item)
+        self.addPolygonItems()
 
-    # def mousePressEvent(self, event):
-    #      print('-')
-    #      print(event.scenePos())
-    #      print(event.pos())
-    #      print('-')
+    def addCompositePolygon(self):
+        """
+        Add CompositePolygon if it exists and make sure that it is always on top.
+        """
+        for item in self.items():
+            if type(item) is QGraphicsPixmapItem:
+                item.setZValue(0)
+            else:
+                item.setZValue(10)
+            self.addItem(item)
 
     def removeCompositePolygon(self):
         """
@@ -100,7 +98,6 @@ class Scene(QGraphicsScene):
         :param event: A mouse press event.
         :return:
         """
-        print('clicked')
         if event.buttons() == Qt.LeftButton:
             x = event.scenePos().x()
             y = event.scenePos().y()

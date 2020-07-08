@@ -313,7 +313,7 @@ class MainWindow(QMainWindow):
         )
 
     def run_worker(self, input_dir, output_dir, settings):
-        worker = Worker(self.run_pipeline(input_dir, output_dir, settings))
+        worker = Worker(self.run_pipeline, input_dir, output_dir, settings)
         self.threadpool.start(worker)
 
     def get_filename(self):
@@ -358,7 +358,7 @@ class MainWindow(QMainWindow):
             strip_size = (rect_strip.width(), rect_strip.height())
             sensor_size = (rect_sensor.width(), rect_sensor.height())
             sensor_center = (rect_sensor.x() - rect_strip.x() + rect_sensor.width() / 2, rect_sensor.y() -
-                             rect_strip.y() + rect_sensor.height())
+                             rect_strip.y() + rect_sensor.height() / 2)
             sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
             # Update the parameters in the parameterTree
             self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[1])
