@@ -17,6 +17,7 @@ from ui.compositePolygon import CompositePolygon
 from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
 from ui.log import LogTextEdit
+from ui.help import About, QuickInstructions
 from pyPOCQuant.pipeline_FH import run_FH
 
 
@@ -29,8 +30,16 @@ class MainWindow(QMainWindow):
 
         # Add filemenu
         self.action_save_settings_file.triggered.connect(self.on_save_settings_file)
+        self.action_save_settings_file.setShortcut("Ctrl+S")
         self.action_load_settings_file.triggered.connect(self.on_load_settings_file)
+        self.action_load_settings_file.setShortcut("Ctrl+O")
         self.actionQuit.triggered.connect(self.close)
+        self.about_window = About()
+        self.actionAbout.setShortcut("Ctrl+A")
+        self.actionAbout.triggered.connect(self.on_about)
+        self.qi = QuickInstructions()
+        self.actionQuick_instructions.setStatusTip('Hints about how to use this program')
+        self.actionQuick_instructions.triggered.connect(self.on_quick_instructions)
 
         # Add toolbar
         tb = self.addToolBar("File")
@@ -63,6 +72,7 @@ class MainWindow(QMainWindow):
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
 
+        self.display_on_startup = None
         self.image = None
         self.image_filename = None
         self.input_dir = None
@@ -96,6 +106,7 @@ class MainWindow(QMainWindow):
 
         # Setup button connections
         self.input_btn.clicked.connect(self.on_select_input)
+        self.input_btn.setShortcut("Ctrl+I")
         self.output_btn.clicked.connect(self.on_select_output)
         self.test_btn.clicked.connect(self.on_test_pipeline)
         self.run_btn.clicked.connect(self.on_run_pipeline)
@@ -105,6 +116,29 @@ class MainWindow(QMainWindow):
         self.log.setReadOnly(True)
         self.log.appendPlainText('Welcome to pyPOCQuant')
         self.gridLayout_2.addWidget(self.log)
+
+        # Open quick instructions
+        try:
+            if self.display_on_startup is None:
+                self.display_on_startup = 2
+                self.qi.show()
+
+            elif self.display_on_startup == 2:
+                self.qi.show()
+        except Exception as e:
+            self.log.appendPlainText('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
+
+    def on_quick_instructions(self):
+        """
+        Displays the quick instructions window.
+        """
+        self.qi.show()
+
+    def on_about(self):
+        """
+        Displays the about window.
+        """
+        self.about_window.show()
 
     def on_draw_strip(self):
         self.is_draw_strip = True
