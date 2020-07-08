@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool
 from PyQt5.QtGui import QTextCursor
-from PyQt5.QtWidgets import  QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -16,6 +16,7 @@ from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
 from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
+from ui.log import LogTextEdit
 from pyPOCQuant.pipeline_FH import run_FH
 
 
@@ -82,29 +83,11 @@ class MainWindow(QMainWindow):
         # self.t = ParameterTree()
         self.paramTree.setParameters(self.p, showTop=False)
 
-        # @todo fix layout
-        # self.gridlayout.removeWidget(self.entries[row])
-        # self.entries[row].deleteLater()
-        # self.verticalLayout_2.replaceWidget(self.graphicsView, self.t)
-        # self.verticalLayout_2.addWidget(self.t)
-        # self.graphicsView.deleteLater()
-        # self.t.setFixedSize(QSize(400, 300))
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        # sizePolicy.setHeightForWidth(False)
-        # self.graphicsView.setSizePolicy(sizePolicy)
-        # self.label_2.setStyleSheet('background: yellow')
-        # self.label.setStyleSheet('background: yellow')
-        # print(self.label.frameGeometry())
-        # self.label_2.setMaximumSize(QSize(350, 20))
-        # self.label_3.setMaximumSize(QSize(350, 20))
-        # self.listView.setMinimumSize(QSize(350, 200))
-        # self.itemAt(4).insertWidget(0, self.t)
-
-        # self.gridLayout_3.addWidget(self.t, 7, 0)
-
+        # Instantiate ThreadPool
         self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(1)
 
-        # Setup buttons
+        # Setup button connections
         self.input_btn.clicked.connect(self.on_select_input)
         self.output_btn.clicked.connect(self.on_select_output)
         self.test_btn.clicked.connect(self.on_test_pipeline)
@@ -148,7 +131,6 @@ class MainWindow(QMainWindow):
 
     def on_test_pipeline(self):
 
-        print('Test run')
         # 1. Create a temp directory
         # Make sure the results folder exists
         self.test_dir = Path(self.input_dir / "test")
@@ -160,38 +142,10 @@ class MainWindow(QMainWindow):
         # Save parameters into input folder with timestamp
         self.save_settings(settings, str(self.test_dir / self.get_filename()))
         self.run_number = +1
-
         # 4. Run pipeline on this one image only with QC == True
         settings['qc'] = True
-        # @todo either to console or to a log window in the ui
-        self.log.appendPlainText(f"")
-        self.log.appendPlainText(f"Starting analysis with parameters:")
-        self.log.appendPlainText(f"               Settings file version: {settings['file_version']}")
-        self.log.appendPlainText(f"                               Input: {self.test_dir}")
-        self.log.appendPlainText(f"                              Output: {self.test_dir}")
-        self.log.appendPlainText(f"                 Max number of cores: {settings['max_workers']}")
-        self.log.appendPlainText(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
-        self.log.appendPlainText(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
-        self.log.appendPlainText(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
-        self.log.appendPlainText(f"          Strip text is on the right: {settings['strip_text_on_right']}")
-        self.log.appendPlainText(f"                          Strip size: {settings['strip_size']}")
-        self.log.appendPlainText(f"                           Min score: {settings['min_sensor_score']:.2f}")
-        self.log.appendPlainText(f"                      QR code border: {settings['qr_code_border']}")
-        self.log.appendPlainText(f"               Perform sensor search: {settings['perform_sensor_search']}")
-        self.log.appendPlainText(f"                         Sensor size: {settings['sensor_size']}")
-        self.log.appendPlainText(f"                       Sensor center: {settings['sensor_center']}")
-        self.log.appendPlainText(f"                  Sensor search area: {settings['sensor_search_area']}")
-        self.log.appendPlainText(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
-        self.log.appendPlainText(f"                       Sensor border: {settings['sensor_border']}")
-        self.log.appendPlainText(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
-        self.log.appendPlainText(f"          Subtract signal background: {settings['subtract_background']}")
-        self.log.appendPlainText(f"                      Verbose output: {settings['verbose']}")
-        self.log.appendPlainText(f"      Create quality-control figures: {settings['qc']}")
-        self.log.appendPlainText(f"")
-
         # Run the pipeline
         self.run_worker(input_dir=self.test_dir, output_dir=self.test_dir, settings=settings)
-
         # 5. Display control images by opening the test folder
         webbrowser.open(str(self.test_dir))
 
@@ -201,65 +155,8 @@ class MainWindow(QMainWindow):
         settings = self.get_parameters()
         # Save into input folder with timestamp
         self.save_settings(settings, str(self.input_dir / self.get_filename()))
-        print(settings)
-
-        # Inform
-        # @todo either to console or to a log window in the ui
-        self.log.appendPlainText(f"")
-        self.log.appendPlainText(f"Starting analysis with parameters:")
-        self.log.appendPlainText(f"               Settings file version: {settings['file_version']}")
-        self.log.appendPlainText(f"                               Input: {self.input_dir}")
-        self.log.appendPlainText(f"                              Output: {self.output_dir}")
-        self.log.appendPlainText(f"                 Max number of cores: {settings['max_workers']}")
-        self.log.appendPlainText(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
-        self.log.appendPlainText(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
-        self.log.appendPlainText(f"                          Strip size: {settings['strip_size']}")
-        self.log.appendPlainText(f"                           Min score: {settings['min_sensor_score']:.2f}")
-        self.log.appendPlainText(f"                      QR code border: {settings['qr_code_border']}")
-        self.log.appendPlainText(f"               Perform sensor search: {settings['perform_sensor_search']}")
-        self.log.appendPlainText(f"                         Sensor size: {settings['sensor_size']}")
-        self.log.appendPlainText(f"                       Sensor center: {settings['sensor_center']}")
-        self.log.appendPlainText(f"                  Sensor search area: {settings['sensor_search_area']}")
-        self.log.appendPlainText(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
-        self.log.appendPlainText(f"                       Sensor border: {settings['sensor_border']}")
-        self.log.appendPlainText(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
-        self.log.appendPlainText(f"          Subtract signal background: {settings['subtract_background']}")
-        self.log.appendPlainText(f"                      Verbose output: {settings['verbose']}")
-        self.log.appendPlainText(f"      Create quality-control figures: {settings['qc']}")
-        self.log.appendPlainText(f"")
-
-        # @todo implement me
-        # @todo run pipeline (either from python directly or as system command)
-        # Run the pipeline
-        # run_TPH(
-        #     self.input_dir,
-        #     self.output_dir,
-        #     nef_auto_stretch=settings['nef_auto_stretch'],
-        #     nef_auto_wb=settings['nef_auto_wb'],
-        #     strip_size=settings['strip_size'],
-        #     min_strip_corr_coeff=settings['min_strip_corr_coeff'],
-        #     min_sensor_score=settings['min_sensor_score'],
-        #     lower_bound_range=settings['lower_bound_range'],
-        #     upper_bound_range=settings['upper_bound_range'],
-        #     qr_code_border=settings['qr_code_border'],
-        #     qr_code_spacer=settings['qr_code_spacer'],
-        #     barcode_border=settings['barcode_border'],
-        #     skip_strip_registration=settings['skip_strip_registration'],
-        #     perform_sensor_search=settings['perform_sensor_search'],
-        #     sensor_size=settings['sensor_size'],
-        #     sensor_center=settings['sensor_center'],
-        #     sensor_search_area=settings['sensor_search_area'],
-        #     force_sensor_size=settings['force_sensor_size'],
-        #     sensor_thresh_factor=settings['sensor_thresh_factor'],
-        #     sensor_border_x=settings['sensor_border_x'],
-        #     sensor_border_y=settings['sensor_border_y'],
-        #     peak_expected_relative_location=settings['peak_expected_relative_location'],
-        #     subtract_background=settings['subtract_background'],
-        #     verbose=settings['verbose'],
-        #     qc=settings['qc'],
-        #     max_workers=settings['max_workers']
-        # )
-
+        # Run full pipeline
+        self.run_worker(input_dir=self.input_dir, output_dir=self.output_dir, settings=settings)
         # Display control images by opening the output folder
         webbrowser.open(str(self.output_dir))
 
@@ -287,6 +184,32 @@ class MainWindow(QMainWindow):
             self.image_filename = ix.data()
 
     def run_pipeline(self, input_dir, output_dir, settings):
+        # Inform the user
+        self.log.appendPlainText(f"")
+        self.log.appendPlainText(f"Starting analysis with parameters:")
+        self.log.appendPlainText(f"               Settings file version: {settings['file_version']}")
+        self.log.appendPlainText(f"                               Input: {self.test_dir}")
+        self.log.appendPlainText(f"                              Output: {self.test_dir}")
+        self.log.appendPlainText(f"                 Max number of cores: {settings['max_workers']}")
+        self.log.appendPlainText(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
+        self.log.appendPlainText(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
+        self.log.appendPlainText(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
+        self.log.appendPlainText(f"          Strip text is on the right: {settings['strip_text_on_right']}")
+        self.log.appendPlainText(f"                          Strip size: {settings['strip_size']}")
+        self.log.appendPlainText(f"                           Min score: {settings['min_sensor_score']:.2f}")
+        self.log.appendPlainText(f"                      QR code border: {settings['qr_code_border']}")
+        self.log.appendPlainText(f"               Perform sensor search: {settings['perform_sensor_search']}")
+        self.log.appendPlainText(f"                         Sensor size: {settings['sensor_size']}")
+        self.log.appendPlainText(f"                       Sensor center: {settings['sensor_center']}")
+        self.log.appendPlainText(f"                  Sensor search area: {settings['sensor_search_area']}")
+        self.log.appendPlainText(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
+        self.log.appendPlainText(f"                       Sensor border: {settings['sensor_border']}")
+        self.log.appendPlainText(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
+        self.log.appendPlainText(f"          Subtract signal background: {settings['subtract_background']}")
+        self.log.appendPlainText(f"                      Verbose output: {settings['verbose']}")
+        self.log.appendPlainText(f"      Create quality-control figures: {settings['qc']}")
+        self.log.appendPlainText(f"")
+
         # Run the pipeline
         run_FH(
             input_dir,
@@ -362,20 +285,12 @@ class MainWindow(QMainWindow):
             rect_strip = currentStripPolygon._polygon_item.sceneBoundingRect()
             c_o_m_sensor = currentSensorPolygon.getCenterOfMass()
             rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
-            print('calc')
-            print(rect_sensor.x() - rect_strip.x(), rect_sensor.y() - rect_strip.y())
-            print(c_o_m_strip, c_o_m_sensor)
-            print(rect_strip, rect_sensor)
-            print('----')
+
             strip_size = (rect_strip.width(), rect_strip.height())
             sensor_size = (rect_sensor.width(), rect_sensor.height())
             sensor_center = (rect_sensor.x() - rect_strip.x() + rect_sensor.width() / 2, rect_sensor.y() -
                              rect_strip.y() + rect_sensor.height())
             sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
-            self.log.appendPlainText(f'strip_size {strip_size}')
-            self.log.appendPlainText(f'sensor_size {sensor_size}')
-            self.log.appendPlainText(f'sensor_center {sensor_center}')
-            self.log.appendPlainText(f'sensor_search_area {sensor_search_area}')
             # Update the parameters in the parameterTree
             self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[0])
             self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_size[1])
@@ -390,13 +305,7 @@ class MainWindow(QMainWindow):
 
     def mousePressEvent(self, event):
         # Mouse press
-
         # @todo fix this annoying coordintnate mapping of view/scene is in a gridLayout
-        # print('---------')
-        # print('global', event.globalPos())
-        #
-        # print('pos', event.pos())
-        # pos = self.view.mapToScene(event.pos())
         pos = event.pos()
         # print('maptoscne', pos)
         # # print('maptoscne', event.pos())
@@ -404,9 +313,6 @@ class MainWindow(QMainWindow):
         newPos = QPoint(pos.x()-viewPos.width(), pos.y())
         # print('new pos', newPos)
         pp = self.view.mapToScene(pos) #self.view.mapToScene(newPos)
-        # pp = self.view.mapToScene(event.pos())
-        # print('delta', self.view.zoom)
-        # print(self.view.rect())
 
         if self.is_draw_sensor is True:
             currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -448,34 +354,3 @@ class MainWindow(QMainWindow):
             self.set_sensor_and_strip_parameter()
             pass
             super().mousePressEvent(event)
-
-
-class LogTextEdit(QPlainTextEdit):
-    """
-    Adopted from
-    https://stackoverflow.com/questions/53381975/display-terminal-output-with-tqdm-in-qplaintextedit
-    """
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.flag = False
-
-    def write(self, message):
-        if not hasattr(self, "flag"):
-            self.flag = False
-        message = message.replace('\r', '').rstrip()
-        if message:
-            method = "replace_last_line" if self.flag else "appendPlainText"
-            QMetaObject.invokeMethod(self, method, Qt.QueuedConnection, Q_ARG(str, message))
-            self.flag = True
-        else:
-            self.flag = False
-
-    @pyqtSlot(str)
-    def replace_last_line(self, text):
-        cursor = self.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.select(QTextCursor.BlockUnderCursor)
-        cursor.removeSelectedText()
-        cursor.insertBlock()
-        self.setTextCursor(cursor)
-        self.insertPlainText(text)
