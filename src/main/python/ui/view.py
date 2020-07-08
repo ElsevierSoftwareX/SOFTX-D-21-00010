@@ -36,3 +36,21 @@ class View(QGraphicsView):
         delta = new_pos - old_pos
         self.zoom = delta
         self.translate(delta.x(), delta.y())
+
+    def zoom_in(self):
+        """
+        Zoom the scene in
+        """
+        zoom_in_factor = 1.25
+
+        f = float(zoom_in_factor)
+        self.scale(f, f)
+
+    def zoom_out(self):
+        """
+        Zoom the scene out
+        """
+        zoom_out_factor = 1.25
+
+        f = 1.0 / float(zoom_out_factor)
+        self.scale(f, f)

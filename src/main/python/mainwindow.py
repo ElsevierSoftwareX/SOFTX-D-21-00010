@@ -157,10 +157,10 @@ class MainWindow(QMainWindow):
         self.scene.display_image()
 
     def on_zoom_in(self):
-        print('implement me')
+        self.view.zoom_in()
 
     def on_zoom_out(self):
-        print('implement me')
+        self.view.zoom_out()
 
     def on_rotate_cw(self):
         self.scene.rotate = self.scene.rotate + 90
