@@ -77,6 +77,8 @@ class MainWindow(QMainWindow):
         print(img.shape)
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0)
+        self.scene.signal_add_object_at_position.connect(
+            self.handle_add_object_at_position)
         self.view = View(self.scene)
         self.gridLayout_3.replaceWidget(self.viewO, self.view)
         self.viewO.deleteLater()
@@ -294,16 +296,13 @@ class MainWindow(QMainWindow):
                 for keyy, valuee in value[1].items():
                     if valuee[0] is None:
                         for keyyy, valueee in valuee[1].items():
-                            # print(keyy, keyyy, '->', valueee[0])
                             if keyy.lower().replace(' ', '_') in dd:
                                 dd[keyy.lower().replace(' ', '_')] = dd[keyy.lower().replace(' ', '_')] + (valueee[0],)
                             else:
                                 dd[keyy.lower().replace(' ', '_')] = (valueee[0],)
                     else:
-                        # print(keyy, '->', valuee[0])
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
-            print(parameters)
             return parameters
 
     @staticmethod
@@ -328,27 +327,19 @@ class MainWindow(QMainWindow):
                              rect_strip.y() + rect_sensor.height())
             sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
             # Update the parameters in the parameterTree
-            self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[0])
-            self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_size[1])
-            self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[0])
-            self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[1])
-            self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[0])
-            self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[1])
-            self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[0])
-            self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[1])
+            self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[1])
+            self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_size[0])
+            self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
+            self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
+            self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
+            self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
+            self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
+            self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
         else:
             self.log.appendPlainText('Please draw POC test outline and sensor outline first')
 
-    def mousePressEvent(self, event):
-        # Mouse press
-        # @todo fix this annoying coordintnate mapping of view/scene is in a gridLayout
-        pos = event.pos()
-        # print('maptoscne', pos)
-        # # print('maptoscne', event.pos())
-        viewPos = self.view.rect()
-        newPos = QPoint(pos.x()-viewPos.width(), pos.y())
-        # print('new pos', newPos)
-        pp = self.view.mapToScene(pos) #self.view.mapToScene(newPos)
+    @pyqtSlot(float, float, name="handle_add_object_at_position")
+    def handle_add_object_at_position(self, x, y):
 
         if self.is_draw_sensor is True:
             currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -365,7 +356,7 @@ class MainWindow(QMainWindow):
 
             # Add the vertices
             if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
-                currentSensorPolygon.addVertex(pp)
+                currentSensorPolygon.addVertex(QPointF(x, y))
             self.set_sensor_and_strip_parameter()
 
         elif self.is_draw_strip is True:
@@ -383,13 +374,8 @@ class MainWindow(QMainWindow):
 
             # Add the vertices
             if len(currentStripPolygon._polygon_item.polygon_vertices) < 4:
-                currentStripPolygon.addVertex(pp)
+                currentStripPolygon.addVertex(QPointF(x, y))
             self.set_sensor_and_strip_parameter()
-
-        else:
-            self.set_sensor_and_strip_parameter()
-            pass
-            super().mousePressEvent(event)
 
     def closeEvent(self, event):
 

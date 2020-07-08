@@ -10,6 +10,7 @@ class View(QGraphicsView):
         """Constructor."""
         super(View, self).__init__(*args, **kwargs)
         self.zoom = 1
+        self.setMouseTracking(True)
 
     def wheelEvent(self, event):
         """
