@@ -65,7 +65,7 @@ key_map = {
     'qr_code_border': 'qr_code_border',
     'subtract_background': 'subtract_background',
     'peak_expected_relative_location': 'peak_expected_relative_location',
-    'number_of_cores_(min=1;max=8)': 'max_workers',
+    'Number of cores (min=1;max={})'.format(multiprocessing.cpu_count()): 'max_workers',
     'qc': 'qc',
     'verbose': 'verbose',
     'file_version': 'file_version'
