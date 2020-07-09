@@ -22,7 +22,7 @@ from pyPOCQuant.pipeline_FH import run_FH
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, ui, parent=None):
+    def __init__(self, ui, splash, parent=None):
         super().__init__(parent)
         uic.loadUi(ui, self)
 
@@ -74,6 +74,7 @@ class MainWindow(QMainWindow):
 
         self.display_on_startup = None
         self.image = None
+        self.splash = splash
         self.image_filename = None
         self.input_dir = None
         self.output_dir = None
@@ -83,7 +84,7 @@ class MainWindow(QMainWindow):
         self.config_file_name = None
         self.run_number = 1
 
-        img = imageio.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../resources/img/pyPOCQuantSplash-01.png"))
+        img = imageio.imread(self.splash)
         print(img.shape)
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0)

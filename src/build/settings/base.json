@@ -1,6 +1,9 @@
 {
     "app_name": "pyPOCQuant",
     "author": "Andreas P. Cuny",
-    "main_module": "src/main/python/main.py",
-    "version": "0.0.0"
+    "main_module": "src/main/python/pyPOCQuantUI/main.py",
+    "version": "0.0.1",
+    "hidden_imports": ["scipy", "scipy.linalg", "scipy.signal", "scipy._lib.messagestream", "scipy_libs", "sklearn",
+    "pywt", "skimage",  "pyzbar"],
+    "paths": ["C:/Users/sc/AppData/Local/Programs/Python/Python36/Lib/site-packages/scipy/extra-dll"]
 }

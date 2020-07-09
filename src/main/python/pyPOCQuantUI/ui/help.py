@@ -15,9 +15,14 @@ from PyQt5.QtWidgets import QPushButton, QApplication, QStyle, \
     QTextBrowser, QWidget, QGridLayout, QTextEdit, QCheckBox, QVBoxLayout, QLabel
 from PyQt5.Qt import QFont, QIcon
 from PyQt5.QtCore import Qt
-from .__init__ import __version__, __operating_system__
+import platform
+
 
 __author__ = 'Andreas P. Cuny'
+
+__version__ = '0.0.1'
+
+__operating_system__ = '{} {}'.format(platform.system(), platform.architecture()[0])
 
 
 class QuickInstructions(QWidget):
