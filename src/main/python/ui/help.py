@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QApplication, QStyle, \
     QTextBrowser, QWidget, QGridLayout, QTextEdit, QCheckBox, QVBoxLayout, QLabel
 from PyQt5.Qt import QFont, QIcon
+from PyQt5.QtCore import Qt
 from .__init__ import __version__, __operating_system__
 
 __author__ = 'Andreas P. Cuny'
@@ -28,6 +29,7 @@ class QuickInstructions(QWidget):
         super(QuickInstructions, self).__init__(parent)
         # self.setAttribute(Qt.WA_DeleteOnClose) # Deletes instance on window close
         self.setWindowTitle('pyPOCQuant :: Quick instructions')
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.display_on_startup = 2
         self.resize(400, 370)
         # self.setWindowIcon(QtGui.QIcon(resource_path(os.path.join(os.path.join("ui", "icons",
@@ -94,10 +96,12 @@ class About(QWidget):
 
         self.le = QLabel()
         self.build = QLabel("[build: v%s %s bit]" % (__version__, __operating_system__))
-        self.author = QLabel("pyPOCQuant: Point of Care Test\nQuantification tool. \n\nwritten by Andreas P. Cuny")
+        self.author = QLabel("pyPOCQuant: Point of Care Test\nQuantification tool. \n\nwritten by Andreas P. Cuny "
+                             "and Aaron Ponti")
         self.license = QLabel("Licensed under the GPL v3 license.")
-        self.copyright = QLabel("\u00a9 Copyright  Andreas P. Cuny \n2018-2019. All rights reserved. \
-                                \nCSB Laboratory @ ETH Zurich\nMattenstrasse 26 \n4058 Basel Switzerland")
+        self.copyright = QLabel("\u00a9 Copyright  Andreas P. Cuny and Aaron Ponti \n2020. All rights reserved. \
+                                \nCSB Laboratory & SCF @ ETH Zurich "
+                                "\nMattenstrasse 26 \n4058 Basel Switzerland ")
         self.dependencies = QTextBrowser()
         self.dependencies.setHtml("The authors appreciate and use the following 3rd parties libraries: <br> \
                                 <br>Python v3.5, under the <a href=https://docs.python.org/3/license.html>PSF License</a> \

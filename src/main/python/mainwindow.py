@@ -172,6 +172,18 @@ class MainWindow(QMainWindow):
 
     def on_test_pipeline(self):
 
+        if self.input_dir is None or self.image_filename is None:
+            if not self.input_dir:
+                msg = "Please select an input folder first."
+            elif not self.image_filename:
+                msg = "Please select a test image first"
+            reply = QMessageBox.question(self, 'Message', msg, QMessageBox.Ok)
+
+            if reply == QMessageBox.Ok:
+                return
+            else:
+                return
+
         # 1. Create a temp directory
         # Make sure the results folder exists
         self.test_dir = Path(self.input_dir / "test")
@@ -191,6 +203,18 @@ class MainWindow(QMainWindow):
         webbrowser.open(str(self.test_dir))
 
     def on_run_pipeline(self):
+
+        if self.input_dir is None or self.output_dir is None:
+            if not self.input_dir:
+                msg = "Please select an input folder first."
+            elif not self.output_dir:
+                msg = "Please select an output folder first"
+            reply = QMessageBox.question(self, 'Message', msg, QMessageBox.Ok)
+
+            if reply == QMessageBox.Ok:
+                return
+            else:
+                return
 
         # Get parameter values and save them to a config file
         settings = self.get_parameters()
@@ -212,10 +236,12 @@ class MainWindow(QMainWindow):
         self.listView.setModel(self.fileModel)
         self.listView.setRootIndex(self.fileModel.index(str(self.input_dir)))
         self.listView.selectionModel().selectionChanged.connect(self.on_file_selection_changed)
+        self.log.appendPlainText(f"Selected input folder: {self.input_dir}")
 
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.output_edit.setText(str(self.output_dir))
+        self.log.appendPlainText(f"Selected output folder: {self.output_dir}")
 
     def on_file_selection_changed(self, selected):
         for ix in selected.indexes():
@@ -370,7 +396,8 @@ class MainWindow(QMainWindow):
             self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
             self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
         else:
-            self.log.appendPlainText('Please draw POC test outline and sensor outline first')
+            pass
+            # self.log.appendPlainText('Please draw POC test outline and sensor outline first')
 
     @pyqtSlot(float, float, name="handle_add_object_at_position")
     def handle_add_object_at_position(self, x, y):
@@ -391,6 +418,7 @@ class MainWindow(QMainWindow):
             # Add the vertices
             if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
                 currentSensorPolygon.addVertex(QPointF(x, y))
+                self.log.appendPlainText('Drawing sensor corner')
             self.set_sensor_and_strip_parameter()
 
         elif self.is_draw_strip is True:
@@ -409,6 +437,7 @@ class MainWindow(QMainWindow):
             # Add the vertices
             if len(currentStripPolygon._polygon_item.polygon_vertices) < 4:
                 currentStripPolygon.addVertex(QPointF(x, y))
+                self.log.appendPlainText('Drawing POCT corner')
             self.set_sensor_and_strip_parameter()
 
     def closeEvent(self, event):
