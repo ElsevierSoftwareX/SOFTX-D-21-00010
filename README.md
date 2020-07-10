@@ -4,7 +4,17 @@ User interface for pyPOCQuant
 
 
 
-To start the UI navigate to the folder `/pypocquantui` and run:
+To install the UI download the binaries from 
+
+```
+\wetlab\WetTools\pyPOCQuantSetup
+```
+
+and follow the installer instructions.
+
+
+
+To start the UI from source navigate to the folder `/pypocquantui` and run:
 
 ```python
 fbs run
@@ -22,7 +32,3 @@ fbs freeze
 ```
 
 
-
-Further resources:
-
-https://build-system.fman.io/manual/
