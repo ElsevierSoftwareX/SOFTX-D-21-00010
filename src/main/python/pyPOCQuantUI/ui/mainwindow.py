@@ -19,6 +19,7 @@ from ui.worker import Worker
 from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
 from pypocquant.pipeline_FH import run_FH
+import pypocquant as pq
 
 
 class MainWindow(QMainWindow):
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow):
         self.about_window = About()
         self.actionAbout.setShortcut("Ctrl+A")
         self.actionAbout.triggered.connect(self.on_about)
+        self.actionManual.triggered.connect(self.on_manual)
         self.qi = QuickInstructions()
         self.actionQuick_instructions.setStatusTip('Hints about how to use this program')
         self.actionQuick_instructions.triggered.connect(self.on_quick_instructions)
@@ -71,7 +73,6 @@ class MainWindow(QMainWindow):
 
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
-
         self.display_on_startup = None
         self.image = None
         self.splash = splash
@@ -140,6 +141,15 @@ class MainWindow(QMainWindow):
         Displays the about window.
         """
         self.about_window.show()
+
+    def on_manual(self):
+        """
+        Displays the instruction manual.
+        """
+        path = Path(Path(pq.__file__).parent)
+        path = Path(path).joinpath('manual', 'UserInstructions.html')
+        print(path)
+        webbrowser.open(str(path))
 
     def on_draw_strip(self):
         self.is_draw_strip = True
@@ -333,8 +343,7 @@ class MainWindow(QMainWindow):
             sensor_center=settings['sensor_center'],
             sensor_search_area=settings['sensor_search_area'],
             sensor_thresh_factor=settings['sensor_thresh_factor'],
-            sensor_border_x=settings['sensor_border'][0],
-            sensor_border_y=settings['sensor_border'][1],
+            sensor_border=settings['sensor_border'],
             peak_expected_relative_location=settings['peak_expected_relative_location'],
             subtract_background=settings['subtract_background'],
             verbose=settings['verbose'],
