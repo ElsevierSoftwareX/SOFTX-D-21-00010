@@ -1,0 +1,3 @@
+[submodule "src/main/python/pyPOCQuantUI/pypocquant"]
+	path = src/main/python/pyPOCQuantUI/pypocquant
+	url = https://git.bsse.ethz.ch/cunya/pypocquant

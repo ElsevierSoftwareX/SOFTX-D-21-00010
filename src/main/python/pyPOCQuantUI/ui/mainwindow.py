@@ -18,7 +18,7 @@ from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
 from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
-from pyPOCQuant.pipeline_FH import run_FH
+from pypocquant.pipeline_FH import run_FH
 
 
 class MainWindow(QMainWindow):
