@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
         if file_name:
             settings = self.get_parameters()
             # Save parameters into input folder with timestamp
-            save_settings(settings, file_name + '.conf')
+            save_settings(settings, Path(file_name).stem + '.conf')
             self.log.appendPlainText(f"Saved config file under: {file_name}")
 
     def on_load_settings_file(self):
@@ -267,6 +267,9 @@ class MainWindow(QMainWindow):
                                                                        "Config Files (*.conf)")
         if file_name:
             settings = load_settings(file_name)
+            if 'strip_text_to_search' in settings:
+                if settings['strip_text_to_search'] == '':
+                    settings['strip_text_to_search'] = '""'
             self.load_parameters(settings)
             self.log.appendPlainText(f"Loaded config : {file_name}")
 
@@ -364,6 +367,10 @@ class MainWindow(QMainWindow):
                     else:
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
+            if parameters['strip_text_to_search'] == '""':
+                pass
+            else:
+                parameters['strip_text_to_search'] = '\"{}\"'.format(parameters['strip_text_to_search'])
             return parameters
 
     @staticmethod
