@@ -26,10 +26,11 @@ class Scene(QGraphicsScene):
         self.mirror_v = -1
         self.mirror_h = 1
 
-    def display_image(self, image_path=None):
+    def display_image(self, image_path=None, image=None):
         """
         Stores and displays an image
         :param image_path: full path to the image to display
+        :param image: image matrix to display
         :return: void
         """
 
@@ -41,6 +42,9 @@ class Scene(QGraphicsScene):
             # print(gray)
 
             self.image = pg.ImageItem(img)
+
+        if image is not None:
+            self.image = pg.ImageItem(image)
 
         if self.image is None:
             return

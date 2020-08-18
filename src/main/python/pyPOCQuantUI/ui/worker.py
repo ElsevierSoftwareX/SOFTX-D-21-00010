@@ -1,4 +1,31 @@
-from PyQt5.QtCore import pyqtSlot, QRunnable
+import sys, traceback
+from PyQt5.QtCore import pyqtSlot, QRunnable, QObject, pyqtSignal
+# Adopted from https://www.learnpyqt.com/courses/concurrent-execution/multithreading-pyqt-applications-qthreadpool/
+
+
+class WorkerSignals(QObject):
+    """
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        `tuple` (exctype, value, traceback.format_exc() )
+
+    result
+        `object` data returned from processing, anything
+
+    progress
+        `int` indicating % progress
+
+    """
+    finished = pyqtSignal()
+    error = pyqtSignal(tuple)
+    result = pyqtSignal(object)
+    progress = pyqtSignal(int)
 
 
 class Worker(QRunnable):
@@ -21,10 +48,26 @@ class Worker(QRunnable):
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
 
     @pyqtSlot()
     def run(self):
         """
         Initialise the runner function with passed args, kwargs.
         """
-        self.fn(*self.args, **self.kwargs)
+        # self.fn(*self.args, **self.kwargs)
+
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done

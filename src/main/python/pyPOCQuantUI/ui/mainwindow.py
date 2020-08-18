@@ -10,6 +10,7 @@ import webbrowser
 import imageio
 import shutil
 import os
+import numpy as np
 from ui.config import params, key_map, save_settings, load_settings
 from ui.view import View
 from ui.scene import Scene
@@ -19,6 +20,7 @@ from ui.worker import Worker
 from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
 from pypocquant.pipeline_FH import run_FH
+from pypocquant.lib.tools import extract_strip
 import pypocquant as pq
 
 
@@ -84,6 +86,7 @@ class MainWindow(QMainWindow):
         self.is_draw_sensor = False
         self.config_file_name = None
         self.run_number = 1
+        self.strip_img = None
 
         img = imageio.imread(self.splash)
         print(img.shape)
@@ -96,6 +99,16 @@ class MainWindow(QMainWindow):
         self.viewO.deleteLater()
         self.scene.display_image()
         self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
+        # Set 2nd scene and view
+        self.scene_strip = Scene(pg.ImageItem(np.array([[255, 255], [255, 255]])), 0.0, 0.0, 1000.0, 450.0)
+        self.scene_strip.signal_add_object_at_position.connect(
+            self.handle_add_object_at_position)
+        self.view_strip = View(self.scene_strip)
+        self.gridLayout_3.replaceWidget(self.viewO2, self.view_strip)
+        self.viewO2.deleteLater()
+        self.scene_strip.display_image()
+        self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
+                                  Qt.KeepAspectRatio)
 
         # Setup parameter tree
         self.p = Parameter.create(name='params', type='group', children=params)
@@ -255,11 +268,22 @@ class MainWindow(QMainWindow):
         self.log.appendPlainText(f"Selected output folder: {self.output_dir}")
 
     def on_file_selection_changed(self, selected):
+        # @todo handle potential exceptions such as if a non image file gets selected
         for ix in selected.indexes():
             self.log.appendPlainText(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
             self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
             self.image_filename = ix.data()
+
+            # Extract the strip in a different thread and display it
+            self.log.appendPlainText(f"Starting POCT detection ...")
+            self.run_get_strip(Path(self.input_dir / ix.data()))
+
+    def on_strip_extraction_finished(self):
+        self.scene_strip.display_image(image=self.strip_img)
+        self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
+                                  Qt.KeepAspectRatio)
+        self.log.appendPlainText(f"POCT detection finished.")
 
     def on_save_settings_file(self):
         options = QFileDialog.Options()
@@ -301,7 +325,7 @@ class MainWindow(QMainWindow):
                         if new_key in settings:
                             gc.setValue(settings[new_key])
 
-    def run_pipeline(self, input_dir, output_dir, settings):
+    def run_pipeline(self, input_dir, output_dir, settings, progress_callback):
         # Inform the user
         self.log.appendPlainText(f"")
         self.log.appendPlainText(f"Starting analysis with parameters:")
@@ -355,6 +379,23 @@ class MainWindow(QMainWindow):
         worker = Worker(self.run_pipeline, input_dir, output_dir, settings)
         self.threadpool.start(worker)
 
+    def run_get_strip(self, image_path):
+        worker = Worker(self.set_strip, image_path)
+        worker.signals.finished.connect(self.on_strip_extraction_finished)
+        self.threadpool.start(worker)
+
+    def set_strip(self, image_path, progress_callback):
+
+        # Get parameter values
+        settings = self.get_parameters()
+        # Read the image
+        img = imageio.imread(image_path)
+        # Extract the strip
+        strip_img, _ = extract_strip(img, settings['qr_code_border'])
+        self.strip_img = strip_img
+        self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
+        self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
+
     def get_filename(self):
         today = date.today()
         datestr = today.strftime("%Y%m%d")
@@ -393,9 +434,9 @@ class MainWindow(QMainWindow):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
 
         if currentStripPolygon is not None and currentSensorPolygon is not None:
-            c_o_m_strip = currentStripPolygon.getCenterOfMass()
+            # c_o_m_strip = currentStripPolygon.getCenterOfMass()
             rect_strip = currentStripPolygon._polygon_item.sceneBoundingRect()
-            c_o_m_sensor = currentSensorPolygon.getCenterOfMass()
+            # c_o_m_sensor = currentSensorPolygon.getCenterOfMass()
             rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
 
             strip_size = (rect_strip.width(), rect_strip.height())
@@ -406,6 +447,20 @@ class MainWindow(QMainWindow):
             # Update the parameters in the parameterTree
             self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[1])
             self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_size[0])
+            self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
+            self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
+            self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
+            self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
+            self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
+            self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
+        elif currentSensorPolygon:
+
+            rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
+            sensor_size = (rect_sensor.width(), rect_sensor.height())
+            sensor_center = (rect_sensor.x() - 0 + rect_sensor.width() / 2, rect_sensor.y() -
+                             0 + rect_sensor.height() / 2)
+            sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
+            # Update the parameters in the parameterTree
             self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
             self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
             self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
@@ -427,7 +482,7 @@ class MainWindow(QMainWindow):
 
                 # Add the CompositeLine to the Scene. Note that the CompositeLine is
                 # not a QGraphicsItem itself and cannot be added to the Scene directly.
-                currentSensorPolygon.addToScene(self.scene)
+                currentSensorPolygon.addToScene(self.scene_strip)
 
                 # Store the polygon
                 self.bookKeeper.addSensorPolygon(currentSensorPolygon)
