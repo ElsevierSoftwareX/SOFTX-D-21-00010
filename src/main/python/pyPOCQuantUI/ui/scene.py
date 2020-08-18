@@ -13,13 +13,14 @@ class Scene(QGraphicsScene):
     The main Scene.
     """
 
-    signal_add_object_at_position = \
-        pyqtSignal(float, float, name='signal_add_object_at_position')
+    signal_add_object_at_position = pyqtSignal(float, float, name='signal_add_object_at_position')
+    signal_scene_nr = pyqtSignal(int, name='signal_scene_nr')
 
-    def __init__(self, image, x=0, y=0, width=500, height=500, parent=None):
+    def __init__(self, image, x=0, y=0, width=500, height=500, nr=None, parent=None):
         super().__init__(x, y, width, height, parent)
         self.setSceneRect(0, 0, width, height)
 
+        self.nr = nr
         self.image = image
         self.pixmap = None
         self.rotate = 90
@@ -106,6 +107,7 @@ class Scene(QGraphicsScene):
             x = event.scenePos().x()
             y = event.scenePos().y()
             self.signal_add_object_at_position.emit(x, y)
+            self.signal_scene_nr.emit(self.nr)
         else:
             pass
 

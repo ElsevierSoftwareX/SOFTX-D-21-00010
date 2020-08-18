@@ -9,8 +9,9 @@ class AppContext(ApplicationContext):
     def run(self):
         self.window.resize(1340, 680)
         self.window.show()
-        self.window.strip_action.setIcon(QIcon(self.get_resource("img/strip-01.png")))
+        # self.window.strip_action.setIcon(QIcon(self.get_resource("img/strip-01.png")))
         self.window.sensor_action.setIcon(QIcon(self.get_resource("img/sensor-01.png")))
+        self.window.delete_items_action.setIcon(QIcon(self.get_resource("img/sensor_trash-01.png")))
         self.window.mirror_v_action.setIcon(QIcon(self.get_resource("img/mirror_v-01.png")))
         self.window.mirror_h_action.setIcon(QIcon(self.get_resource("img/mirror_h-01.png")))
         self.window.rotate_cw_action.setIcon(QIcon(self.get_resource("img/rotate_cw-01.png")))

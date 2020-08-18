@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool
-from PyQt5.QtGui import QTextCursor
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox
+from PyQt5.QtGui import QTextCursor, QBrush, QColor
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox, QStyle
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -48,12 +48,15 @@ class MainWindow(QMainWindow):
         # Add toolbar
         tb = self.addToolBar("File")
         tb.setMovable(False)
-        self.strip_action = QAction("Draw POCT outline", self)
-        self.strip_action.triggered.connect(self.on_draw_strip)
-        tb.addAction(self.strip_action)
+        # self.strip_action = QAction("Draw POCT outline", self)
+        # self.strip_action.triggered.connect(self.on_draw_strip)
+        # tb.addAction(self.strip_action)
         self.sensor_action = QAction("Draw sensor outline", self)
         tb.addAction(self.sensor_action)
         self.sensor_action.triggered.connect(self.on_draw_sensor)
+        self.delete_items_action = QAction("Delete sensor", self)
+        tb.addAction(self.delete_items_action)
+        self.delete_items_action.triggered.connect(self.on_delete_items_action)
         self.mirror_v_action = QAction("Mirror image vertically", self)
         tb.addAction(self.mirror_v_action)
         self.mirror_v_action.triggered.connect(self.on_mirror_v)
@@ -87,22 +90,27 @@ class MainWindow(QMainWindow):
         self.config_file_name = None
         self.run_number = 1
         self.strip_img = None
+        self.current_scene = None
 
         img = imageio.imread(self.splash)
         print(img.shape)
         self.image = pg.ImageItem(img)
-        self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0)
+        self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0, nr=int(1))
         self.scene.signal_add_object_at_position.connect(
             self.handle_add_object_at_position)
+        self.scene.signal_scene_nr.connect(
+            self.on_signal_scene_nr)
         self.view = View(self.scene)
         self.gridLayout_3.replaceWidget(self.viewO, self.view)
         self.viewO.deleteLater()
         self.scene.display_image()
         self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
         # Set 2nd scene and view
-        self.scene_strip = Scene(pg.ImageItem(np.array([[255, 255], [255, 255]])), 0.0, 0.0, 1000.0, 450.0)
+        self.scene_strip = Scene(pg.ImageItem(np.array([[255, 255], [255, 255]])), 0.0, 0.0, 1000.0, 450.0, nr=int(2))
         self.scene_strip.signal_add_object_at_position.connect(
             self.handle_add_object_at_position)
+        self.scene_strip.signal_scene_nr.connect(
+            self.on_signal_scene_nr)
         self.view_strip = View(self.scene_strip)
         self.gridLayout_3.replaceWidget(self.viewO2, self.view_strip)
         self.viewO2.deleteLater()
@@ -173,26 +181,54 @@ class MainWindow(QMainWindow):
         self.is_draw_sensor = True
 
     def on_mirror_v(self):
-        self.scene.mirror_v = self.scene.mirror_v * -1
-        self.scene.display_image()
+        if self.current_scene == 1:
+            self.scene.mirror_v = self.scene.mirror_v * -1
+            self.scene.display_image()
+        else:
+            self.scene_strip.mirror_v = self.scene_strip.mirror_v * -1
+            self.scene_strip.display_image()
 
     def on_mirror_h(self):
-        self.scene.mirror_h = self.scene.mirror_h * -1
-        self.scene.display_image()
+        if self.current_scene == 1:
+            self.scene.mirror_h = self.scene.mirror_h * -1
+            self.scene.display_image()
+        else:
+            self.scene_strip.mirror_h = self.scene_strip.mirror_h * -1
+            self.scene_strip.display_image()
 
     def on_zoom_in(self):
-        self.view.zoom_in()
+        if self.current_scene == 1:
+            self.view.zoom_in()
+        else:
+            self.view_strip.zoom_in()
 
     def on_zoom_out(self):
-        self.view.zoom_out()
+        if self.current_scene == 1:
+            self.view.zoom_out()
+        else:
+            self.view_strip.zoom_out()
 
     def on_rotate_cw(self):
-        self.scene.rotate = self.scene.rotate + 90
-        self.scene.display_image()
+        if self.current_scene == 1:
+            self.scene.rotate = self.scene.rotate + 90
+            self.scene.display_image()
+        else:
+            self.scene_strip.rotate = self.scene_strip.rotate + 90
+            self.scene_strip.display_image()
 
     def on_rotate_ccw(self):
-        self.scene.rotate = self.scene.rotate - 90
-        self.scene.display_image()
+        if self.current_scene == 1:
+            self.scene.rotate = self.scene.rotate - 90
+            self.scene.display_image()
+        else:
+            self.scene_strip.rotate = self.scene_strip.rotate - 90
+            self.scene_strip.display_image()
+
+    def on_delete_items_action(self):
+        self.bookKeeper.sensorPolygon = self.bookKeeper.num_timepoints * [None]
+        self.scene_strip.removeCompositePolygon()
+        self.is_draw_sensor = False
+        self.is_draw_strip = False
 
     def on_test_pipeline(self):
 
@@ -471,27 +507,43 @@ class MainWindow(QMainWindow):
             pass
             # self.log.appendPlainText('Please draw POC test outline and sensor outline first')
 
+    @pyqtSlot(int, name="on_signal_scene_nr")
+    def on_signal_scene_nr(self, nr):
+        self.current_scene = nr
+        if nr == 1:
+            self.view.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
+            self.view_strip.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
+            self.log.appendPlainText('You are working on the raw image canvas')
+        else:
+            self.view_strip.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
+            self.view.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
+            self.log.appendPlainText('You are working on the POCT canvas')
+
     @pyqtSlot(float, float, name="handle_add_object_at_position")
     def handle_add_object_at_position(self, x, y):
 
         if self.is_draw_sensor is True:
-            currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
-            if currentSensorPolygon is None:
-                # Create a CompositePolygon
-                currentSensorPolygon = CompositePolygon()
+            if self.current_scene == 2:
+                currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
+                print(currentSensorPolygon)
+                if currentSensorPolygon is None:
+                    # Create a CompositePolygon
+                    currentSensorPolygon = CompositePolygon()
 
-                # Add the CompositeLine to the Scene. Note that the CompositeLine is
-                # not a QGraphicsItem itself and cannot be added to the Scene directly.
-                currentSensorPolygon.addToScene(self.scene_strip)
+                    # Add the CompositeLine to the Scene. Note that the CompositeLine is
+                    # not a QGraphicsItem itself and cannot be added to the Scene directly.
+                    currentSensorPolygon.addToScene(self.scene_strip)
 
-                # Store the polygon
-                self.bookKeeper.addSensorPolygon(currentSensorPolygon)
+                    # Store the polygon
+                    self.bookKeeper.addSensorPolygon(currentSensorPolygon)
 
-            # Add the vertices
-            if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
-                currentSensorPolygon.addVertex(QPointF(x, y))
-                self.log.appendPlainText('Drawing sensor corner')
-            self.set_sensor_and_strip_parameter()
+                # Add the vertices
+                if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
+                    currentSensorPolygon.addVertex(QPointF(x, y))
+                    self.log.appendPlainText('Drawing sensor corner')
+                self.set_sensor_and_strip_parameter()
+            else:
+                self.log.appendPlainText('Wrong canvas. Use the POCT canvas below.')
 
         elif self.is_draw_strip is True:
             currentStripPolygon = self.bookKeeper.getCurrentStripPolygon()
