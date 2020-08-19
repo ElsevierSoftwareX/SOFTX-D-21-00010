@@ -22,30 +22,11 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <property name="leftMargin">
-       <number>6</number>
-      </property>
-      <item row="7" column="2">
-       <widget class="QGraphicsView" name="viewO2">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>450</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" rowspan="7">
-       <widget class="View" name="viewO"/>
-      </item>
-      <item row="0" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout_Main">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_Left_Column">
         <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
+         <enum>QLayout::SetMinimumSize</enum>
         </property>
         <property name="topMargin">
          <number>3</number>
@@ -92,6 +73,12 @@
         </item>
         <item>
          <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Select the output folder (optional; if empty a subfolder is created automatically)</string>
           </property>
@@ -138,9 +125,6 @@
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetNoConstraint</enum>
-          </property>
           <item>
            <widget class="QListView" name="listView">
             <property name="sizePolicy">
@@ -160,7 +144,7 @@
           <item>
            <widget class="ParameterTree" name="paramTree">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+             <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -202,6 +186,23 @@
            </layout>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_Right_Column">
+        <item>
+         <widget class="QGraphicsView" name="viewO2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>450</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="View" name="viewO"/>
         </item>
        </layout>
       </item>
