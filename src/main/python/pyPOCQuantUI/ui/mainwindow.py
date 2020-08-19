@@ -555,11 +555,12 @@ class MainWindow(QMainWindow):
                     else:
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
+        if 'strip_text_to_search' in parameters:
             if parameters['strip_text_to_search'] == '""':
                 pass
             else:
                 parameters['strip_text_to_search'] = '\"{}\"'.format(parameters['strip_text_to_search'])
-            return parameters
+        return parameters
 
     @staticmethod
     def change_parameter_keys(parameters, key_map):
