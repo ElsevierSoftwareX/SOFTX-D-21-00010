@@ -15,6 +15,7 @@ class Scene(QGraphicsScene):
 
     signal_add_object_at_position = pyqtSignal(float, float, name='signal_add_object_at_position')
     signal_scene_nr = pyqtSignal(int, name='signal_scene_nr')
+    signal_rel_bar_pos = pyqtSignal(list, name='signal_rel_bar_pos')
 
     def __init__(self, image, x=0, y=0, width=500, height=500, nr=None, parent=None):
         super().__init__(x, y, width, height, parent)

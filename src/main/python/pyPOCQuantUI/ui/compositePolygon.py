@@ -2,6 +2,7 @@ from PyQt5.QtCore import QPointF
 
 from .circle import Circle
 from .polygon import Polygon
+from .compositeLine import CompositeLine
 
 
 class CompositePolygon:
@@ -29,6 +30,8 @@ class CompositePolygon:
 
         self._polygon_item = Polygon(self)
 
+        self._line_items = []
+
         # Do we have a scene already?
         if self._scene is not None:
             self.addToScene(self._scene)
@@ -53,8 +56,23 @@ class CompositePolygon:
         # print('print item', self._scene.mapToScene(pos))
         self._polygon_item.add_vertex(pos)
 
+    def addLine(self, relative_bar_positions):
+        """
+        Add a Line to the underlying Polygon.
+        """
+        self._polygon_item.add_line(relative_bar_positions)
+
     def getCenterOfMass(self):
         return self._polygon_item.updateCenterOfMass()
+
+    # def addLines(self, relative_bar_positions):
+    #     sensor = self._polygon_item.sceneBoundingRect()
+    #
+    #     for rel_pos in relative_bar_positions:
+    #         line = CompositeLine(pos=QPointF(sensor.x() + rel_pos * sensor.width(), sensor.y()),
+    #                              line_length=sensor.height(), scene=self._scene)
+    #         self._line_items.append(line)
+
 
         # if len(self._polygon_item.polygon_vertices) > 3:
         #     vertices = []
