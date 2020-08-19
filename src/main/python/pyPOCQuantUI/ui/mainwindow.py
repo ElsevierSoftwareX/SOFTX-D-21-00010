@@ -1,7 +1,7 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool
+from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool, QObject, pyqtSignal
 from PyQt5.QtGui import QTextCursor, QBrush, QColor
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox, QStyle
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox, QStyle, QApplication, QProgressBar
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -9,6 +9,8 @@ import pyqtgraph as pg
 import webbrowser
 import imageio
 import shutil
+import logging
+import sys
 import os
 import numpy as np
 from ui.config import params, key_map, save_settings, load_settings
@@ -19,12 +21,22 @@ from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
 from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
+from ui.stream import Stream
 from pypocquant.pipeline_FH import run_FH
 from pypocquant.lib.tools import extract_strip
 import pypocquant as pq
 
 
 class MainWindow(QMainWindow):
+
+    send_to_console_signal = pyqtSignal(str)
+    """
+        pyqtSignal used to send a text to the console.
+
+    Args:
+        message (`str`)         Text to be sent to the console
+    """
+
     def __init__(self, ui, splash, parent=None):
         super().__init__(parent)
         uic.loadUi(ui, self)
@@ -93,7 +105,6 @@ class MainWindow(QMainWindow):
         self.current_scene = None
 
         img = imageio.imread(self.splash)
-        print(img.shape)
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0, nr=int(1))
         self.scene.signal_add_object_at_position.connect(
@@ -137,8 +148,15 @@ class MainWindow(QMainWindow):
         # Setup log
         self.log = LogTextEdit()
         self.log.setReadOnly(True)
-        self.log.appendPlainText('Welcome to pyPOCQuant')
         self.gridLayout_2.addWidget(self.log)
+        sys.stderr = Stream(stream_signal=self.on_write_to_console)
+        self.logger = self.get_logger_object(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.print_to_console('Welcome to pyPOCQuant')
+
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(220, 80, 350, 20)
+        self.verticalLayout_2.addWidget(self.progress)
 
         # Open quick instructions
         try:
@@ -149,7 +167,7 @@ class MainWindow(QMainWindow):
             elif self.display_on_startup == 2:
                 self.qi.show()
         except Exception as e:
-            self.log.appendPlainText('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
+            self.print_to_console('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
 
     def on_quick_instructions(self):
         """
@@ -169,7 +187,6 @@ class MainWindow(QMainWindow):
         """
         path = Path(Path(pq.__file__).parent)
         path = Path(path).joinpath('manual', 'UserInstructions.html')
-        print(path)
         webbrowser.open(str(path))
 
     def on_draw_strip(self):
@@ -229,6 +246,7 @@ class MainWindow(QMainWindow):
         self.scene_strip.removeCompositePolygon()
         self.is_draw_sensor = False
         self.is_draw_strip = False
+        self.print_to_console(f"DELETE: Sensor outline deleted.")
 
     def on_test_pipeline(self):
 
@@ -296,30 +314,42 @@ class MainWindow(QMainWindow):
         self.listView.setModel(self.fileModel)
         self.listView.setRootIndex(self.fileModel.index(str(self.input_dir)))
         self.listView.selectionModel().selectionChanged.connect(self.on_file_selection_changed)
-        self.log.appendPlainText(f"Selected input folder: {self.input_dir}")
+        self.print_to_console(f"Selected input folder: {self.input_dir}")
 
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.output_edit.setText(str(self.output_dir))
-        self.log.appendPlainText(f"Selected output folder: {self.output_dir}")
+        self.print_to_console(f"Selected output folder: {self.output_dir}")
 
     def on_file_selection_changed(self, selected):
-        # @todo handle potential exceptions such as if a non image file gets selected
         for ix in selected.indexes():
-            self.log.appendPlainText(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
-            self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
-            self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
-            self.image_filename = ix.data()
+            self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
+            try:
+                _ = imageio.imread(Path(self.input_dir / ix.data()))
+                self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
+                self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
+                self.image_filename = ix.data()
 
-            # Extract the strip in a different thread and display it
-            self.log.appendPlainText(f"Starting POCT detection ...")
-            self.run_get_strip(Path(self.input_dir / ix.data()))
+                # Extract the strip in a different thread and display it
+                self.print_to_console(f"Extracting POCT from image ...")
+                self.run_get_strip(Path(self.input_dir / ix.data()))
+            except Exception as e:
+                self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
     def on_strip_extraction_finished(self):
         self.scene_strip.display_image(image=self.strip_img)
         self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
                                   Qt.KeepAspectRatio)
-        self.log.appendPlainText(f"POCT detection finished.")
+        self.print_to_console(f"Extracting POCT from image finished successfully.")
+
+    def on_pipeline_finished(self):
+        self.print_to_console(f"Results written to {Path(self.output_dir / 'quantification_data.csv')}")
+        self.print_to_console(f"Logfile written to {Path(self.output_dir / 'log.txt')}")
+        self.print_to_console(f"Settings written to {Path(self.output_dir / 'settings.txt')}")
+        self.print_to_console(f"Batch analysis pipeline finished successfully.")
+
+    def on_progress(self, i):
+        self.print_to_console("%d%% done" % i)
 
     def on_save_settings_file(self):
         options = QFileDialog.Options()
@@ -330,7 +360,7 @@ class MainWindow(QMainWindow):
             settings = self.get_parameters()
             # Save parameters into input folder with timestamp
             save_settings(settings, Path(file_name).stem + '.conf')
-            self.log.appendPlainText(f"Saved config file under: {file_name}")
+            self.print_to_console(f"Saved config file under: {file_name}")
 
     def on_load_settings_file(self):
         file_name, _ = QFileDialog.getOpenFileName(self, 'Open file', '', "All Files (*);;Text Files (*.txt);; "
@@ -341,7 +371,31 @@ class MainWindow(QMainWindow):
                 if settings['strip_text_to_search'] == '':
                     settings['strip_text_to_search'] = '""'
             self.load_parameters(settings)
-            self.log.appendPlainText(f"Loaded config : {file_name}")
+            self.print_to_console(f"Loaded config : {file_name}")
+
+    def on_write_to_console(self, text):
+        """
+        Writes new text to the console at the last text cursor position
+
+        Args:
+            text (`str`):   Text to be shown on the console.
+        """
+        cursor = self.log.textCursor()
+        cursor.movePosition(QTextCursor.NoMove)
+        cursor.insertText(text)
+        self.log.setTextCursor(cursor)
+        self.log.ensureCursorVisible()
+
+    def show_console(self):
+        """
+        Show and hide the console with the program log.
+        """
+        if self.consoleDock.isVisible():
+            self.consoleDock.hide()
+            self.actionView_Console.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogCancelButton))
+        else:
+            self.consoleDock.show()
+            self.actionView_Console.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogApplyButton))
 
     def load_parameters(self, settings):
         # Populate parameter tree
@@ -361,32 +415,32 @@ class MainWindow(QMainWindow):
                         if new_key in settings:
                             gc.setValue(settings[new_key])
 
-    def run_pipeline(self, input_dir, output_dir, settings, progress_callback):
+    def run_pipeline(self, input_dir, output_dir, settings):
         # Inform the user
-        self.log.appendPlainText(f"")
-        self.log.appendPlainText(f"Starting analysis with parameters:")
-        self.log.appendPlainText(f"               Settings file version: {settings['file_version']}")
-        self.log.appendPlainText(f"                               Input: {self.test_dir}")
-        self.log.appendPlainText(f"                              Output: {self.test_dir}")
-        self.log.appendPlainText(f"                 Max number of cores: {settings['max_workers']}")
-        self.log.appendPlainText(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
-        self.log.appendPlainText(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
-        self.log.appendPlainText(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
-        self.log.appendPlainText(f"          Strip text is on the right: {settings['strip_text_on_right']}")
-        self.log.appendPlainText(f"                          Strip size: {settings['strip_size']}")
-        self.log.appendPlainText(f"                           Min score: {settings['min_sensor_score']:.2f}")
-        self.log.appendPlainText(f"                      QR code border: {settings['qr_code_border']}")
-        self.log.appendPlainText(f"               Perform sensor search: {settings['perform_sensor_search']}")
-        self.log.appendPlainText(f"                         Sensor size: {settings['sensor_size']}")
-        self.log.appendPlainText(f"                       Sensor center: {settings['sensor_center']}")
-        self.log.appendPlainText(f"                  Sensor search area: {settings['sensor_search_area']}")
-        self.log.appendPlainText(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
-        self.log.appendPlainText(f"                       Sensor border: {settings['sensor_border']}")
-        self.log.appendPlainText(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
-        self.log.appendPlainText(f"          Subtract signal background: {settings['subtract_background']}")
-        self.log.appendPlainText(f"                      Verbose output: {settings['verbose']}")
-        self.log.appendPlainText(f"      Create quality-control figures: {settings['qc']}")
-        self.log.appendPlainText(f"")
+        self.print_to_console(f"")
+        self.print_to_console(f"Starting analysis with parameters:")
+        self.print_to_console(f"               Settings file version: {settings['file_version']}")
+        self.print_to_console(f"                               Input: {input_dir}")
+        self.print_to_console(f"                              Output: {output_dir}")
+        self.print_to_console(f"                 Max number of cores: {settings['max_workers']}")
+        self.print_to_console(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
+        self.print_to_console(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
+        self.print_to_console(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
+        self.print_to_console(f"          Strip text is on the right: {settings['strip_text_on_right']}")
+        self.print_to_console(f"                          Strip size: {settings['strip_size']}")
+        self.print_to_console(f"                           Min score: {settings['min_sensor_score']:.2f}")
+        self.print_to_console(f"                      QR code border: {settings['qr_code_border']}")
+        self.print_to_console(f"               Perform sensor search: {settings['perform_sensor_search']}")
+        self.print_to_console(f"                         Sensor size: {settings['sensor_size']}")
+        self.print_to_console(f"                       Sensor center: {settings['sensor_center']}")
+        self.print_to_console(f"                  Sensor search area: {settings['sensor_search_area']}")
+        self.print_to_console(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
+        self.print_to_console(f"                       Sensor border: {settings['sensor_border']}")
+        self.print_to_console(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
+        self.print_to_console(f"          Subtract signal background: {settings['subtract_background']}")
+        self.print_to_console(f"                      Verbose output: {settings['verbose']}")
+        self.print_to_console(f"      Create quality-control figures: {settings['qc']}")
+        self.print_to_console(f"")
 
         # Run the pipeline
         run_FH(
@@ -413,6 +467,7 @@ class MainWindow(QMainWindow):
 
     def run_worker(self, input_dir, output_dir, settings):
         worker = Worker(self.run_pipeline, input_dir, output_dir, settings)
+        worker.signals.finished.connect(self.on_pipeline_finished)
         self.threadpool.start(worker)
 
     def run_get_strip(self, image_path):
@@ -422,15 +477,25 @@ class MainWindow(QMainWindow):
 
     def set_strip(self, image_path, progress_callback):
 
+        self.progress.setTextVisible(True)
+        self.progress.setFormat("Extracting POCT from image ...")
+        self.progress.setAlignment(Qt.AlignCenter)
+        self.progress.setValue(0)
         # Get parameter values
         settings = self.get_parameters()
+
         # Read the image
+        self.progress.setValue(20)
         img = imageio.imread(image_path)
         # Extract the strip
+        self.progress.setValue(60)
         strip_img, _ = extract_strip(img, settings['qr_code_border'])
+        self.progress.setValue(80)
         self.strip_img = strip_img
         self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
         self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
+        self.progress.setValue(100)
+        self.progress.setFormat('Extracting POCT from image finished successfully.')
 
     def get_filename(self):
         today = date.today()
@@ -505,7 +570,7 @@ class MainWindow(QMainWindow):
             self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
         else:
             pass
-            # self.log.appendPlainText('Please draw POC test outline and sensor outline first')
+            # self.print_to_console('Please draw POC test outline and sensor outline first')
 
     @pyqtSlot(int, name="on_signal_scene_nr")
     def on_signal_scene_nr(self, nr):
@@ -513,11 +578,11 @@ class MainWindow(QMainWindow):
         if nr == 1:
             self.view.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
             self.view_strip.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
-            self.log.appendPlainText('You are working on the raw image canvas')
+            # self.print_to_console('You are working on the raw image canvas')
         else:
             self.view_strip.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
             self.view.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
-            self.log.appendPlainText('You are working on the POCT canvas')
+            # self.print_to_console('You are working on the POCT canvas')
 
     @pyqtSlot(float, float, name="handle_add_object_at_position")
     def handle_add_object_at_position(self, x, y):
@@ -525,7 +590,6 @@ class MainWindow(QMainWindow):
         if self.is_draw_sensor is True:
             if self.current_scene == 2:
                 currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
-                print(currentSensorPolygon)
                 if currentSensorPolygon is None:
                     # Create a CompositePolygon
                     currentSensorPolygon = CompositePolygon()
@@ -540,10 +604,10 @@ class MainWindow(QMainWindow):
                 # Add the vertices
                 if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
                     currentSensorPolygon.addVertex(QPointF(x, y))
-                    self.log.appendPlainText('Drawing sensor corner')
+                    self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
                 self.set_sensor_and_strip_parameter()
             else:
-                self.log.appendPlainText('Wrong canvas. Use the POCT canvas below.')
+                self.print_to_console('Wrong canvas. Use the POCT canvas below.')
 
         elif self.is_draw_strip is True:
             currentStripPolygon = self.bookKeeper.getCurrentStripPolygon()
@@ -561,8 +625,37 @@ class MainWindow(QMainWindow):
             # Add the vertices
             if len(currentStripPolygon._polygon_item.polygon_vertices) < 4:
                 currentStripPolygon.addVertex(QPointF(x, y))
-                self.log.appendPlainText('Drawing POCT corner')
+                self.print_to_console('Drawing POCT corner')
             self.set_sensor_and_strip_parameter()
+
+    def print_to_console(self, text):
+        """
+        Print text to console.
+
+        Args:
+            text (`str`)        Text to be printed to the console.
+        """
+        self.logger.info(text)
+
+    @staticmethod
+    def get_logger_object(name):
+        """
+        Gets a logger object to log messages status to the console in a standardized format.
+
+        Returns:
+            logger (`object`):      Returns a logger object with correct string formatting.
+        """
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            # Prevent logging from propagating to the root logger
+            logger.propagate = 0
+            console = logging.StreamHandler(sys.stderr)
+            logger.addHandler(console)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            console.setFormatter(formatter)
+            logger.setLevel(logging.INFO)
+
+        return logger
 
     def closeEvent(self, event):
 
@@ -574,3 +667,4 @@ class MainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
