@@ -51,8 +51,6 @@ class Scene(QGraphicsScene):
             return
 
         # Show the image (and store it)
-        print(self.image.shape)
-        print(self.image)
         self.image.render()
         my_transform = QTransform()
         my_transform.rotate(self.rotate)

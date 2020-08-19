@@ -28,7 +28,6 @@ class Polygon(QGraphicsPolygonItem):
 
     def add_vertex(self, p):
         self.polygon_vertices.append(p)
-        print(p)
         self.setPolygon(QPolygonF(self.polygon_vertices))
         item = PolygonVertex(p.x(), p.y(), 7, len(self.polygon_vertices) - 1, self, self._composite)
         self.scene().addItem(item)
