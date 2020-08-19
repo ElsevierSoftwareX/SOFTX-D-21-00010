@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtGui import QTransform
+from .polygonVertex import PolygonVertex
 
 
 class View(QGraphicsView):
@@ -11,6 +13,7 @@ class View(QGraphicsView):
         super(View, self).__init__(*args, **kwargs)
         self.zoom = 1
         self.setMouseTracking(True)
+        self.scn = args[0]
 
     def wheelEvent(self, event):
         """
@@ -36,6 +39,7 @@ class View(QGraphicsView):
         delta = new_pos - old_pos
         self.zoom = delta
         self.translate(delta.x(), delta.y())
+        self.scale_item_components(1.25)
 
     def zoom_in(self):
         """
@@ -45,6 +49,7 @@ class View(QGraphicsView):
 
         f = float(zoom_in_factor)
         self.scale(f, f)
+        self.scale_item_components(f)
 
     def zoom_out(self):
         """
@@ -54,3 +59,12 @@ class View(QGraphicsView):
 
         f = 1.0 / float(zoom_out_factor)
         self.scale(f, f)
+        self.scale_item_components(f)
+
+    def scale_item_components(self, factor):
+
+        for item in self.items():
+            if type(item) is PolygonVertex:
+                item.setTransform(QTransform.fromScale(factor, factor), True)
+                self.scn.removeItem(item)
+                self.scn.addItem(item)
