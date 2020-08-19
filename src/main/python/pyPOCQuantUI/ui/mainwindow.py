@@ -606,7 +606,7 @@ class MainWindow(QMainWindow):
                     self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
                 self.set_sensor_and_strip_parameter()
             else:
-                self.print_to_console('Wrong canvas. Use the POCT canvas below.')
+                self.print_to_console('Wrong canvas. Use the POCT canvas above.')
 
         elif self.is_draw_strip is True:
             currentStripPolygon = self.bookKeeper.getCurrentStripPolygon()
