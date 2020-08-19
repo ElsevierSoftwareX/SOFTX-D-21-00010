@@ -280,7 +280,7 @@ class MainWindow(QMainWindow):
         self.run_worker(input_dir=self.test_dir, output_dir=self.test_dir, settings=settings)
         # 5. Display control images by opening the test folder
         # webbrowser.open(str(self.test_dir))
-        QDesktopServices.openUrl(QUrl(str(self.test_dir)))
+        QDesktopServices.openUrl(QUrl(f'file:///{str(self.test_dir)}'))
 
     def on_run_pipeline(self):
 
@@ -304,7 +304,7 @@ class MainWindow(QMainWindow):
         self.run_worker(input_dir=self.input_dir, output_dir=self.output_dir, settings=settings)
         # Display control images by opening the output folder
         # webbrowser.open(str(self.output_dir))
-        QDesktopServices.openUrl(QUrl(str(self.output_dir)))
+        QDesktopServices.openUrl(QUrl(f'file:///{str(self.output_dir)}'))
 
     def on_select_input(self):
         self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
