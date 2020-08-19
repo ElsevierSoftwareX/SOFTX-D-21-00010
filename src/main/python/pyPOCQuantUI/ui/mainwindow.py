@@ -154,9 +154,8 @@ class MainWindow(QMainWindow):
         self.logger.setLevel(logging.DEBUG)
         self.print_to_console('Welcome to pyPOCQuant')
 
-        self.progress = QProgressBar(self)
-        self.progress.setGeometry(220, 80, 350, 20)
-        self.verticalLayout_2.addWidget(self.progress)
+        self.progressBar.setValue(0)
+        self.progressBar.setTextVisible(True)
 
         # Open quick instructions
         try:
@@ -477,25 +476,24 @@ class MainWindow(QMainWindow):
 
     def set_strip(self, image_path, progress_callback):
 
-        self.progress.setTextVisible(True)
-        self.progress.setFormat("Extracting POCT from image ...")
-        self.progress.setAlignment(Qt.AlignCenter)
-        self.progress.setValue(0)
+        self.progressBar.setFormat("Extracting POCT from image ...")
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setValue(0)
         # Get parameter values
         settings = self.get_parameters()
 
         # Read the image
-        self.progress.setValue(20)
+        self.progressBar.setValue(20)
         img = imageio.imread(image_path)
         # Extract the strip
-        self.progress.setValue(60)
+        self.progressBar.setValue(60)
         strip_img, _ = extract_strip(img, settings['qr_code_border'])
-        self.progress.setValue(80)
+        self.progressBar.setValue(80)
         self.strip_img = strip_img
         self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
         self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
-        self.progress.setValue(100)
-        self.progress.setFormat('Extracting POCT from image finished successfully.')
+        self.progressBar.setValue(100)
+        self.progressBar.setFormat('Extracting POCT from image finished successfully.')
 
     def get_filename(self):
         today = date.today()
