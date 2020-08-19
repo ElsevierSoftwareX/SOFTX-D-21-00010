@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         self.run_number = 1
         self.strip_img = None
         self.current_scene = None
+        self.relative_bar_positions = []
 
         img = imageio.imread(self.splash)
         self.image = pg.ImageItem(img)
@@ -124,6 +125,7 @@ class MainWindow(QMainWindow):
             self.handle_add_object_at_position)
         self.scene_strip.signal_scene_nr.connect(
             self.on_signal_scene_nr)
+        self.scene_strip.signal_rel_bar_pos.connect(self.on_signal_rel_bar_pos)
         self.view_strip = View(self.scene_strip)
         self.verticalLayout_Right_Column.replaceWidget(self.viewO2, self.view_strip)
         self.viewO2.deleteLater()
@@ -135,6 +137,9 @@ class MainWindow(QMainWindow):
         self.p = Parameter.create(name='params', type='group', children=params)
         # self.t = ParameterTree()
         self.paramTree.setParameters(self.p, showTop=False)
+        self.p.sigTreeStateChanged.connect(self.on_parameter_tree_change)
+        param_dict = self.get_parameters()
+        self.relative_bar_positions = list(param_dict['peak_expected_relative_location'])
 
         # Instantiate ThreadPool
         self.threadpool = QThreadPool()
@@ -169,6 +174,39 @@ class MainWindow(QMainWindow):
                 self.qi.show()
         except Exception as e:
             self.print_to_console('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
+
+    def on_parameter_tree_change(self, param, changes):
+        #@todo for debuging and demo purpose
+        print("tree changes:")
+        for param, change, data in changes:
+            path = self.p.childPath(param)
+            print(path)
+            if path[-1] == 'IgM':
+                self.relative_bar_positions[0] = data
+                self.update_bar_pos()
+            if path[-1] == 'IgG':
+                self.relative_bar_positions[1] = data
+                self.update_bar_pos()
+            if path[-1] == 'Ctl':
+                self.relative_bar_positions[2] = data
+                self.update_bar_pos()
+            if path is not None:
+                childName = '.'.join(path)
+            else:
+                childName = param.name()
+            print('  parameter: %s' % childName)
+            print('  change:    %s' % change)
+            print('  data:      %s' % str(data))
+            print('  ----------')
+            print(self.relative_bar_positions)
+
+    def update_bar_pos(self):
+        currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
+        if currentSensorPolygon:
+            # Update the relative bar positions
+            currentSensorPolygon._polygon_item.relative_bar_positions = self.relative_bar_positions
+            # Actually move the bars on scene
+            currentSensorPolygon._polygon_item.move_line_item()
 
     def on_quick_instructions(self):
         """
@@ -571,6 +609,14 @@ class MainWindow(QMainWindow):
             pass
             # self.print_to_console('Please draw POC test outline and sensor outline first')
 
+    @pyqtSlot(list, name="om_signal_rel_bar_pos")
+    def on_signal_rel_bar_pos(self, rel_pos):
+        print('rel_pos', rel_pos)
+        self.relative_bar_positions = rel_pos
+        self.p.param('Basic parameters').param('Peak expected relative location').param('IgM').setValue(rel_pos[0])
+        self.p.param('Basic parameters').param('Peak expected relative location').param('IgG').setValue(rel_pos[1])
+        self.p.param('Basic parameters').param('Peak expected relative location').param('Ctl').setValue(rel_pos[2])
+
     @pyqtSlot(int, name="on_signal_scene_nr")
     def on_signal_scene_nr(self, nr):
         self.current_scene = nr
@@ -604,6 +650,12 @@ class MainWindow(QMainWindow):
                 if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
                     currentSensorPolygon.addVertex(QPointF(x, y))
                     self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
+                    if len(currentSensorPolygon._polygon_item.polygon_vertices) == 4:
+                        rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
+                        print(rect_sensor)
+                        settings = self.get_parameters()
+                        print(settings['peak_expected_relative_location'])
+                        currentSensorPolygon.addLine(settings['peak_expected_relative_location'])
                 self.set_sensor_and_strip_parameter()
             else:
                 self.print_to_console('Wrong canvas. Use the POCT canvas above.')
