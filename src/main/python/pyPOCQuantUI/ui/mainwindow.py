@@ -1,7 +1,9 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool, QObject, pyqtSignal
-from PyQt5.QtGui import QTextCursor, QBrush, QColor
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, QMessageBox, QStyle, QApplication, QProgressBar
+from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool, \
+    QObject, pyqtSignal, QUrl
+from PyQt5.QtGui import QTextCursor, QBrush, QColor, QDesktopServices
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, \
+    QMessageBox, QStyle, QApplication, QProgressBar
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -277,7 +279,8 @@ class MainWindow(QMainWindow):
         # Run the pipeline
         self.run_worker(input_dir=self.test_dir, output_dir=self.test_dir, settings=settings)
         # 5. Display control images by opening the test folder
-        webbrowser.open(str(self.test_dir))
+        # webbrowser.open(str(self.test_dir))
+        QDesktopServices.openUrl(QUrl(str(self.test_dir)))
 
     def on_run_pipeline(self):
 
@@ -300,7 +303,8 @@ class MainWindow(QMainWindow):
         # Run full pipeline
         self.run_worker(input_dir=self.input_dir, output_dir=self.output_dir, settings=settings)
         # Display control images by opening the output folder
-        webbrowser.open(str(self.output_dir))
+        # webbrowser.open(str(self.output_dir))
+        QDesktopServices.openUrl(QUrl(str(self.output_dir)))
 
     def on_select_input(self):
         self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
@@ -346,9 +350,6 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"Logfile written to {Path(self.output_dir / 'log.txt')}")
         self.print_to_console(f"Settings written to {Path(self.output_dir / 'settings.txt')}")
         self.print_to_console(f"Batch analysis pipeline finished successfully.")
-
-    def on_progress(self, i):
-        self.print_to_console("%d%% done" % i)
 
     def on_save_settings_file(self):
         options = QFileDialog.Options()
@@ -414,7 +415,7 @@ class MainWindow(QMainWindow):
                         if new_key in settings:
                             gc.setValue(settings[new_key])
 
-    def run_pipeline(self, input_dir, output_dir, settings):
+    def run_pipeline(self, input_dir, output_dir, settings, progress_callback):
         # Inform the user
         self.print_to_console(f"")
         self.print_to_console(f"Starting analysis with parameters:")
