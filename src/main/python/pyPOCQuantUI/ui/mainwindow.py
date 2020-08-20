@@ -15,7 +15,7 @@ import logging
 import sys
 import os
 import numpy as np
-from ui.config import params, key_map, save_settings, load_settings
+from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
@@ -26,6 +26,7 @@ from ui.help import About, QuickInstructions
 from ui.stream import Stream
 from pypocquant.pipeline_FH import run_FH
 from pypocquant.lib.tools import extract_strip
+from pypocquant.lib.settings import save_settings, load_settings
 import pypocquant as pq
 
 
