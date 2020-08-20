@@ -374,6 +374,8 @@ class MainWindow(QMainWindow):
 
                 # Extract the strip in a different thread and display it
                 self.print_to_console(f"Extracting POCT from image ...")
+                self.progressBar.setFormat("Extracting POCT from image ...")
+                self.progressBar.setAlignment(Qt.AlignCenter)
                 self.run_get_strip(Path(self.input_dir / ix.data()))
             except Exception as e:
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
@@ -382,6 +384,7 @@ class MainWindow(QMainWindow):
         self.scene_strip.display_image(image=self.strip_img)
         self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
                                   Qt.KeepAspectRatio)
+        self.progressBar.setFormat('Extracting POCT from image finished successfully.')
         self.print_to_console(f"Extracting POCT from image finished successfully.")
 
     def on_pipeline_finished(self):
@@ -425,6 +428,9 @@ class MainWindow(QMainWindow):
         self.log.setTextCursor(cursor)
         self.log.ensureCursorVisible()
 
+    def on_progress_bar(self, i):
+        self.progressBar.setValue(i)
+
     def show_console(self):
         """
         Show and hide the console with the program log.
@@ -458,7 +464,6 @@ class MainWindow(QMainWindow):
         # Inform the user
         self.print_to_console(f"")
         self.print_to_console(f"Starting analysis with parameters:")
-        self.print_to_console(f"               Settings file version: {settings['file_version']}")
         self.print_to_console(f"                               Input: {input_dir}")
         self.print_to_console(f"                              Output: {output_dir}")
         self.print_to_console(f"                 Max number of cores: {settings['max_workers']}")
@@ -467,7 +472,6 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
         self.print_to_console(f"          Strip text is on the right: {settings['strip_text_on_right']}")
         self.print_to_console(f"                          Strip size: {settings['strip_size']}")
-        self.print_to_console(f"                           Min score: {settings['min_sensor_score']:.2f}")
         self.print_to_console(f"                      QR code border: {settings['qr_code_border']}")
         self.print_to_console(f"               Perform sensor search: {settings['perform_sensor_search']}")
         self.print_to_console(f"                         Sensor size: {settings['sensor_size']}")
@@ -489,7 +493,6 @@ class MainWindow(QMainWindow):
             raw_auto_wb=settings['raw_auto_wb'],
             strip_text_to_search=settings['strip_text_to_search'],
             strip_text_on_right=settings['strip_text_on_right'],
-            min_sensor_score=settings['min_sensor_score'],
             qr_code_border=settings['qr_code_border'],
             perform_sensor_search=settings['perform_sensor_search'],
             sensor_size=settings['sensor_size'],
@@ -511,29 +514,27 @@ class MainWindow(QMainWindow):
 
     def run_get_strip(self, image_path):
         worker = Worker(self.set_strip, image_path)
+        worker.signals.progress.connect(self.on_progress_bar)
         worker.signals.finished.connect(self.on_strip_extraction_finished)
         self.threadpool.start(worker)
 
     def set_strip(self, image_path, progress_callback):
 
-        # self.progressBar.setFormat("Extracting POCT from image ...")
-        # self.progressBar.setAlignment(Qt.AlignCenter)
-        # self.progressBar.setValue(0)
+        progress_callback.emit(1)
         # Get parameter values
         settings = self.get_parameters()
 
         # Read the image
-        # self.progressBar.setValue(20)
+        progress_callback.emit(20)
         img = imageio.imread(image_path)
         # Extract the strip
-        # self.progressBar.setValue(60)
+        progress_callback.emit(60)
         strip_img, _ = extract_strip(img, settings['qr_code_border'])
-        # self.progressBar.setValue(80)
+        progress_callback.emit(80)
         self.strip_img = strip_img
         self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
         self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
-        # self.progressBar.setValue(100)
-        # self.progressBar.setFormat('Extracting POCT from image finished successfully.')
+        progress_callback.emit(100)
 
     def get_filename(self):
         today = date.today()
