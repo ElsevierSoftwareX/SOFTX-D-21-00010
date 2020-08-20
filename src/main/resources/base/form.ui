@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_Main">
+     <layout class="QHBoxLayout" name="horizontalLayout_Main" stretch="2,3">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_Left_Column">
         <property name="sizeConstraint">
@@ -210,7 +210,6 @@
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
-
         <widget class="QGraphicsView" name="viewO2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -219,7 +218,6 @@
           </sizepolicy>
          </property>
         </widget>
-
         <widget class="View" name="viewO">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -228,7 +226,6 @@
           </sizepolicy>
          </property>
         </widget>
-
        </widget>
       </item>
      </layout>
