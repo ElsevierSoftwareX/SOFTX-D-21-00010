@@ -5,7 +5,9 @@ params = [
         'name': 'Runtime parameters', 'type': 'group', 'children':
         [
             {'name': 'Number of cores (max={})'.format(multiprocessing.cpu_count()), 'type': 'int', 'value': 2,
-             'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"}
+             'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"},
+            {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
+            {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"}
         ]
     },
     {
@@ -50,9 +52,7 @@ params = [
                     {'name': 'IgG', 'type': 'float', 'value': 0.53},
                     {'name': 'Ctl', 'type': 'float', 'value': 0.79},
                 ]
-            },
-            {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
-            {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"}
+            }
         ]},
     {
         'name': 'Advanced parameters', 'type': 'group', 'children':
