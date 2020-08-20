@@ -390,7 +390,7 @@ class MainWindow(QMainWindow):
         for ix in selected.indexes():
             self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             try:
-                self.scene.display_image(image=load_and_process_image(Path(self.input_dir / ix.data())))
+                self.scene.display_image(image=load_and_process_image(Path(self.input_dir / ix.data()), to_rgb=True))
                 self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
                 self.image_filename = ix.data()
 
@@ -545,7 +545,7 @@ class MainWindow(QMainWindow):
 
         # Read the image
         progress_callback.emit(20)
-        img = load_and_process_image(image_path)
+        img = load_and_process_image(image_path, to_rgb=True)
         # Extract the strip
         progress_callback.emit(60)
         strip_img, _ = extract_strip(
