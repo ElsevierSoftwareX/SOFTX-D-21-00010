@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsView
-from PyQt5.QtGui import QTransform
-from .polygonVertex import PolygonVertex
+# from PyQt5.QtGui import QTransform
+# from .polygonVertex import PolygonVertex
 
 
 class View(QGraphicsView):

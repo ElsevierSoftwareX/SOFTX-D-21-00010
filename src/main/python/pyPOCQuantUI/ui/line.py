@@ -37,21 +37,9 @@ class Line(QGraphicsLineItem):
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionChange and self.isEnabled():
             self._value = value
-            # if self._parent_item:
-            #     self._parent_item.emit_new_rel_pos(self._name, value)
         return super(Line, self).itemChange(change, value)
 
-    # def mousePressEvent(self, event):
-    #     self._composite.setSelectedItemAndOrigin(self, event.scenePos())
-    #     super(Line, self).mousePressEvent(event)
-    #
-    # def mouseMoveEvent(self, event):
-    #     if event.buttons() == Qt.LeftButton:
-    #         self._composite.itemMovedTo(self, event.scenePos())
-    #     super(Line, self).mouseMoveEvent(event)
-    #
     def mouseReleaseEvent(self, event):
-        # self._composite.setSelectedItemAndOrigin(None, None)
         if self._parent_item:
             self._parent_item.emit_new_rel_pos(self._name, self._value)
         super(Line, self).mouseReleaseEvent(event)

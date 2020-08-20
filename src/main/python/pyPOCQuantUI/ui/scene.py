@@ -51,28 +51,31 @@ class Scene(QGraphicsScene):
         if self.image is None:
             return
 
-        # Show the image (and store it)
-        self.image.render()
-        my_transform = QTransform()
-        my_transform.rotate(self.rotate)
-        img = self.image.qimage.transformed(my_transform)
-        pixMap = QPixmap.fromImage(img)
-        pixmap_reflect = pixMap.transformed(QTransform().scale(self.mirror_v, self.mirror_h))
+        try:
+            # Show the image (and store it)
+            self.image.render()
+            my_transform = QTransform()
+            my_transform.rotate(self.rotate)
+            img = self.image.qimage.transformed(my_transform)
+            pixMap = QPixmap.fromImage(img)
+            pixmap_reflect = pixMap.transformed(QTransform().scale(self.mirror_v, self.mirror_h))
 
-        # If needed, remove last QPixMap from the scene
-        for item in self.items():
-            if type(item) is QGraphicsPixmapItem:
-                self.removeItem(item)
-                del item
+            # If needed, remove last QPixMap from the scene
+            for item in self.items():
+                if type(item) is QGraphicsPixmapItem:
+                    self.removeItem(item)
+                    del item
 
-        self.addPixmap(pixmap_reflect)
+            self.addPixmap(pixmap_reflect)
 
-        # Reset the scene size
-        self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
+            # Reset the scene size
+            self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
 
-        self.pixmap = pixmap_reflect
+            self.pixmap = pixmap_reflect
 
-        self.addCompositePolygon()
+            self.addCompositePolygon()
+        except Exception as e:
+            print(e)
 
     def addCompositePolygon(self):
         """

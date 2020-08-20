@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QColor, QPen, QCursor, QPolygonF, QBrush
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsPolygonItem
-from PyQt5.QtCore import Qt, QPointF, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QPointF
 from .polygonVertex import PolygonVertex
 from .line import Line
 

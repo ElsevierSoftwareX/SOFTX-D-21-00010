@@ -1,5 +1,3 @@
-import os
-from .compositePolygon import CompositePolygon
 
 
 class BookKeeper:
@@ -14,29 +12,6 @@ class BookKeeper:
         self.images = self.num_timepoints * [None]
         self.stripPolygon = self.num_timepoints * [None]
         self.sensorPolygon = self.num_timepoints * [None]
-
-    # def getCurrentTimepoint(self):
-    #     """
-    #       Get the current timepoint.
-    #     """
-    #     return self.timepoint
-
-    # def getCurrentCompositeLine(self):
-    #     """
-    #     Get CompositeLine for current timepoint (or None if it does not exist).
-    #     """
-    #     return self.compositeLines[self.timepoint]
-
-    # def addCompositeLine(self, compositeLine, indices=None):
-    #     """
-    #     Add a CompositeLine at current timepoint.
-    #     """
-    #     if not indices:
-    #         self.compositeLines[self.timepoint] = compositeLine
-    #     else:
-    #         for idx in indices:
-    #             pos = compositeLine.pos
-    #             self.compositeLines[idx] = CompositeLine(pos)
 
     def getCurrentStripPolygon(self):
         """
