@@ -206,11 +206,8 @@ class MainWindow(QMainWindow):
             self.print_to_console('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
 
     def on_parameter_tree_change(self, param, changes):
-        #@todo for debuging and demo purpose
-        print("tree changes:")
         for param, change, data in changes:
             path = self.p.childPath(param)
-            print(path)
             if path[-1] == 'IgM':
                 self.relative_bar_positions[0] = data
                 self.update_bar_pos()
@@ -220,15 +217,6 @@ class MainWindow(QMainWindow):
             if path[-1] == 'Ctl':
                 self.relative_bar_positions[2] = data
                 self.update_bar_pos()
-            if path is not None:
-                childName = '.'.join(path)
-            else:
-                childName = param.name()
-            print('  parameter: %s' % childName)
-            print('  change:    %s' % change)
-            print('  data:      %s' % str(data))
-            print('  ----------')
-            print(self.relative_bar_positions)
 
     def update_bar_pos(self):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
