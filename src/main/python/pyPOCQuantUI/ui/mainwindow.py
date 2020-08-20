@@ -131,6 +131,9 @@ class MainWindow(QMainWindow):
         self.current_scene = None
         self.relative_bar_positions = []
 
+        self.input_edit.textChanged.connect(self.on_input_edit_change)
+        self.output_edit.textChanged.connect(self.on_output_edit_change)
+
         img = imageio.imread(self.splash)
         self.image = pg.ImageItem(img)
         self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0, nr=int(1))
@@ -370,8 +373,9 @@ class MainWindow(QMainWindow):
     def on_select_input(self):
         self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.input_edit.setText(str(self.input_dir))
-        self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
         self.output_dir = Path(self.input_dir / 'pipeline')
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
         self.fileModel = QFileSystemModel(self)
         self.fileModel.setRootPath(str(self.input_dir))
         self.fileModel.setFilter(QDir.NoDotAndDotDot | QDir.Files)
@@ -380,10 +384,28 @@ class MainWindow(QMainWindow):
         self.listView.selectionModel().selectionChanged.connect(self.on_file_selection_changed)
         self.print_to_console(f"Selected input folder: {self.input_dir}")
 
+    def on_input_edit_change(self):
+        new_path = self.input_edit.text()
+        # Validate if path exists
+        if Path(new_path).is_dir():
+            self.input_dir = Path(new_path)
+            self.print_to_console(f"Updated input directory: {Path(new_path)}")
+        else:
+            self.print_to_console(f"Selected folder seams not to exist: {Path(new_path)}")
+
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.output_edit.setText(str(self.output_dir))
         self.print_to_console(f"Selected output folder: {self.output_dir}")
+
+    def on_output_edit_change(self):
+        new_path = self.output_edit.text()
+        # Validate if path exists
+        if Path(new_path).is_dir():
+            self.output_dir = Path(new_path)
+            self.print_to_console(f"Updated output directory: {Path(new_path)}")
+        else:
+            self.print_to_console(f"Selected folder seams not to exist: {Path(new_path)}")
 
     def on_file_selection_changed(self, selected):
         for ix in selected.indexes():
