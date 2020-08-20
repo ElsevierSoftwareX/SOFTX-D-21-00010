@@ -415,9 +415,6 @@ class MainWindow(QMainWindow):
                                                                        "Config Files (*.conf)")
         if file_name:
             settings = load_settings(file_name)
-            if 'strip_text_to_search' in settings:
-                if settings['strip_text_to_search'] == '':
-                    settings['strip_text_to_search'] = '""'
             self.load_parameters(settings)
             self.print_to_console(f"Loaded config : {file_name}")
 
@@ -535,8 +532,14 @@ class MainWindow(QMainWindow):
         img = imageio.imread(image_path)
         # Extract the strip
         progress_callback.emit(60)
-        strip_img, _ = extract_strip(img, settings['qr_code_border'])
+        strip_img, _ = extract_strip(
+            img,
+            settings['qr_code_border'],
+            settings['strip_text_to_search'],
+            settings['strip_text_on_right']
+        )
         progress_callback.emit(80)
+
         self.strip_img = strip_img
         self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
         self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
@@ -563,11 +566,6 @@ class MainWindow(QMainWindow):
                     else:
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
-        if 'strip_text_to_search' in parameters:
-            if parameters['strip_text_to_search'] == '""':
-                pass
-            else:
-                parameters['strip_text_to_search'] = '\"{}\"'.format(parameters['strip_text_to_search'])
         return parameters
 
     @staticmethod
