@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QApplication
 from PyQt5.QtCore import pyqtSignal, Qt
 import pyqtgraph as pg
 import imageio
+
+from pypocquant.lib.io import load_and_process_image
 from .polygon import Polygon
 from .polygonVertex import PolygonVertex
 from .circle import Circle
@@ -38,7 +40,7 @@ class Scene(QGraphicsScene):
 
         # Open the image
         if image_path is not None:
-            img = imageio.imread(image_path)
+            img = load_and_process_image(image_path)
             # gray = lambda rgb: np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
             # gray = gray(img)
             # print(gray)

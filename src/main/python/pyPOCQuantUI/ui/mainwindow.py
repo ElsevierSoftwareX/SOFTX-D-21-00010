@@ -15,6 +15,8 @@ import logging
 import sys
 import os
 import numpy as np
+
+from pypocquant.lib.io import load_and_process_image
 from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
@@ -388,8 +390,7 @@ class MainWindow(QMainWindow):
         for ix in selected.indexes():
             self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             try:
-                _ = imageio.imread(Path(self.input_dir / ix.data()))
-                self.scene.display_image(image_path=Path(self.input_dir / ix.data()))
+                self.scene.display_image(image=load_and_process_image(Path(self.input_dir / ix.data())))
                 self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
                 self.image_filename = ix.data()
 
@@ -544,7 +545,7 @@ class MainWindow(QMainWindow):
 
         # Read the image
         progress_callback.emit(20)
-        img = imageio.imread(image_path)
+        img = load_and_process_image(image_path)
         # Extract the strip
         progress_callback.emit(60)
         strip_img, _ = extract_strip(
