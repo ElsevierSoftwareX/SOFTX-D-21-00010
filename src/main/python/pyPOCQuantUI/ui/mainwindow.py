@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         message (`str`)         Text to be sent to the console
     """
 
-    def __init__(self, ui, splash, parent=None):
+    def __init__(self, ui, splash1, splash2, parent=None):
         super().__init__(parent)
         uic.loadUi(ui, self)
 
@@ -117,8 +117,10 @@ class MainWindow(QMainWindow):
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
         self.display_on_startup = None
-        self.image = None
-        self.splash = splash
+        self.image_splash1 = None
+        self.image_splash2 = None
+        self.splash = splash1
+        self.splash2 = splash2
         self.image_filename = None
         self.input_dir = None
         self.output_dir = None
@@ -135,8 +137,10 @@ class MainWindow(QMainWindow):
         self.output_edit.textChanged.connect(self.on_output_edit_change)
 
         img = imageio.imread(self.splash)
-        self.image = pg.ImageItem(img)
-        self.scene = Scene(self.image, 0.0, 0.0, 500.0, 500.0, nr=int(1))
+        self.image_splash1 = pg.ImageItem(img)
+        img = imageio.imread(self.splash2)
+        self.image_splash2 = pg.ImageItem(img)
+        self.scene = Scene(self.image_splash2, 0.0, 0.0, 500.0, 500.0, nr=int(1))
         self.scene.signal_add_object_at_position.connect(
             self.handle_add_object_at_position)
         self.scene.signal_scene_nr.connect(
@@ -147,7 +151,7 @@ class MainWindow(QMainWindow):
         self.scene.display_image()
         self.view.resetZoom()
         # Set 2nd scene and view
-        self.scene_strip = Scene(pg.ImageItem(np.array([[255, 255], [255, 255]])), 0.0, 0.0, 1000.0, 450.0, nr=int(2))
+        self.scene_strip = Scene(self.image_splash1, 0.0, 0.0, 1000.0, 450.0, nr=int(2))
         self.scene_strip.signal_add_object_at_position.connect(
             self.handle_add_object_at_position)
         self.scene_strip.signal_scene_nr.connect(

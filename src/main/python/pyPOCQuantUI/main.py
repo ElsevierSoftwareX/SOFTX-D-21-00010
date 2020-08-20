@@ -40,7 +40,8 @@ class AppContext(ApplicationContext):
     def window(self):
         ui = self.get_design()
         splash = self.get_resource("img/pyPOCQuantSplash-01.png")
-        return MainWindow(ui, splash)
+        splash2 = self.get_resource("img/pyPOCQuantSplash-02.png")
+        return MainWindow(ui, splash, splash2)
 
     def show_tesseract_install_dialog(self):
         msg = QMessageBox()
@@ -49,7 +50,7 @@ class AppContext(ApplicationContext):
         msg.setText("The tool requires the software TESSERACT to be installed.")
         msg.setInformativeText("TESSERACT has not been detected please follow this link "
                                "(<a href='https://tesseract-ocr.github.io/tessdoc/Home.html'>Install TESSERACT</a>) "
-                               "to install tesseract first and make sure it is on the system path. ")
+                               "to install TESSERACT first and make sure it is on the system path. ")
         msg.setWindowTitle("pyPOCQuantUI :: Warning")
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         retval = msg.exec_()
