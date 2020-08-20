@@ -1,53 +1,74 @@
 import multiprocessing
-import ast
-
 
 params = [
-    {'name': 'Basic parameters', 'type': 'group', 'children': [
-        {'name': 'Raw auto stretch', 'type': 'bool', 'value': False, 'tip': "Set true if raw image should be auto "
-                                                                            "streched"},
-        {'name': 'Raw auto wb', 'type': 'bool', 'value': False, 'tip': "Set true if raw image' white balance should be"
-                                                                       " set automatically"},
-        {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '""',  'default': '""',
-         'tip': "Use prominent text such as COVID"},
-        {'name': 'Strip text is on the right', 'type': 'bool', 'value': False, 'tip': "Set true if test is right of the"
-                                                                                      " sensor"},
-        {'name': 'POCT size', 'type': 'group', 'children': [
-            {'name': 'width', 'type': 'int', 'value': 10},
-            {'name': 'height', 'type': 'int', 'value': 10},
+    {
+        'name': 'Runtime parameters', 'type': 'group', 'children':
+        [
+            {'name': 'Number of cores (min=1;max={})'.format(multiprocessing.cpu_count()), 'type': 'int', 'value': 2,
+             'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"}
+        ]
+    },
+    {
+        'name': 'Basic parameters', 'type': 'group', 'children':
+        [
+            {'name': 'POCT size', 'type': 'group', 'children':
+                [
+                    {'name': 'width', 'type': 'int', 'value': 10},
+                    {'name': 'height', 'type': 'int', 'value': 10},
+                ]
+            },
+            {'name': 'Sensor center', 'type': 'group', 'children':
+                [
+                    {'name': 'x', 'type': 'int', 'value': 10},
+                    {'name': 'y', 'type': 'int', 'value': 10}
+                ]
+            },
+            {'name': 'Sensor size', 'type': 'group', 'children':
+                [
+                    {'name': 'width', 'type': 'int', 'value': 10},
+                    {'name': 'height', 'type': 'int', 'value': 10}
+                ]
+            },
+            {'name': 'Sensor border', 'type': 'group', 'children':
+                [
+                    {'name': 'x', 'type': 'int', 'value': 7},
+                    {'name': 'y', 'type': 'int', 'value': 7},
+                ]
+            },
+            {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
+            {'name': 'Sensor search area', 'type': 'group', 'children':
+                [
+                    {'name': 'x', 'type': 'int', 'value': 7},
+                    {'name': 'y', 'type': 'int', 'value': 7},
+                ]
+             },
+            {'name': 'QR code border', 'type': 'int', 'value': 40},
+            {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
+            {'name': 'Peak expected relative location', 'type': 'group', 'children':
+                [
+                    {'name': 'IgM', 'type': 'float', 'value': 0.25},
+                    {'name': 'IgG', 'type': 'float', 'value': 0.53},
+                    {'name': 'Ctl', 'type': 'float', 'value': 0.79},
+                ]
+            },
+            {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
+            {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"}
         ]},
-        {'name': 'Sensor center', 'type': 'group', 'children': [
-            {'name': 'x', 'type': 'int', 'value': 10},
-            {'name': 'y', 'type': 'int', 'value': 10},
-        ]},
-        {'name': 'Sensor size', 'type': 'group', 'children': [
-            {'name': 'width', 'type': 'int', 'value': 10},
-            {'name': 'height', 'type': 'int', 'value': 10},
-        ]},
-        {'name': 'Sensor border', 'type': 'group', 'children': [
-            {'name': 'x', 'type': 'int', 'value': 7},
-            {'name': 'y', 'type': 'int', 'value': 7},
-        ]},
-        {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
-        {'name': 'Sensor search area', 'type': 'group', 'children': [
-            {'name': 'x', 'type': 'int', 'value': 7},
-            {'name': 'y', 'type': 'int', 'value': 7},
-        ]},
-        {'name': 'Sensor threshold factor', 'type': 'int', 'value': 2},
-        {'name': 'Min sensor score', 'type': 'float', 'value': .85, 'step': 0.01},
-        {'name': 'QR code border', 'type': 'int', 'value': 40},
-        {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
-        {'name': 'Peak expected relative location', 'type': 'group', 'children': [
-            {'name': 'IgM', 'type': 'float', 'value': 0.25},
-            {'name': 'IgG', 'type': 'float', 'value': 0.53},
-            {'name': 'Ctl', 'type': 'float', 'value': 0.79},
-        ]},
-        {'name': 'Number of cores (min=1;max={})'.format(multiprocessing.cpu_count()), 'type': 'int', 'value': 2,
-         'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"},
-        {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
-        {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"},
-        {'name': 'File version', 'type': 'int', 'value': 1},
-    ]}]
+    {
+        'name': 'Advanced parameters', 'type': 'group', 'children':
+        [
+            {'name': 'Sensor threshold factor', 'type': 'int', 'value': 2},
+            {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
+             'tip': "Set to true if raw image intensities should be auto-stretched"},
+            {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
+             'tip': "Set true if raw image white balance should be set automatically"},
+            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '""', 'default': '""',
+             'tip': "Use prominent text such as COVID"},
+            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
+             'tip': "Set true if test is right of the sensor"}
+        ]
+    }
+]
 
 key_map = {
     'raw_auto_stretch': 'raw_auto_stretch',
