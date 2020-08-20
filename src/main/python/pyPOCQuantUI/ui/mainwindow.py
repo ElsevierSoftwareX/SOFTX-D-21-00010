@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot,
     QObject, pyqtSignal, QUrl
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QDesktopServices
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, \
-    QMessageBox, QStyle, QApplication, QProgressBar
+    QMessageBox, QStyle, QApplication, QProgressBar, QLineEdit, QDoubleSpinBox
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from datetime import date
 from pathlib import Path
@@ -84,6 +84,12 @@ class MainWindow(QMainWindow):
         self.rotate_ccw_action = QAction("Rotate counter clockwise", self)
         tb.addAction(self.rotate_ccw_action)
         self.rotate_ccw_action.triggered.connect(self.on_rotate_ccw)
+        self.rotation_angle = QDoubleSpinBox()
+        self.rotation_angle.setFixedWidth(50)
+        self.rotation_angle.setRange(0, 360)
+        self.rotation_angle.setValue(90)
+        self.rotation_angle.setDecimals(1)
+        tb.addWidget(self.rotation_angle)
         self.zoom_in_action = QAction("Zoom in", self)
         tb.addAction(self.zoom_in_action)
         self.zoom_in_action.triggered.connect(self.on_zoom_in)
@@ -267,18 +273,18 @@ class MainWindow(QMainWindow):
 
     def on_rotate_cw(self):
         if self.current_scene == 1:
-            self.scene.rotate = self.scene.rotate + 90
+            self.scene.rotate = self.scene.rotate + self.rotation_angle.value()
             self.scene.display_image()
         else:
-            self.scene_strip.rotate = self.scene_strip.rotate + 90
+            self.scene_strip.rotate = self.scene_strip.rotate + self.rotation_angle.value()
             self.scene_strip.display_image()
 
     def on_rotate_ccw(self):
         if self.current_scene == 1:
-            self.scene.rotate = self.scene.rotate - 90
+            self.scene.rotate = self.scene.rotate - self.rotation_angle.value()
             self.scene.display_image()
         else:
-            self.scene_strip.rotate = self.scene_strip.rotate - 90
+            self.scene_strip.rotate = self.scene_strip.rotate - self.rotation_angle.value()
             self.scene_strip.display_image()
 
     def on_delete_items_action(self):
