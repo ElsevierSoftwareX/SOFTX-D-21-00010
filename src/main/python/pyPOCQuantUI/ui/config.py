@@ -82,12 +82,10 @@ key_map = {
     'perform_sensor_search': 'perform_sensor_search',
     'sensor_search_area': 'sensor_search_area',
     'sensor_threshold_factor': 'sensor_thresh_factor',
-    'min_sensor_score': 'min_sensor_score',
     'qr_code_border': 'qr_code_border',
     'subtract_background': 'subtract_background',
     'peak_expected_relative_location': 'peak_expected_relative_location',
     'number_of_cores_(max={})'.format(multiprocessing.cpu_count()): 'max_workers',
     'qc': 'qc',
-    'verbose': 'verbose',
-    'file_version': 'file_version'
+    'verbose': 'verbose'
 }
