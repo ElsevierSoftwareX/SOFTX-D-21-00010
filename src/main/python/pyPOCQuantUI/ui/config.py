@@ -13,6 +13,10 @@ params = [
     {
         'name': 'Basic parameters', 'type': 'group', 'children':
         [
+            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
+             'tip': "Use prominent text such as COVID"},
+            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
+             'tip': "Set true if test is right of the sensor"},
             {'name': 'POCT size', 'type': 'group', 'children':
                 [
                     {'name': 'width', 'type': 'int', 'value': 10},
@@ -61,11 +65,7 @@ params = [
             {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
              'tip': "Set to true if raw image intensities should be auto-stretched"},
             {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
-             'tip': "Set true if raw image white balance should be set automatically"},
-            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
-             'tip': "Use prominent text such as COVID"},
-            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
-             'tip': "Set true if test is right of the sensor"}
+             'tip': "Set true if raw image white balance should be set automatically"}
         ]
     }
 ]
