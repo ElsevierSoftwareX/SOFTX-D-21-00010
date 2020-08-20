@@ -392,7 +392,7 @@ class MainWindow(QMainWindow):
             self.input_dir = Path(new_path)
             self.print_to_console(f"Updated input directory: {Path(new_path)}")
         else:
-            self.print_to_console(f"Selected folder seams not to exist: {Path(new_path)}")
+            self.print_to_console(f"Selected folder does not to seem to exist: {Path(new_path)}")
 
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
@@ -406,7 +406,7 @@ class MainWindow(QMainWindow):
             self.output_dir = Path(new_path)
             self.print_to_console(f"Updated output directory: {Path(new_path)}")
         else:
-            self.print_to_console(f"Selected folder seams not to exist: {Path(new_path)}")
+            self.print_to_console(f"Selected folder does not to seem to exist: {Path(new_path)}")
 
     def on_file_selection_changed(self, selected):
         for ix in selected.indexes():
