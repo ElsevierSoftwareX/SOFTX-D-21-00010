@@ -68,6 +68,8 @@ class MainWindow(QMainWindow):
         # self.strip_action = QAction("Draw POCT outline", self)
         # self.strip_action.triggered.connect(self.on_draw_strip)
         # tb.addAction(self.strip_action)
+        tb.addAction(self.action_load_settings_file)
+        tb.addAction(self.action_save_settings_file)
         self.sensor_action = QAction("Draw sensor outline", self)
         self.sensor_action.setStatusTip("Draw sensor outline")
         tb.addAction(self.sensor_action)
