@@ -579,8 +579,6 @@ class MainWindow(QMainWindow):
         progress_callback.emit(80)
 
         self.strip_img = strip_img
-        self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_img.shape[1])
-        self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_img.shape[0])
         progress_callback.emit(100)
 
     def get_filename(self):
@@ -628,14 +626,12 @@ class MainWindow(QMainWindow):
                              rect_strip.y() + rect_sensor.height() / 2)
             sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
             # Update the parameters in the parameterTree
-            self.p.param('Basic parameters').param('POCT size').param('width').setValue(strip_size[1])
-            self.p.param('Basic parameters').param('POCT size').param('height').setValue(strip_size[0])
             self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
             self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
             self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
             self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
-            self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
-            self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
+            self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
+            self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
         elif currentSensorPolygon:
 
             rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
@@ -648,8 +644,8 @@ class MainWindow(QMainWindow):
             self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
             self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
             self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
-            self.p.param('Basic parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
-            self.p.param('Basic parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
+            self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
+            self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
         else:
             pass
             # self.print_to_console('Please draw POC test outline and sensor outline first')

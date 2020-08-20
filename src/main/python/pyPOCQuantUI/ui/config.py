@@ -17,12 +17,12 @@ params = [
              'tip': "Use prominent text such as COVID"},
             {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
              'tip': "Set true if test is right of the sensor"},
-            {'name': 'POCT size', 'type': 'group', 'children':
-                [
-                    {'name': 'width', 'type': 'int', 'value': 10},
-                    {'name': 'height', 'type': 'int', 'value': 10},
-                ]
-            },
+            # {'name': 'POCT size', 'type': 'group', 'children':
+            #     [
+            #         {'name': 'width', 'type': 'int', 'value': 10},
+            #         {'name': 'height', 'type': 'int', 'value': 10},
+            #     ]
+            # },
             {'name': 'Sensor center', 'type': 'group', 'children':
                 [
                     {'name': 'x', 'type': 'int', 'value': 10},
