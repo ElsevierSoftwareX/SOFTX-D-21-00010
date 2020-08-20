@@ -25,6 +25,8 @@ class AppContext(ApplicationContext):
             self.window.rotate_ccw_action.setIcon(QIcon(self.get_resource("img/rotate_ccw-01.png")))
             self.window.zoom_out_action.setIcon(QIcon(self.get_resource("img/zoom_out-01.png")))
             self.window.zoom_in_action.setIcon(QIcon(self.get_resource("img/zoom_in-01.png")))
+            self.window.zoom_reset_action.setIcon(QIcon(self.get_resource("img/zoom_reset-01.png")))
+            self.window.action_console.setIcon(QIcon(self.get_resource("img/log-01.png")))
         else:
             self.show_tesseract_install_dialog()
         return appctxt.app.exec_()

@@ -107,8 +107,11 @@ class MainWindow(QMainWindow):
         self.zoom_out_action.setStatusTip("Zoom out")
         tb.addAction(self.zoom_out_action)
         self.zoom_out_action.triggered.connect(self.on_zoom_out)
+        self.zoom_reset_action = QAction("Reset zoom", self)
+        self.zoom_reset_action.setStatusTip("Reset zoom")
+        tb.addAction(self.zoom_reset_action)
+        self.zoom_reset_action.triggered.connect(self.on_zoom_reset)
         self.action_console = QAction("Show Log", self)
-        self.action_console.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogDetailedView))
         self.action_console.setShortcut("Ctrl+L")
         self.action_console.setStatusTip('Show / hide console console')
         self.action_console.triggered.connect(self.show_console)
@@ -281,6 +284,12 @@ class MainWindow(QMainWindow):
             self.view.zoom_out()
         else:
             self.view_strip.zoom_out()
+
+    def on_zoom_reset(self):
+        if self.current_scene == 1:
+            self.view.resetZoom()
+        else:
+            self.view_strip.resetZoom()
 
     def on_rotate_cw(self):
         if self.current_scene == 1:
