@@ -63,12 +63,15 @@ class QuickInstructions(QWidget):
                                         '<li><b>Ctrl+O (Cmd+O):</b> Open an existing pyPOCQuant config'
                                         '</li>'
                                         '<li><b>Ctrl+S (Cmd+S):</b> Save the current pyPOCQuant config'
-                                        '</li></ul>'
+                                        '</li>'
+                                        '<li><b>Ctrl+L (Cmd+L):</b> Show/hide pyPOCQuant log'
+                                        '</li>'
+                                        '</ul>'
                                         'Hints:'
                                         '<ul><li>The image can be rotated, mirrored and zoomed if needed.'
                                         '</li>'
                                         '<li>Start with drawing a rectangle around the sensor (area with the bands)'
-                                        'Then with the POCT outline.</li><'
+                                        'Then fine tune the relative band positions (draggable lines).</li><'
                                         '</ul>'
                                         'You can open this window any time from the Help menu.</ul>')
         self.quick_instructions.setReadOnly(1)
