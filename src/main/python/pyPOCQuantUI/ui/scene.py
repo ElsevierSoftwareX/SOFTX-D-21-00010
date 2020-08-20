@@ -40,7 +40,7 @@ class Scene(QGraphicsScene):
 
         # Open the image
         if image_path is not None:
-            img = load_and_process_image(image_path)
+            img = load_and_process_image(image_path, to_rgb=True)
             # gray = lambda rgb: np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
             # gray = gray(img)
             # print(gray)
