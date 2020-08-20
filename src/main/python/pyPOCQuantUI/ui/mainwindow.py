@@ -514,7 +514,7 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
         self.print_to_console(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
         self.print_to_console(f"          Strip text is on the right: {settings['strip_text_on_right']}")
-        self.print_to_console(f"                          Strip size: {settings['strip_size']}")
+        # self.print_to_console(f"                          Strip size: {settings['strip_size']}")
         self.print_to_console(f"                      QR code border: {settings['qr_code_border']}")
         self.print_to_console(f"               Perform sensor search: {settings['perform_sensor_search']}")
         self.print_to_console(f"                         Sensor size: {settings['sensor_size']}")
