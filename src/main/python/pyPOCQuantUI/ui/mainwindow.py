@@ -142,7 +142,7 @@ class MainWindow(QMainWindow):
         self.splitter_Right_Column.insertWidget(0, self.view)
         self.viewO.deleteLater()
         self.scene.display_image()
-        self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
+        self.view.resetZoom()
         # Set 2nd scene and view
         self.scene_strip = Scene(pg.ImageItem(np.array([[255, 255], [255, 255]])), 0.0, 0.0, 1000.0, 450.0, nr=int(2))
         self.scene_strip.signal_add_object_at_position.connect(
@@ -154,8 +154,7 @@ class MainWindow(QMainWindow):
         self.splitter_Right_Column.insertWidget(0, self.view_strip)
         self.viewO2.deleteLater()
         self.scene_strip.display_image()
-        self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
-                                  Qt.KeepAspectRatio)
+        self.view_strip.resetZoom()
 
         # Setup parameter tree
         self.p = Parameter.create(name='params', type='group', children=params)
@@ -391,7 +390,7 @@ class MainWindow(QMainWindow):
             self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             try:
                 self.scene.display_image(image=load_and_process_image(Path(self.input_dir / ix.data())))
-                self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
+                self.view.resetZoom()
                 self.image_filename = ix.data()
 
                 # Extract the strip in a different thread and display it
@@ -404,8 +403,7 @@ class MainWindow(QMainWindow):
 
     def on_strip_extraction_finished(self):
         self.scene_strip.display_image(image=self.strip_img)
-        self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
-                                  Qt.KeepAspectRatio)
+        self.view_strip.resetZoom()
         self.progressBar.setFormat('Extracting POCT from image finished successfully.')
         self.print_to_console(f"Extracting POCT from image finished successfully.")
 

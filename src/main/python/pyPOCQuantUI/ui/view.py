@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtCore import Qt, QRectF
 # from PyQt5.QtGui import QTransform
 # from .polygonVertex import PolygonVertex
 
@@ -68,3 +69,7 @@ class View(QGraphicsView):
     #             item.setTransform(QTransform.fromScale(factor, factor), True)
     #             self.scn.removeItem(item)
     #             self.scn.addItem(item)
+
+    def resetZoom(self):
+        scene = self.scene()
+        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
