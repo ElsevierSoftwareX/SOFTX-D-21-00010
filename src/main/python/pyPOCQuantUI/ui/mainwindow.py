@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
         self.scene.signal_scene_nr.connect(
             self.on_signal_scene_nr)
         self.view = View(self.scene)
-        self.verticalLayout_Right_Column.replaceWidget(self.viewO, self.view)
+        self.splitter_Right_Column.insertWidget(0, self.view)
         self.viewO.deleteLater()
         self.scene.display_image()
         self.view.fitInView(QRectF(0, 0, self.scene.pixmap.width(), self.scene.pixmap.width()), Qt.KeepAspectRatio)
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
             self.on_signal_scene_nr)
         self.scene_strip.signal_rel_bar_pos.connect(self.on_signal_rel_bar_pos)
         self.view_strip = View(self.scene_strip)
-        self.verticalLayout_Right_Column.replaceWidget(self.viewO2, self.view_strip)
+        self.splitter_Right_Column.insertWidget(0, self.view_strip)
         self.viewO2.deleteLater()
         self.scene_strip.display_image()
         self.view_strip.fitInView(QRectF(0, 0, self.scene_strip.pixmap.width(), self.scene_strip.pixmap.width()),
