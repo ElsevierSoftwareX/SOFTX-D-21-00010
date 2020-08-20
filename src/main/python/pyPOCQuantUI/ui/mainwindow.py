@@ -421,8 +421,9 @@ class MainWindow(QMainWindow):
         if file_name:
             settings = self.get_parameters()
             # Save parameters into input folder with timestamp
-            save_settings(settings, Path(file_name).stem + '.conf')
-            self.print_to_console(f"Saved config file under: {file_name}")
+            save_path = Path(Path(file_name).parent, Path(file_name).stem + '.conf')
+            save_settings(settings, save_path)
+            self.print_to_console(f"Saved config file under: {save_path}")
 
     def on_load_settings_file(self):
         file_name, _ = QFileDialog.getOpenFileName(self, 'Open file', '', "All Files (*);;Text Files (*.txt);; "
