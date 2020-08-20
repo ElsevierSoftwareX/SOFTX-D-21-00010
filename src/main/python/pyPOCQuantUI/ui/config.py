@@ -42,12 +42,6 @@ params = [
                 ]
             },
             {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
-            {'name': 'Sensor search area', 'type': 'group', 'children':
-                [
-                    {'name': 'x', 'type': 'int', 'value': 7},
-                    {'name': 'y', 'type': 'int', 'value': 7},
-                ]
-             },
             {'name': 'QR code border', 'type': 'int', 'value': 40},
             {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
             {'name': 'Peak expected relative location', 'type': 'group', 'children':
@@ -61,6 +55,12 @@ params = [
     {
         'name': 'Advanced parameters', 'type': 'group', 'children':
         [
+            {'name': 'Sensor search area', 'type': 'group', 'children':
+                [
+                    {'name': 'x', 'type': 'int', 'value': 7},
+                    {'name': 'y', 'type': 'int', 'value': 7},
+                ]
+             },
             {'name': 'Sensor threshold factor', 'type': 'int', 'value': 2},
             {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
              'tip': "Set to true if raw image intensities should be auto-stretched"},
