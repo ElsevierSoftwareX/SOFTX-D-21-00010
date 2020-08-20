@@ -2,7 +2,6 @@ from PyQt5.QtCore import QPointF
 
 from .circle import Circle
 from .polygon import Polygon
-from .compositeLine import CompositeLine
 
 
 class CompositePolygon:
