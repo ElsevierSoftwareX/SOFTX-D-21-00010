@@ -67,21 +67,27 @@ class MainWindow(QMainWindow):
         # self.strip_action.triggered.connect(self.on_draw_strip)
         # tb.addAction(self.strip_action)
         self.sensor_action = QAction("Draw sensor outline", self)
+        self.sensor_action.setStatusTip("Draw sensor outline")
         tb.addAction(self.sensor_action)
         self.sensor_action.triggered.connect(self.on_draw_sensor)
         self.delete_items_action = QAction("Delete sensor", self)
+        self.delete_items_action.setStatusTip("Delete sensor")
         tb.addAction(self.delete_items_action)
         self.delete_items_action.triggered.connect(self.on_delete_items_action)
         self.mirror_v_action = QAction("Mirror image vertically", self)
+        self.mirror_v_action.setStatusTip("Mirror image vertically")
         tb.addAction(self.mirror_v_action)
         self.mirror_v_action.triggered.connect(self.on_mirror_v)
         self.mirror_h_action = QAction("Mirror image horizontally", self)
+        self.mirror_h_action.setStatusTip("Mirror image horizontally")
         tb.addAction(self.mirror_h_action)
         self.mirror_h_action.triggered.connect(self.on_mirror_h)
         self.rotate_cw_action = QAction("Rotate clockwise", self)
+        self.rotate_cw_action.setStatusTip("Rotate clockwise")
         tb.addAction(self.rotate_cw_action)
         self.rotate_cw_action.triggered.connect(self.on_rotate_cw)
         self.rotate_ccw_action = QAction("Rotate counter clockwise", self)
+        self.rotate_ccw_action.setStatusTip("Rotate counter clockwise")
         tb.addAction(self.rotate_ccw_action)
         self.rotate_ccw_action.triggered.connect(self.on_rotate_ccw)
         self.rotation_angle = QDoubleSpinBox()
@@ -89,13 +95,22 @@ class MainWindow(QMainWindow):
         self.rotation_angle.setRange(0, 360)
         self.rotation_angle.setValue(90)
         self.rotation_angle.setDecimals(1)
+        self.rotation_angle.setStatusTip('Set rotation angle in degrees')
         tb.addWidget(self.rotation_angle)
         self.zoom_in_action = QAction("Zoom in", self)
+        self.zoom_in_action.setStatusTip("Zoom in")
         tb.addAction(self.zoom_in_action)
         self.zoom_in_action.triggered.connect(self.on_zoom_in)
         self.zoom_out_action = QAction("Zoom out", self)
+        self.zoom_out_action.setStatusTip("Zoom out")
         tb.addAction(self.zoom_out_action)
         self.zoom_out_action.triggered.connect(self.on_zoom_out)
+        self.action_console = QAction("Show Log", self)
+        self.action_console.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogDetailedView))
+        self.action_console.setShortcut("Ctrl+L")
+        self.action_console.setStatusTip('Show / hide console console')
+        self.action_console.triggered.connect(self.show_console)
+        tb.addAction(self.action_console)
 
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
@@ -694,6 +709,17 @@ class MainWindow(QMainWindow):
             text (`str`)        Text to be printed to the console.
         """
         self.logger.info(text)
+
+    def show_console(self):
+        """
+        Show and hide the console with the program log.
+        """
+        if self.dockWidget.isVisible():
+            self.dockWidget.hide()
+            # self.action_console.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogCancelButton))
+        else:
+            self.dockWidget.show()
+            # self.action_console.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogApplyButton))
 
     @staticmethod
     def get_logger_object(name):
