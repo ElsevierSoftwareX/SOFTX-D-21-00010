@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         self.zoom_reset_action.triggered.connect(self.on_zoom_reset)
         self.action_console = QAction("Show Log", self)
         self.action_console.setShortcut("Ctrl+L")
-        self.action_console.setStatusTip('Show / hide console console')
+        self.action_console.setStatusTip('Show / hide console')
         self.action_console.triggered.connect(self.show_console)
         tb.addAction(self.action_console)
 
