@@ -96,7 +96,7 @@ class About(QWidget):
     def __init__(self,):
         super(About, self).__init__()
         self.setWindowTitle('pyPOCQuant :: About')
-        self.setFixedSize(340, 450)
+        self.setFixedSize(400, 500)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         about_icon = QIcon()
         about_icon.addPixmap(self.style().standardPixmap(QStyle.SP_FileDialogInfoView))
@@ -119,7 +119,19 @@ class About(QWidget):
                                 <br>tqdm v4.23.4, under the <a href=https://github.com/tqdm/tqdm/blob/master/LICENCE>MIT License</a> \
                                 <br>PyQT5, under the <a href=https://www.riverbankcomputing.com/static/Docs/PyQt5/introduction.html#license>GPL v3 License</a> \
                                 <br>matplotlib, under the <a href=https://matplotlib.org/devel/license.html>PSF License</a>\
-                                <br>pyqtgraph, under the <a href=https://github.com/pyqtgraph/pyqtgraph/blob/develop/LICENSE.txt>MIT License</a>")
+                                <br>pyqtgraph, under the <a href=https://github.com/pyqtgraph/pyqtgraph/blob/develop/LICENSE.txt>MIT License</a>\
+                                <br>opencv-python v3.4.2.16, under the <a href=https://github.com/skvark/opencv-python/blob/master/LICENSE.txt>MIT License</a>\
+                                <br>opencv-contrib-python v3.4.2.16, under the <a href=https://github.com/skvark/opencv-python/blob/master/LICENSE.txt>MIT License</a>\
+                                <br>exifread, under the <a href=https://github.com/ianare/exif-py/blob/develop/LICENSE.txt>BSD 3-Clause License</a>\
+                                <br>imutils, under the <a href=https://github.com/jrosebr1/imutils/blob/master/LICENSE.txt>MIT License</a>\
+                                <br>pytesseract, under the <a href=https://github.com/madmaze/pytesseract/blob/master/LICENSE>Apache 2.0 License</a>\
+                                <br>imageio, under the <a href=https://github.com/imageio/imageio/blob/master/LICENSE>BSD 2-Clause License</a>\
+                                <br>rawpy, under the <a href=https://github.com/letmaik/rawpy/blob/master/LICENSE>MIT License</a>\
+                                <br>pyzbar, under the <a href=https://github.com/NaturalHistoryMuseum/pyzbar/blob/master/LICENSE.txt>MIT License</a>\
+                                <br>scikit-learn, under the <a href=https://github.com/scikit-learn/scikit-learn>BSD 3-Clause License</a>\
+                                <br>scikit-image, under the <a href=https://github.com/scikit-image/scikit-image>BSD 3-Clause License</a>\
+                                <br>nbconvert, under the <a href=https://github.com/jupyter/nbconvert/blob/master/LICENSE>BSD 3-Clause License</a>\
+                                <br>jupytext, under the <a href=https://github.com/mwouts/jupytext/blob/master/LICENSE>MIT License</a>")
         self.dependencies.setReadOnly(True)
         self.dependencies.setOpenExternalLinks(True)
         self.le.setAlignment(Qt.AlignCenter)
