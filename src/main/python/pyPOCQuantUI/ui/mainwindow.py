@@ -137,6 +137,7 @@ class MainWindow(QMainWindow):
         self.strip_img = None
         self.current_scene = None
         self.relative_bar_positions = []
+        self.user_instructions_path = None
 
         self.input_edit.textChanged.connect(self.on_input_edit_change)
         self.output_edit.textChanged.connect(self.on_output_edit_change)
@@ -247,9 +248,7 @@ class MainWindow(QMainWindow):
         """
         Displays the instruction manual.
         """
-        path = Path(Path(pq.__file__).parent)
-        path = Path(path).joinpath('manual', 'UserInstructions.html')
-        webbrowser.open(str(path))
+        webbrowser.open(str(Path(self.user_instructions_path)))
 
     def on_draw_strip(self):
         self.is_draw_strip = True
