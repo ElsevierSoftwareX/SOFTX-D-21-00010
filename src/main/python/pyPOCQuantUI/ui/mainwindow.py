@@ -379,6 +379,19 @@ class MainWindow(QMainWindow):
         self.output_dir = Path(self.input_dir / 'pipeline')
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
+        self.on_updated_input_folder()
+
+    def on_input_edit_change(self):
+        new_path = self.input_edit.text()
+        # Validate if path exists
+        if Path(new_path).is_dir():
+            self.input_dir = Path(new_path)
+            self.print_to_console(f"Updated input directory: {Path(new_path)}")
+            self.on_updated_input_folder()
+        else:
+            self.print_to_console(f"Selected folder does not to seem to exist: {Path(new_path)}")
+
+    def on_updated_input_folder(self):
         self.fileModel = QFileSystemModel(self)
         self.fileModel.setRootPath(str(self.input_dir))
         self.fileModel.setFilter(QDir.NoDotAndDotDot | QDir.Files)
@@ -387,14 +400,6 @@ class MainWindow(QMainWindow):
         self.listView.selectionModel().selectionChanged.connect(self.on_file_selection_changed)
         self.print_to_console(f"Selected input folder: {self.input_dir}")
 
-    def on_input_edit_change(self):
-        new_path = self.input_edit.text()
-        # Validate if path exists
-        if Path(new_path).is_dir():
-            self.input_dir = Path(new_path)
-            self.print_to_console(f"Updated input directory: {Path(new_path)}")
-        else:
-            self.print_to_console(f"Selected folder does not to seem to exist: {Path(new_path)}")
 
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
