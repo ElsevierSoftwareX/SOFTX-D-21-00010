@@ -573,7 +573,7 @@ class MainWindow(QMainWindow):
 
         # Read the image
         progress_callback.emit(20)
-        img = load_and_process_image(image_path, to_rgb=True)
+        img = load_and_process_image(image_path, to_rgb=False)
         # Extract the strip
         progress_callback.emit(60)
         strip_img, _ = extract_strip(
@@ -583,6 +583,9 @@ class MainWindow(QMainWindow):
             settings['strip_text_on_right']
         )
         progress_callback.emit(80)
+
+        # Change to RGB for display
+        strip_img[:, :, [0, 1, 2]] = strip_img[:, :, [2, 1, 0]]
 
         self.strip_img = strip_img
         progress_callback.emit(100)
