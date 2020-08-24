@@ -432,15 +432,19 @@ class MainWindow(QMainWindow):
         for ix in selected.indexes():
             self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
             try:
-                self.scene.display_image(image=load_and_process_image(Path(self.input_dir / ix.data()),  to_rgb=True))
-                self.view.resetZoom()
-                self.image_filename = ix.data()
+                ret = load_and_process_image(Path(self.input_dir / ix.data()), to_rgb=True)
+                if ret is not None:
+                    self.scene.display_image(image=ret)
+                    self.view.resetZoom()
+                    self.image_filename = ix.data()
 
-                # Extract the strip in a different thread and display it
-                self.print_to_console(f"Extracting POCT from image ...")
-                self.progressBar.setFormat("Extracting POCT from image ...")
-                self.progressBar.setAlignment(Qt.AlignCenter)
-                self.run_get_strip(Path(self.input_dir / ix.data()))
+                    # Extract the strip in a different thread and display it
+                    self.print_to_console(f"Extracting POCT from image ...")
+                    self.progressBar.setFormat("Extracting POCT from image ...")
+                    self.progressBar.setAlignment(Qt.AlignCenter)
+                    self.run_get_strip(Path(self.input_dir / ix.data()))
+                else:
+                    self.print_to_console(f"WARNING: The selected file {str(ix.data())} seams to to be a valid image.")
             except Exception as e:
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
