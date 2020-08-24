@@ -8,6 +8,7 @@ from pypocquant.lib.io import load_and_process_image
 from .polygon import Polygon
 from .polygonVertex import PolygonVertex
 from .circle import Circle
+from .line import Line
 
 
 class Scene(QGraphicsScene):
@@ -18,6 +19,7 @@ class Scene(QGraphicsScene):
     signal_add_object_at_position = pyqtSignal(float, float, name='signal_add_object_at_position')
     signal_scene_nr = pyqtSignal(int, name='signal_scene_nr')
     signal_rel_bar_pos = pyqtSignal(list, name='signal_rel_bar_pos')
+    signal_line_length = pyqtSignal(int, name='signal_line_length')
 
     def __init__(self, image, x=0, y=0, width=500, height=500, nr=None, parent=None):
         super().__init__(x, y, width, height, parent)
@@ -98,7 +100,8 @@ class Scene(QGraphicsScene):
         for item in self.items():
             if type(item) is Polygon or \
                 type(item) is PolygonVertex or \
-                    type(item) is Circle:
+                    type(item) is Circle or \
+                    type(item) is Line:
                 self.removeItem(item)
 
     def mousePressEvent(self, event):
