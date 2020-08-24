@@ -390,7 +390,6 @@ class MainWindow(QMainWindow):
         self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.input_edit.setText(str(self.input_dir))
         self.output_dir = Path(self.input_dir / 'pipeline')
-        self.output_dir.mkdir(parents=True, exist_ok=True)
         self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
         self.on_updated_input_folder()
 
@@ -399,6 +398,8 @@ class MainWindow(QMainWindow):
         # Validate if path exists
         if Path(new_path).is_dir():
             self.input_dir = Path(new_path)
+            self.output_dir = Path(self.input_dir / 'pipeline')
+            self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
             self.print_to_console(f"Updated input directory: {Path(new_path)}")
             self.on_updated_input_folder()
         else:
