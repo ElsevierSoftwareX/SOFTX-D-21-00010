@@ -21,6 +21,7 @@ from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
+from ui.compositeLine import CompositeLine
 from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
 from ui.log import LogTextEdit
@@ -113,6 +114,10 @@ class MainWindow(QMainWindow):
         self.zoom_reset_action.setStatusTip("Reset zoom")
         tb.addAction(self.zoom_reset_action)
         self.zoom_reset_action.triggered.connect(self.on_zoom_reset)
+        self.width_action = QAction("Measure distance", self)
+        self.width_action.setStatusTip("Measure distance")
+        tb.addAction(self.width_action)
+        self.width_action.triggered.connect(self.on_draw_line)
         self.action_console = QAction("Show Log", self)
         self.action_console.setShortcut("Ctrl+L")
         self.action_console.setStatusTip('Show / hide console')
@@ -130,8 +135,9 @@ class MainWindow(QMainWindow):
         self.input_dir = None
         self.output_dir = None
         self.test_dir = None
-        self.is_draw_strip = False
-        self.is_draw_sensor = False
+        self.is_draw_item = None
+        # self.is_draw_strip = False
+        # self.is_draw_sensor = False
         self.config_file_name = None
         self.run_number = 1
         self.strip_img = None
@@ -151,6 +157,8 @@ class MainWindow(QMainWindow):
             self.handle_add_object_at_position)
         self.scene.signal_scene_nr.connect(
             self.on_signal_scene_nr)
+        self.scene.signal_line_length.connect(
+            self.on_signal_line_length)
         self.view = View(self.scene)
         self.splitter_Right_Column.insertWidget(0, self.view)
         self.viewO.deleteLater()
@@ -250,13 +258,18 @@ class MainWindow(QMainWindow):
         """
         webbrowser.open(str(Path(self.user_instructions_path)))
 
+    def on_draw_line(self):
+        self.is_draw_item = 2
+
     def on_draw_strip(self):
-        self.is_draw_strip = True
-        self.is_draw_sensor = False
+        self.is_draw_item = 1
+        # self.is_draw_strip = True
+        # self.is_draw_sensor = False
 
     def on_draw_sensor(self):
-        self.is_draw_strip = False
-        self.is_draw_sensor = True
+        self.is_draw_item = 0
+        # self.is_draw_strip = False
+        # self.is_draw_sensor = True
 
     def on_mirror_v(self):
         if self.current_scene == 1:
@@ -311,8 +324,9 @@ class MainWindow(QMainWindow):
     def on_delete_items_action(self):
         self.bookKeeper.sensorPolygon = self.bookKeeper.num_timepoints * [None]
         self.scene_strip.removeCompositePolygon()
-        self.is_draw_sensor = False
-        self.is_draw_strip = False
+        self.is_draw_item = -1
+        # self.is_draw_sensor = False
+        # self.is_draw_strip = False
         self.print_to_console(f"DELETE: Sensor outline deleted.")
 
     def on_test_pipeline(self):
@@ -659,9 +673,12 @@ class MainWindow(QMainWindow):
             pass
             # self.print_to_console('Please draw POC test outline and sensor outline first')
 
+    @pyqtSlot(int, name="on_signal_line_length")
+    def on_signal_line_length(self, length):
+        self.p.param('Basic parameters').param('QR code border').setValue(length)
+
     @pyqtSlot(list, name="om_signal_rel_bar_pos")
     def on_signal_rel_bar_pos(self, rel_pos):
-        print('rel_pos', rel_pos)
         self.relative_bar_positions = rel_pos
         self.p.param('Basic parameters').param('Peak expected relative location').param('IgM').setValue(rel_pos[0])
         self.p.param('Basic parameters').param('Peak expected relative location').param('IgG').setValue(rel_pos[1])
@@ -682,7 +699,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot(float, float, name="handle_add_object_at_position")
     def handle_add_object_at_position(self, x, y):
 
-        if self.is_draw_sensor is True:
+        if self.is_draw_item is 0:
             if self.current_scene == 2:
                 currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
                 if currentSensorPolygon is None:
@@ -710,7 +727,7 @@ class MainWindow(QMainWindow):
             else:
                 self.print_to_console('Wrong canvas. Use the POCT canvas above.')
 
-        elif self.is_draw_strip is True:
+        elif self.is_draw_item is 1:
             currentStripPolygon = self.bookKeeper.getCurrentStripPolygon()
             if currentStripPolygon is None:
                 # Create a CompositePolygon
@@ -728,6 +745,20 @@ class MainWindow(QMainWindow):
                 currentStripPolygon.addVertex(QPointF(x, y))
                 self.print_to_console('Drawing POCT corner')
             self.set_sensor_and_strip_parameter()
+
+        elif self.is_draw_item is 2:
+            # Create a CompositeLine
+            currentLine = CompositeLine()
+
+            # Add the CompositeLine to the Scene. Note that the CompositeLine is
+            # not a QGraphicsItem itself and cannot be added to the Scene directly.
+            currentLine.addToScene(self.scene)
+
+            # Store the line
+            self.bookKeeper.addLine(currentLine)
+
+            # Deactivate drawing mode
+            self.is_draw_item = -1
 
     def print_to_console(self, text):
         """

@@ -96,7 +96,6 @@ class Polygon(QGraphicsPolygonItem):
             item.setEnabled(True)
 
     def emit_new_rel_pos(self, name, value):
-        print(value)
         pos = self.sceneBoundingRect()
 
         rel_pos = round((value.x() - pos.x())/pos.width(), 2)

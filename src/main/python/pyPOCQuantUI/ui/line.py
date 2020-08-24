@@ -39,7 +39,25 @@ class Line(QGraphicsLineItem):
             self._value = value
         return super(Line, self).itemChange(change, value)
 
+    def mousePressEvent(self, event):
+        if self._composite:
+            if hasattr(self._composite, 'setSelectedItemAndOrigin'):
+                self._composite.setSelectedItemAndOrigin(self, event.scenePos())
+        super(Line, self).mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton:
+            if self._composite:
+                if hasattr(self._composite, 'itemMovedTo'):
+                    self._composite.itemMovedTo(self, event.scenePos())
+        super(Line, self).mouseMoveEvent(event)
+
     def mouseReleaseEvent(self, event):
         if self._parent_item:
-            self._parent_item.emit_new_rel_pos(self._name, self._value)
+            if hasattr(self._parent_item, 'emit_new_rel_pos'):
+                self._parent_item.emit_new_rel_pos(self._name, self._value)
+        if self._composite:
+            if hasattr(self._composite, 'setSelectedItemAndOrigin'):
+                self._composite.setSelectedItemAndOrigin(None, None)
+                self._composite.emit_length()
         super(Line, self).mouseReleaseEvent(event)

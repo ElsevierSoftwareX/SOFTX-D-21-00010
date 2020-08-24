@@ -12,6 +12,7 @@ class BookKeeper:
         self.images = self.num_timepoints * [None]
         self.stripPolygon = self.num_timepoints * [None]
         self.sensorPolygon = self.num_timepoints * [None]
+        self.line = self.num_timepoints * [None]
 
     def getCurrentStripPolygon(self):
         """
@@ -44,4 +45,14 @@ class BookKeeper:
         else:
             for idx in indices:
                 self.sensorPolygon[idx] = sensorPolygon
+
+    def addLine(self, line, indices=None):
+        """
+        Add a CompositePolygon at current timepoint.
+        """
+        if not indices:
+            self.line[self.timepoint] = line
+        else:
+            for idx in indices:
+                self.line[idx] = line
 
