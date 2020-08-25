@@ -6,6 +6,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 from ui.mainwindow import MainWindow
+from ui.tools import LabelGen
 
 
 class AppContext(ApplicationContext):
@@ -31,6 +32,11 @@ class AppContext(ApplicationContext):
             self.window.width_action.setIcon(QIcon(self.get_resource("img/width-01.png")))
             self.window.action_console.setIcon(QIcon(self.get_resource("img/log-01.png")))
             self.window.user_instructions_path = self.get_resource("UserInstructions.html")
+            # Setup label form generator
+            label_gen_ui = self.get_resource("label_form.ui")
+            self.window.label_gen = LabelGen(label_gen_ui)
+            self.window.label_gen.signal_run_label.connect(self.window.on_generate_labels)
+            self.window.action_gen_qr_labels.triggered.connect(self.window.label_gen.show)
         else:
             self.show_tesseract_install_dialog()
         return appctxt.app.exec_()
