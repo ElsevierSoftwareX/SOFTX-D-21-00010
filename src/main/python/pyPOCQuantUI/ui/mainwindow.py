@@ -688,9 +688,7 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(str, Path, name="on_generate_labels")
     def on_generate_labels(self, path1, path2):
-        print(path1)
-        print(path2)
-
+        self.print_to_console('Starting label generation')
         worker = Worker(self.run_get_qr_codes, path1, path2)
         worker.signals.finished.connect(self.on_done_labels)
         self.threadpool.start(worker)
@@ -744,9 +742,7 @@ class MainWindow(QMainWindow):
                     self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
                     if len(currentSensorPolygon._polygon_item.polygon_vertices) == 4:
                         rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
-                        print(rect_sensor)
                         settings = self.get_parameters()
-                        print(settings['peak_expected_relative_location'])
                         currentSensorPolygon.addLine(settings['peak_expected_relative_location'])
                 self.set_sensor_and_strip_parameter()
             else:
@@ -828,7 +824,6 @@ class MainWindow(QMainWindow):
     def run_get_qr_codes(self, label_dir, qrdecode_result_dir_str, progress_callback):
 
         try:
-            qrdecode_result_dir_str
             label_paths = []
             # @todo add form to fill out all arguments to allow for custom page design
             # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 8 rows of
@@ -849,8 +844,6 @@ class MainWindow(QMainWindow):
             data = pd.read_csv(label_dir, header=None)
 
             for i in tqdm(range(len(data))):
-                message = 'Created QR code for ' + data.iloc[i, 0]
-                print(message)
                 save_name_qr = qrdecode_result_dir_str.joinpath('qr', data.iloc[i, 0] + 'qr.svg')
                 qr_path = qrdecode_result_dir_str.joinpath('qr')
                 qr_path.mkdir(exist_ok=True)
@@ -885,11 +878,8 @@ class MainWindow(QMainWindow):
                 scaled_drawing = self.scale(drawing, scaling_factor=0.4)
                 sheet.add_label(scaled_drawing)
 
-            print('start pdf')
-
             # Save the file and we are done.
             sheet.save(str(Path(qrdecode_result_dir_str / 'qc_labels.pdf')))
-            print('done pdf')
         except Exception as e:
             print(e)
 
