@@ -769,7 +769,7 @@ class MainWindow(QMainWindow):
 
         elif self.is_draw_item is 2:
             # Create a CompositeLine
-            currentLine = CompositeLine()
+            currentLine = CompositeLine(QPointF(x, y))
 
             # Add the CompositeLine to the Scene. Note that the CompositeLine is
             # not a QGraphicsItem itself and cannot be added to the Scene directly.

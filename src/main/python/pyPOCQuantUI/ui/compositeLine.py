@@ -13,7 +13,7 @@ class CompositeLine:
     'Vertex' items) and their spatial relationships.
     """
 
-    def __init__(self, pos: QPointF = QPointF(400.0, 300.0), line_length=40, scene=None):
+    def __init__(self, pos: QPointF = QPointF(-20.0, 400.0), line_length=40, scene=None):
         """Constructor."""
 
         # Initial position
