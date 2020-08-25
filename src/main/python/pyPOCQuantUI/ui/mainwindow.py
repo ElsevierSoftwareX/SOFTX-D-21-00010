@@ -13,8 +13,12 @@ import imageio
 import shutil
 import logging
 import sys
-import os
-import numpy as np
+import pandas as pd
+from tqdm import tqdm
+import drawSvg as draw
+from svglib.svglib import svg2rlg
+import pyqrcode
+import labels
 
 from pypocquant.lib.io import load_and_process_image
 from ui.config import params, key_map
@@ -31,6 +35,7 @@ from pypocquant.pipeline_FH import run_FH
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
 import pypocquant as pq
+from ui.tools import LabelGen
 
 
 class MainWindow(QMainWindow):
@@ -123,6 +128,10 @@ class MainWindow(QMainWindow):
         self.action_console.setStatusTip('Show / hide console')
         self.action_console.triggered.connect(self.show_console)
         tb.addAction(self.action_console)
+
+        self.label_gen = LabelGen()
+        self.label_gen.signal_run_label.connect(self.on_generate_labels)
+        self.action_gen_qr_labels.triggered.connect(self.label_gen.show)
 
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
@@ -414,7 +423,6 @@ class MainWindow(QMainWindow):
         self.listView.selectionModel().selectionChanged.connect(self.on_file_selection_changed)
         self.print_to_console(f"Selected input folder: {self.input_dir}")
 
-
     def on_select_output(self):
         self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
         self.output_edit.setText(str(self.output_dir))
@@ -678,6 +686,18 @@ class MainWindow(QMainWindow):
             pass
             # self.print_to_console('Please draw POC test outline and sensor outline first')
 
+    @pyqtSlot(str, Path, name="on_generate_labels")
+    def on_generate_labels(self, path1, path2):
+        print(path1)
+        print(path2)
+
+        worker = Worker(self.run_get_qr_codes, path1, path2)
+        worker.signals.finished.connect(self.on_done_labels)
+        self.threadpool.start(worker)
+
+    def on_done_labels(self):
+        self.print_to_console('Done with creating labels')
+
     @pyqtSlot(int, name="on_signal_line_length")
     def on_signal_line_length(self, length):
         self.p.param('Basic parameters').param('QR code border').setValue(length)
@@ -804,6 +824,88 @@ class MainWindow(QMainWindow):
             logger.setLevel(logging.INFO)
 
         return logger
+
+    def run_get_qr_codes(self, label_dir, qrdecode_result_dir_str, progress_callback):
+
+        try:
+            qrdecode_result_dir_str
+            label_paths = []
+            # @todo add form to fill out all arguments to allow for custom page design
+            # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 8 rows of
+            # labels. Each label is 90mm x 25mm with a 2mm rounded corner. The margins are
+            # automatically calculated.
+            specs = labels.Specification(210, 297, 4, 14, 50, 20, corner_radius=1, left_padding=1, top_padding=1,
+                                         bottom_padding=1, right_padding=1, padding_radius=1, left_margin=1,
+                                         right_margin=1)
+
+            def draw_label(label, width, height, obj):
+                # drawing = Image(0, 0, 300, 150, obj)
+                # scaled_drawing = self.scale(drawing, scaling_factor=0.4)
+                label.add(obj)
+
+            # Create the sheet.
+            sheet = labels.Sheet(specs, draw_label, border=True)
+            # Read the label template
+            data = pd.read_csv(label_dir, header=None)
+
+            for i in tqdm(range(len(data))):
+                message = 'Created QR code for ' + data.iloc[i, 0]
+                print(message)
+                save_name_qr = qrdecode_result_dir_str.joinpath('qr', data.iloc[i, 0] + 'qr.svg')
+                qr_path = qrdecode_result_dir_str.joinpath('qr')
+                qr_path.mkdir(exist_ok=True)
+
+                # Create qr code
+                qr = pyqrcode.create(data.iloc[i, 0])
+
+                # # Save qr codes
+                # # qr.png(str(save_name), scale=3, quiet_zone=6)
+                # qr.svg(str(save_name_qr), scale=3, quiet_zone=6)
+
+                # Add human readable information to the label
+                value_string = data.iloc[i, 0].split('-')
+                d = draw.Drawing(300, 150)
+                d.append(draw.Text(value_string[0], 20, 150, 105, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[1], 17, 150, 72, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[2], 25, 150, 38, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[3], 25, 150, 5, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Image(1, 1, 145, 145, str(save_name_qr)))
+                save_name = qrdecode_result_dir_str.joinpath(data.iloc[i, 0] + '.svg')
+                d.saveSvg(str(save_name))
+
+                label_paths.append(str(save_name))
+
+                # scaled_drawing = self.scale(dd.asDataUri(), scaling_factor=0.4)
+                # print(d)
+                # print(type(d))
+                # sheet.add_label(str(save_name))
+
+                # @todo should be possible to pass the label from memory instead of reading it
+                drawing = svg2rlg(str(save_name))
+                scaled_drawing = self.scale(drawing, scaling_factor=0.4)
+                sheet.add_label(scaled_drawing)
+
+            print('start pdf')
+
+            # Save the file and we are done.
+            sheet.save(str(Path(qrdecode_result_dir_str / 'qc_labels.pdf')))
+            print('done pdf')
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def scale(drawing, scaling_factor):
+        """
+        Scale a reportlab.graphics.shapes.Drawing()
+        object while maintaining the aspect ratio
+        """
+        scaling_x = scaling_factor
+        scaling_y = scaling_factor
+
+        drawing.width = drawing.minWidth() * scaling_x
+        drawing.height = drawing.height * scaling_y
+        drawing.scale(scaling_x, scaling_y)
+        return drawing
 
     def closeEvent(self, event):
 
