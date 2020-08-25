@@ -33,7 +33,6 @@ class LabelGen(QDialog):
         self.qrdecode_result_dir_str = Path(self.label_dir_edit.text())
         self.qrdecode_result_dir_str = Path(self.qrdecode_result_dir_str.parent / str(
             self.qrdecode_result_dir_str.stem + "_QRCodes"))
-        print(self.qrdecode_result_dir_str)
 
     def get_dir(self):
         try:
@@ -50,12 +49,10 @@ class LabelGen(QDialog):
             if key not in d:
                 prop = getattr(self, key)
                 d[key] = prop.value()
-        print(d)
         return d
 
     def emit_data(self):
         d = self.get_data()
-        print(type(self.label_dir_edit), type(self.qrdecode_result_dir_str))
         self.signal_run_label.emit(self.label_dir_edit.text(), self.qrdecode_result_dir_str, d)
 
 
