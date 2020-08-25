@@ -453,7 +453,7 @@ class MainWindow(QMainWindow):
                     self.progressBar.setAlignment(Qt.AlignCenter)
                     self.run_get_strip(Path(self.input_dir / ix.data()))
                 else:
-                    self.print_to_console(f"WARNING: The selected file {str(ix.data())} seams to to be a valid image.")
+                    self.print_to_console(f"ERROR: The file {str(ix.data())} could not be opened.")
             except Exception as e:
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
@@ -907,4 +907,3 @@ class MainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
-
