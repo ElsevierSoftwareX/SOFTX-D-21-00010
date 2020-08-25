@@ -2,3 +2,7 @@ fbs==0.8.6
 pyqtgraph
 imageio
 pyqt5
+svglib
+drawsvg
+pyqrcode
+pylabels
