@@ -74,7 +74,7 @@ class CompositeLine:
             return None
         p1 = self._line.line().p1()
         p2 = self._line.line().p2()
-        d = ((p2.x() + p1.x())**2 + (p2.y() + p1.y())**2)**(1/2)
+        d = ((p2.x() - p1.x())**2 + (p2.y() - p1.y())**2)**(1/2)
         return d
 
     def itemMovedTo(self, item, newPos):

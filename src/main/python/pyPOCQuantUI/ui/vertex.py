@@ -20,7 +20,6 @@ class Vertex(QGraphicsEllipseItem):
         # Now place it at the right position in the scene
         self.setPos(x - radius, y - radius)
 
-        self.setBrush(QColor(148, 85, 141))
         self.setPen(QPen(QColor(148, 85, 141), 2))
         self.setCursor(QCursor(Qt.PointingHandCursor))
 
