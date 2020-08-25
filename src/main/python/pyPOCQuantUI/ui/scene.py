@@ -90,7 +90,7 @@ class Scene(QGraphicsScene):
                 item.setZValue(0)
             else:
                 item.setZValue(10)
-            self.addItem(item)
+            #self.addItem(item)
 
     def removeCompositePolygon(self):
         """
