@@ -853,7 +853,7 @@ class MainWindow(QMainWindow):
 
                 # # Save qr codes
                 # # qr.png(str(save_name), scale=3, quiet_zone=6)
-                # qr.svg(str(save_name_qr), scale=3, quiet_zone=6)
+                qr.svg(str(save_name_qr), scale=3, quiet_zone=6)
 
                 # Add human readable information to the label
                 value_string = data.iloc[i, 0].split('-')
