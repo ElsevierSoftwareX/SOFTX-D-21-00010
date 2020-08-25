@@ -6,3 +6,5 @@ svglib
 drawsvg
 pyqrcode
 pylabels
+jupytext
+platform
