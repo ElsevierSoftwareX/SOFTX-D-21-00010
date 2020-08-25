@@ -24,6 +24,8 @@ __version__ = '0.0.2'
 
 __operating_system__ = '{} {}'.format(platform.system(), platform.architecture()[0])
 
+from ui import versionInfo
+
 
 class QuickInstructions(QWidget):
     """
@@ -103,7 +105,7 @@ class About(QWidget):
         self.setWindowIcon(about_icon)
 
         self.le = QLabel()
-        self.build = QLabel("[build: v%s %s bit]" % (__version__, __operating_system__))
+        self.build = QLabel("[version: v%s %s]" % (versionInfo.get_version_string(), __operating_system__))
         self.author = QLabel("pyPOCQuant: Point of Care Test\nQuantification tool. \n\nwritten by Andreas P. Cuny "
                              "and Aaron Ponti")
         self.license = QLabel("Licensed under the GPL v3 license.")
