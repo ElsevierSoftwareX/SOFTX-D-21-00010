@@ -31,11 +31,15 @@ from ui.worker import Worker
 from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
 from ui.stream import Stream
+from ui import versionInfo
 from pypocquant.pipeline_FH import run_FH
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
 import pypocquant as pq
 from ui.tools import LabelGen
+import platform
+
+__operating_system__ = '{} {}'.format(platform.system(), platform.architecture()[0])
 
 
 class MainWindow(QMainWindow):
@@ -52,7 +56,8 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         uic.loadUi(ui, self)
 
-        self.setWindowTitle('pyPOCQuant:: Point of Care Test Quantification tool')
+        self.setWindowTitle('pyPOCQuant:: Point of Care Test Quantification tool [build: v % s % s]'
+                            % (versionInfo.get_version_string(), __operating_system__))
 
         # Add filemenu
         self.action_save_settings_file.triggered.connect(self.on_save_settings_file)
