@@ -129,12 +129,9 @@ class MainWindow(QMainWindow):
         self.action_console.triggered.connect(self.show_console)
         tb.addAction(self.action_console)
 
-        self.label_gen = LabelGen()
-        self.label_gen.signal_run_label.connect(self.on_generate_labels)
-        self.action_gen_qr_labels.triggered.connect(self.label_gen.show)
-
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
+        self.label_gen = None
         self.display_on_startup = None
         self.image_splash1 = None
         self.image_splash2 = None
@@ -686,10 +683,10 @@ class MainWindow(QMainWindow):
             pass
             # self.print_to_console('Please draw POC test outline and sensor outline first')
 
-    @pyqtSlot(str, Path, name="on_generate_labels")
-    def on_generate_labels(self, path1, path2):
+    @pyqtSlot(str, Path, dict, name="on_generate_labels")
+    def on_generate_labels(self, path1, path2, d):
         self.print_to_console('Starting label generation')
-        worker = Worker(self.run_get_qr_codes, path1, path2)
+        worker = Worker(self.run_get_qr_codes, path1, path2, d)
         worker.signals.finished.connect(self.on_done_labels)
         self.threadpool.start(worker)
 
@@ -821,17 +818,20 @@ class MainWindow(QMainWindow):
 
         return logger
 
-    def run_get_qr_codes(self, label_dir, qrdecode_result_dir_str, progress_callback):
+    def run_get_qr_codes(self, label_dir, qrdecode_result_dir_str, d, progress_callback):
 
         try:
+
+            qrdecode_result_dir_str.mkdir(exist_ok=True)
             label_paths = []
-            # @todo add form to fill out all arguments to allow for custom page design
-            # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 8 rows of
-            # labels. Each label is 90mm x 25mm with a 2mm rounded corner. The margins are
-            # automatically calculated.
-            specs = labels.Specification(210, 297, 4, 14, 50, 20, corner_radius=1, left_padding=1, top_padding=1,
-                                         bottom_padding=1, right_padding=1, padding_radius=1, left_margin=1,
-                                         right_margin=1)
+            # Create an page with custom settings
+            specs = labels.Specification(d["sheet_width"], d["sheet_height"], d["columns"], d["rows"], d["label_width"],
+                                         d["label_height"], corner_radius=d["corner_radius"],
+                                         left_padding=d["left_padding"], top_padding=d["top_padding"],
+                                         bottom_padding=d["bottom_padding"], right_padding=d["right_padding"],
+                                         padding_radius=d["padding_radius"], left_margin=d["left_margin"],
+                                         right_margin=d["right_margin"], top_margin=d["top_margin"],
+                                         bottom_margin=d["bottom_margin"])
 
             def draw_label(label, width, height, obj):
                 # drawing = Image(0, 0, 300, 150, obj)
