@@ -63,6 +63,9 @@ def increase_build_number():
 def compare_version(version: str) -> bool:
     """Compares provided 'version' string with current version in VERSION file.
 
+    :param version: string
+        Version string in the form X.Y.Z.
+
     The BUILD number is ignored.
     """
 
@@ -77,3 +80,21 @@ def compare_version(version: str) -> bool:
         current_version = line
 
     return current_version == version
+
+
+def set_new_version(version: str):
+    """Set new version to VERSION file and resets the BUILD number.
+
+    :param version: string
+        New version string in the form X.Y.Z.
+    """
+
+    # Get the folder
+    folder = Path(__file__).parents[0]
+
+    # Write new version
+    with open(folder / 'VERSION', 'w') as f:
+        f.write(str(version))
+
+    # Reset the BUILD number
+    reset_build_file()

@@ -1,58 +1,113 @@
 import os
 import platform
+import shutil
 import sys
 from pathlib import Path
 import site
 
 from pypocquant.manual import build_manual
+from ui import versionInfo
 
+def copy_and_print_missing_files(source_root_dir: Path, target_root_dir: Path, list_items: list):
+    """Copy missing files before freezing.
 
-# @todo add versioning
+    """
+
+    # Make sure that both source_root_dir and target_root_dir are Path onjects
+    source_root_dir = Path(source_root_dir)
+    target_root_dir = Path(target_root_dir)
+
+    # Clean the target
+    if target_root_dir.is_dir():
+        shutil.rmtree(target_root_dir)
+    target_root_dir.mkdir(parents=True, exist_ok=True)
+
+    # Now copy the items from the list
+    for item in list_items:
+        source = Path(source_root_dir / item)
+        target = Path(target_root_dir / item)
+        if source.is_dir():
+            shutil.copytree(source, target)
+            item_type = "DIR"
+        elif source.is_file():
+            parent_folder = Path(target.parents[0].resolve())
+            parent_folder.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+            item_type = "FILE"
+        else:
+            print(f"[ERROR] '{source}' not found.")
+            continue
+
+        print(f"[{item_type:5s}] Copied from '{source}' to '{target}'.")
+
 
 def prepare_freezing():
-    if platform.system() == 'Windows':
-        # Create relevant folders
-        Path('src/freeze').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/osx').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/cairosvg').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/cssselect2').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/dask').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/pywt').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/pywt/_extensions').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/pyzbar').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/scipy').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/scipy/special').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/skimage').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/skimage/feature').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/sklearn').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/sklearn/utils').mkdir(parents=True, exist_ok=True)
-        Path('src/freeze/windows/tinycss2').mkdir(parents=True, exist_ok=True)
+    """Copy files known to be missed by `fbs freeze`."""
 
-        python_dir = site.getsitepackages()
-        packages_root_dir = python_dir[1]
+    # Target root folder
+    target_root_dir = Path(Path(__file__).parents[0].resolve())
+
+    # Create common folders
+    Path(target_root_dir / 'src/freeze').mkdir(parents=True, exist_ok=True)
+    Path(target_root_dir / 'src/freeze/windows').mkdir(parents=True, exist_ok=True)
+    Path(target_root_dir / 'src/freeze/osx').mkdir(parents=True, exist_ok=True)
+    Path(target_root_dir / 'src/freeze/linux').mkdir(parents=True, exist_ok=True)
+
+    # Source root folder
+    python_dir = site.getsitepackages()
+    packages_root_dir = python_dir[1]
+
+    # Build the list of files and folder to copy to the correct `freeze` subfolder
+    if platform.system() == 'Windows':
+
+        # Build map of files/folders to copy
+        item_list = [
+            'cairosvg',
+            'cssselect2/VERSION',
+            'tinycss2/VERSION',
+            'sklearn/utils/_cython_blas.cp36-win_amd64.pyd',
+            'skimage/feature/_orb_descriptor_positions',
+            'dask/dask.yaml',
+            'pywt/_extensions/_cwt.cp36-win_amd64',
+            'pyzbar',
+            'scipy/.libs',
+            'scipy/special/cython_special.cp36-win_amd64.pyd'
+        ]
 
         # Copy missing files
-        # @todo replace print with shutil.copy2 and keep print to inform user
-        print(str(Path(packages_root_dir, 'cairosvg')), str(Path('src/freeze/windows/cairosvg')))
-        print(str(Path(packages_root_dir,'cssselect2','VERSION')), str(Path('src/freeze/windows/cssselect2')))
-        print(str(Path(packages_root_dir, 'tinycss2', 'VERSION')), str(Path('src/freeze/windows/tinycss2')))
-        print(str(Path(packages_root_dir, 'sklearn/utils', '_cython_blas.cp36-win_amd64')),
-              str(Path('src/freeze/windows/sklearn/utils')))
-        print(str(Path(packages_root_dir, 'skimage/feature', '_orb_descriptor_positions')),
-              str(Path('src/freeze/windows/skimage/feature')))
-        print(str(Path(packages_root_dir, 'dask', 'dask.yaml')), str(Path('src/freeze/windows/dask')))
-        print(str(Path(packages_root_dir, 'pywt/_extensions', '_cwt.cp36-win_amd64')),
-              str(Path('src/freeze/windows/pywt/_extensions')))
-        print(str(Path(packages_root_dir, 'pyzbar')), str(Path('src/freeze/windows/pyzbar')))
-        print(str(Path(packages_root_dir, 'scipy/.libs', )), str(Path('src/freeze/windows/scipy/')))
-        print(str(Path(packages_root_dir, 'scipy/special', 'cython_special.cp36-win_amd64')),
-              str(Path('src/freeze/windows/scipy/special')))
+        copy_and_print_missing_files(
+            packages_root_dir,
+            Path(target_root_dir / 'src/freeze/windows'),
+            item_list
+        )
+
+        # Original list -- kept for reference
+        # print(str(Path(packages_root_dir, 'cairosvg')), str(Path('src/freeze/windows/cairosvg')))
+        # print(str(Path(packages_root_dir,'cssselect2','VERSION')), str(Path('src/freeze/windows/cssselect2')))
+        # print(str(Path(packages_root_dir, 'tinycss2', 'VERSION')), str(Path('src/freeze/windows/tinycss2')))
+        # print(str(Path(packages_root_dir, 'sklearn/utils', '_cython_blas.cp36-win_amd64')),
+        #       str(Path('src/freeze/windows/sklearn/utils')))
+        # print(str(Path(packages_root_dir, 'skimage/feature', '_orb_descriptor_positions')),
+        #       str(Path('src/freeze/windows/skimage/feature')))
+        # print(str(Path(packages_root_dir, 'dask', 'dask.yaml')), str(Path('src/freeze/windows/dask')))
+        # print(str(Path(packages_root_dir, 'pywt/_extensions', '_cwt.cp36-win_amd64')),
+        #       str(Path('src/freeze/windows/pywt/_extensions')))
+        # print(str(Path(packages_root_dir, 'pyzbar')), str(Path('src/freeze/windows/pyzbar')))
+        # print(str(Path(packages_root_dir, 'scipy/.libs', )), str(Path('src/freeze/windows/scipy/')))
+        # print(str(Path(packages_root_dir, 'scipy/special', 'cython_special.cp36-win_amd64')),
+        #       str(Path('src/freeze/windows/scipy/special')))
 
 
 print('|---------------------------------------------------------------------------------------------------|')
 print('| Start building pyPOCQUANT')
 print('|---------------------------------------------------------------------------------------------------|')
+
+__VERSION__ = "0.0.3"
+
+# Update version and build info
+if not versionInfo.compare_version(__VERSION__):
+    versionInfo.set_new_version(__VERSION__)
+versionInfo.increase_build_number()
 
 # Build manual
 build_manual()
