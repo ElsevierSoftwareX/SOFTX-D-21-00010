@@ -26,6 +26,7 @@ from ui.view import View
 from ui.scene import Scene
 from ui.compositePolygon import CompositePolygon
 from ui.compositeLine import CompositeLine
+from ui.compositeRect import CompositeRect
 from ui.bookkeeper import BookKeeper
 from ui.worker import Worker
 from ui.log import LogTextEdit
@@ -242,6 +243,8 @@ class MainWindow(QMainWindow):
             if path[-1] == 'Ctl':
                 self.relative_bar_positions[2] = data
                 self.update_bar_pos()
+            if path[-1] == 'hough params':
+                self.set_hough_rect()
 
     def update_bar_pos(self):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -646,6 +649,24 @@ class MainWindow(QMainWindow):
     def change_parameter_keys(parameters, key_map):
         parameter_out = dict((key_map[key], value) for (key, value) in parameters.items())
         return parameter_out
+
+    def set_hough_rect(self):
+        currentHoughRect = self.bookKeeper.getCurrentHoughRect()
+        if currentHoughRect is None:
+            # Create a CompositeRect
+            print(self.scene_strip.sceneRect())
+            currentHoughRect = CompositeRect(QRectF(0, 0, 100, 100), QRectF(0, 0, 100, 100))
+
+            # Add the CompositeRect to the Scene. Note that the RectItem is
+            # not a QGraphicsItem itself and cannot be added to the Scene directly.
+            currentHoughRect.addToScene(self.scene_strip)
+
+            # Store the polygon
+            self.bookKeeper.addHoughRect(currentHoughRect)
+        else:
+            self.scene_strip.removeHoughRect()
+            currentHoughRect.updateRect(QRectF(0, 0, 150, 100), QRectF(0, 0, 300, 100))
+            currentHoughRect.addToScene(self.scene_strip)
 
     def set_sensor_and_strip_parameter(self):
 

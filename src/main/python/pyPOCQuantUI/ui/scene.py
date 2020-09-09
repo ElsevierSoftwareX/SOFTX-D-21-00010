@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QPixmap, QTransform
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QApplication
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QApplication, QGraphicsRectItem
 from PyQt5.QtCore import pyqtSignal, Qt
 import pyqtgraph as pg
 import imageio
@@ -74,6 +74,7 @@ class Scene(QGraphicsScene):
 
             # Reset the scene size
             self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
+            print(self.sceneRect())
 
             self.pixmap = pixmap_reflect
 
@@ -102,6 +103,11 @@ class Scene(QGraphicsScene):
                 type(item) is PolygonVertex or \
                     type(item) is Circle or \
                     type(item) is Line:
+                self.removeItem(item)
+
+    def removeHoughRect(self):
+        for item in self.items():
+            if type(item) is QGraphicsRectItem:
                 self.removeItem(item)
 
     def mousePressEvent(self, event):
