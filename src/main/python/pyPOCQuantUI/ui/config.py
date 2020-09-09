@@ -70,7 +70,7 @@ params = [
                     {'name': 'y', 'type': 'int', 'value': 7},
                 ]
              },
-            {'name': 'Sensor threshold factor', 'type': 'int', 'value': 2},
+            {'name': 'Sensor threshold factor', 'type': 'float', 'value': 2.0, 'step': 0.1},
             {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
              'tip': "Set to true if raw image intensities should be auto-stretched"},
             {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
