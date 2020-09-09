@@ -612,7 +612,7 @@ class MainWindow(QMainWindow):
         img = load_and_process_image(image_path, to_rgb=False)
         # Extract the strip
         progress_callback.emit(60)
-        strip_img, _ = extract_strip(
+        strip_img, _, left_rect, right_rect = extract_strip(
             img,
             settings['qr_code_border'],
             settings['strip_try_correct_orientation'],
