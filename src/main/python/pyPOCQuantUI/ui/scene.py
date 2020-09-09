@@ -74,7 +74,6 @@ class Scene(QGraphicsScene):
 
             # Reset the scene size
             self.setSceneRect(0, 0, pixmap_reflect.width(), pixmap_reflect.height())
-            print(self.sceneRect())
 
             self.pixmap = pixmap_reflect
 

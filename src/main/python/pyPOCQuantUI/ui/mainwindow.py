@@ -251,6 +251,8 @@ class MainWindow(QMainWindow):
                 self.set_hough_rect()
             if path[-1] == 'Relative border cut-off':
                 self.set_hough_rect()
+            if path[-1] == 'Try to correct strip orientation':
+                self.set_hough_rect()
 
     def update_bar_pos(self):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -472,6 +474,7 @@ class MainWindow(QMainWindow):
     def on_strip_extraction_finished(self):
         self.scene_strip.display_image(image=self.strip_img)
         self.view_strip.resetZoom()
+        self.set_hough_rect()
         self.progressBar.setFormat('Extracting POCT from image finished successfully.')
         self.print_to_console(f"Extracting POCT from image finished successfully.")
 
@@ -665,34 +668,38 @@ class MainWindow(QMainWindow):
 
     def set_hough_rect(self):
 
-        currentHoughRect = self.bookKeeper.getCurrentHoughRect()
-        height_fact = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
-            'Relative height factor').value()
-        center_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
-            'Relative center cut-off').value()
-        border_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
-            'Relative border cut-off').value()
+        if self.p.param('Basic parameters').param('Try to correct strip orientation').value():
 
-        gray = cv2.cvtColor(self.scene_strip.image.image, cv2.COLOR_BGR2GRAY)
-        _, _, _, _, left_rect, right_rect = use_hough_transform_to_rotate_strip_if_needed(
-            gray, rectangle_props=(height_fact, center_cutoff, border_cutoff), img=None, qc=False)
+            currentHoughRect = self.bookKeeper.getCurrentHoughRect()
+            height_fact = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+                'Relative height factor').value()
+            center_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+                'Relative center cut-off').value()
+            border_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+                'Relative border cut-off').value()
 
-        if currentHoughRect is None:
-            # Create a CompositeRect
-            currentHoughRect = CompositeRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
-                                             QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
+            gray = cv2.cvtColor(self.scene_strip.image.image, cv2.COLOR_BGR2GRAY)
+            _, _, _, _, left_rect, right_rect = use_hough_transform_to_rotate_strip_if_needed(
+                gray, rectangle_props=(height_fact, center_cutoff, border_cutoff), img=None, qc=False)
 
-            # Add the CompositeRect to the Scene. Note that the RectItem is
-            # not a QGraphicsItem itself and cannot be added to the Scene directly.
-            currentHoughRect.addToScene(self.scene_strip)
+            if currentHoughRect is None:
+                # Create a CompositeRect
+                currentHoughRect = CompositeRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
+                                                 QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
 
-            # Store the polygon
-            self.bookKeeper.addHoughRect(currentHoughRect)
+                # Add the CompositeRect to the Scene. Note that the RectItem is
+                # not a QGraphicsItem itself and cannot be added to the Scene directly.
+                currentHoughRect.addToScene(self.scene_strip)
+
+                # Store the polygon
+                self.bookKeeper.addHoughRect(currentHoughRect)
+            else:
+                self.scene_strip.removeHoughRect()
+                currentHoughRect.updateRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
+                                                 QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
+                currentHoughRect.addToScene(self.scene_strip)
         else:
             self.scene_strip.removeHoughRect()
-            currentHoughRect.updateRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
-                                             QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
-            currentHoughRect.addToScene(self.scene_strip)
 
     def set_sensor_and_strip_parameter(self):
 
