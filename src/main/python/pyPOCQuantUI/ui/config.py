@@ -13,6 +13,15 @@ params = [
     {
         'name': 'Basic parameters', 'type': 'group', 'children':
         [
+            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': True,
+             'tip': "Will try to find the injection inlet to assess orientation."},
+            {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
+                [
+                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52},
+                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15},
+                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09},
+                ]
+             },
             {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
              'tip': "Use prominent text such as COVID"},
             {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
@@ -73,6 +82,8 @@ params = [
 key_map = {
     'raw_auto_stretch': 'raw_auto_stretch',
     'raw_auto_wb': 'raw_auto_wb',
+    'try_to_correct_strip_orientation': 'strip_try_correct_orientation',
+    'strip_orientation_correction_search_rectangles': 'strip_try_correct_orientation_rects',
     'strip_text_to_search_(orientation)': 'strip_text_to_search',
     'strip_text_is_on_the_right': 'strip_text_on_right',
     'poct_size': 'strip_size',

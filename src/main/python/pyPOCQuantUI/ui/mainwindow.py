@@ -543,25 +543,27 @@ class MainWindow(QMainWindow):
         # Inform the user
         self.print_to_console(f"")
         self.print_to_console(f"Starting analysis with parameters:")
-        self.print_to_console(f"                               Input: {input_dir}")
-        self.print_to_console(f"                              Output: {output_dir}")
-        self.print_to_console(f"                 Max number of cores: {settings['max_workers']}")
-        self.print_to_console(f"        RAW auto stretch intensities: {settings['raw_auto_stretch']}")
-        self.print_to_console(f"        RAW apply auto white balance: {settings['raw_auto_wb']}")
-        self.print_to_console(f"  Strip text to search (orientation): {settings['strip_text_to_search']}")
-        self.print_to_console(f"          Strip text is on the right: {settings['strip_text_on_right']}")
-        # self.print_to_console(f"                          Strip size: {settings['strip_size']}")
-        self.print_to_console(f"                      QR code border: {settings['qr_code_border']}")
-        self.print_to_console(f"               Perform sensor search: {settings['perform_sensor_search']}")
-        self.print_to_console(f"                         Sensor size: {settings['sensor_size']}")
-        self.print_to_console(f"                       Sensor center: {settings['sensor_center']}")
-        self.print_to_console(f"                  Sensor search area: {settings['sensor_search_area']}")
-        self.print_to_console(f"             Sensor threshold factor: {settings['sensor_thresh_factor']}")
-        self.print_to_console(f"                       Sensor border: {settings['sensor_border']}")
-        self.print_to_console(f"    Expected peak relative positions: {settings['peak_expected_relative_location']}")
-        self.print_to_console(f"          Subtract signal background: {settings['subtract_background']}")
-        self.print_to_console(f"                      Verbose output: {settings['verbose']}")
-        self.print_to_console(f"      Create quality-control figures: {settings['qc']}")
+        self.print_to_console(f"                                  Input: {input_dir}")
+        self.print_to_console(f"                                 Output: {output_dir}")
+        self.print_to_console(f"                    Max number of cores: {settings['max_workers']}")
+        self.print_to_console(f"           RAW auto stretch intensities: {settings['raw_auto_stretch']}")
+        self.print_to_console(f"           RAW apply auto white balance: {settings['raw_auto_wb']}")
+        self.print_to_console(f"      Try to correct for strip orientation: {settings['strip_try_correct_orientation']}")
+        self.print_to_console(f"    Strip orientation rectangle properties: {settings['strip_try_correct_orientation_rects']}")
+        self.print_to_console(f"     Strip text to search (orientation): {settings['strip_text_to_search']}")
+        self.print_to_console(f"             Strip text is on the right: {settings['strip_text_on_right']}")
+        # self.print_to_console(f"                             Strip size: {settings['strip_size']}")
+        self.print_to_console(f"                         QR code border: {settings['qr_code_border']}")
+        self.print_to_console(f"                  Perform sensor search: {settings['perform_sensor_search']}")
+        self.print_to_console(f"                            Sensor size: {settings['sensor_size']}")
+        self.print_to_console(f"                          Sensor center: {settings['sensor_center']}")
+        self.print_to_console(f"                     Sensor search area: {settings['sensor_search_area']}")
+        self.print_to_console(f"                Sensor threshold factor: {settings['sensor_thresh_factor']}")
+        self.print_to_console(f"                          Sensor border: {settings['sensor_border']}")
+        self.print_to_console(f"       Expected peak relative positions: {settings['peak_expected_relative_location']}")
+        self.print_to_console(f"             Subtract signal background: {settings['subtract_background']}")
+        self.print_to_console(f"                         Verbose output: {settings['verbose']}")
+        self.print_to_console(f"         Create quality-control figures: {settings['qc']}")
         self.print_to_console(f"")
 
         # Run the pipeline
@@ -570,6 +572,8 @@ class MainWindow(QMainWindow):
             output_dir,
             raw_auto_stretch=settings['raw_auto_stretch'],
             raw_auto_wb=settings['raw_auto_wb'],
+            strip_try_correct_orientation=settings['strip_try_correct_orientation'],
+            strip_try_correct_orientation_rects=settings['strip_try_correct_orientation_rects'],
             strip_text_to_search=settings['strip_text_to_search'],
             strip_text_on_right=settings['strip_text_on_right'],
             qr_code_border=settings['qr_code_border'],
@@ -611,6 +615,8 @@ class MainWindow(QMainWindow):
         strip_img, _ = extract_strip(
             img,
             settings['qr_code_border'],
+            settings['strip_try_correct_orientation'],
+            settings['strip_try_correct_orientation_rects'],
             settings['strip_text_to_search'],
             settings['strip_text_on_right']
         )
