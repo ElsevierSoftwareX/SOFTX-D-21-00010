@@ -17,9 +17,9 @@ params = [
              'tip': "Will try to find the injection inlet to assess orientation."},
             {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
                 [
-                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52},
-                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15},
-                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09},
+                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.05, 'limits': (0, 1)},
                 ]
              },
             {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
@@ -55,9 +55,9 @@ params = [
             {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
             {'name': 'Peak expected relative location', 'type': 'group', 'children':
                 [
-                    {'name': 'IgM', 'type': 'float', 'value': 0.25},
-                    {'name': 'IgG', 'type': 'float', 'value': 0.53},
-                    {'name': 'Ctl', 'type': 'float', 'value': 0.79},
+                    {'name': 'IgM', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'IgG', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'Ctl', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
                 ]
             }
         ]},
