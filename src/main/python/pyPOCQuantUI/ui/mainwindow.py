@@ -19,6 +19,7 @@ import drawSvg as draw
 from svglib.svglib import svg2rlg
 import pyqrcode
 import labels
+import cv2
 
 from pypocquant.lib.io import load_and_process_image
 from ui.config import params, key_map
@@ -33,6 +34,7 @@ from ui.log import LogTextEdit
 from ui.help import About, QuickInstructions
 from ui.stream import Stream
 from ui import versionInfo
+from pypocquant.lib.analysis import use_hough_transform_to_rotate_strip_if_needed
 from pypocquant.pipeline_FH import run_FH
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
@@ -243,7 +245,11 @@ class MainWindow(QMainWindow):
             if path[-1] == 'Ctl':
                 self.relative_bar_positions[2] = data
                 self.update_bar_pos()
-            if path[-1] == 'hough params':
+            if path[-1] == 'Relative height factor':
+                self.set_hough_rect()
+            if path[-1] == 'Relative center cut-off':
+                self.set_hough_rect()
+            if path[-1] == 'Relative border cut-off':
                 self.set_hough_rect()
 
     def update_bar_pos(self):
@@ -448,6 +454,7 @@ class MainWindow(QMainWindow):
             try:
                 ret = load_and_process_image(Path(self.input_dir / ix.data()), to_rgb=True)
                 if ret is not None:
+                    self.scene_strip.removeHoughRect()
                     self.scene.display_image(image=ret)
                     self.view.resetZoom()
                     self.image_filename = ix.data()
@@ -657,11 +664,23 @@ class MainWindow(QMainWindow):
         return parameter_out
 
     def set_hough_rect(self):
+
         currentHoughRect = self.bookKeeper.getCurrentHoughRect()
+        height_fact = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            'Relative height factor').value()
+        center_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            'Relative center cut-off').value()
+        border_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            'Relative border cut-off').value()
+
+        gray = cv2.cvtColor(self.scene_strip.image.image, cv2.COLOR_BGR2GRAY)
+        _, _, _, _, left_rect, right_rect = use_hough_transform_to_rotate_strip_if_needed(
+            gray, rectangle_props=(height_fact, center_cutoff, border_cutoff), img=None, qc=False)
+
         if currentHoughRect is None:
             # Create a CompositeRect
-            print(self.scene_strip.sceneRect())
-            currentHoughRect = CompositeRect(QRectF(0, 0, 100, 100), QRectF(0, 0, 100, 100))
+            currentHoughRect = CompositeRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
+                                             QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
 
             # Add the CompositeRect to the Scene. Note that the RectItem is
             # not a QGraphicsItem itself and cannot be added to the Scene directly.
@@ -671,7 +690,8 @@ class MainWindow(QMainWindow):
             self.bookKeeper.addHoughRect(currentHoughRect)
         else:
             self.scene_strip.removeHoughRect()
-            currentHoughRect.updateRect(QRectF(0, 0, 150, 100), QRectF(0, 0, 300, 100))
+            currentHoughRect.updateRect(QRectF(left_rect[0], left_rect[1], left_rect[2], left_rect[3]),
+                                             QRectF(right_rect[0], right_rect[1], right_rect[2], right_rect[3]))
             currentHoughRect.addToScene(self.scene_strip)
 
     def set_sensor_and_strip_parameter(self):
