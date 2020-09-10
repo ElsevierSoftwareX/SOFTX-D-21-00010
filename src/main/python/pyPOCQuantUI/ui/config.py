@@ -17,9 +17,9 @@ params = [
              'tip': "Will try to find the injection inlet to assess orientation."},
             {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
                 [
-                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.01, 'limits': (0, 1)},
+                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.01, 'limits': (0, 1)},
+                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.01, 'limits': (0, 1)},
                 ]
              },
             {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
