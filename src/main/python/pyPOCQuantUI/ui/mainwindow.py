@@ -34,7 +34,7 @@ from ui.help import About, QuickInstructions
 from ui.stream import Stream
 from ui import versionInfo
 from pypocquant.lib.analysis import get_rectangles_from_image_and_rectangle_props
-from pypocquant.pipeline_FH import run_FH
+from pypocquant.pipeline import run_pipeline
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
 import pypocquant as pq
@@ -577,7 +577,7 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"")
 
         # Run the pipeline
-        run_FH(
+        run_pipeline(
             input_dir,
             output_dir,
             raw_auto_stretch=settings['raw_auto_stretch'],
