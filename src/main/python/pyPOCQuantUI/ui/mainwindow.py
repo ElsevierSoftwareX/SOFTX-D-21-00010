@@ -764,9 +764,9 @@ class MainWindow(QMainWindow):
     @pyqtSlot(list, name="om_signal_rel_bar_pos")
     def on_signal_rel_bar_pos(self, rel_pos):
         self.relative_bar_positions = rel_pos
-        self.p.param('Basic parameters').param('Peak expected relative location').param('IgM').setValue(rel_pos[0])
-        self.p.param('Basic parameters').param('Peak expected relative location').param('IgG').setValue(rel_pos[1])
-        self.p.param('Basic parameters').param('Peak expected relative location').param('Ctl').setValue(rel_pos[2])
+        self.p.param('Basic parameters').param('Band expected relative location').param('IgM').setValue(rel_pos[0])
+        self.p.param('Basic parameters').param('Band expected relative location').param('IgG').setValue(rel_pos[1])
+        self.p.param('Basic parameters').param('Band expected relative location').param('Ctl').setValue(rel_pos[2])
 
     @pyqtSlot(int, name="on_signal_scene_nr")
     def on_signal_scene_nr(self, nr):

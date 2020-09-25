@@ -41,7 +41,7 @@ params = [
             {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
             {'name': 'QR code border', 'type': 'int', 'value': 40},
             {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
-            {'name': 'Peak expected relative location', 'type': 'group', 'children':
+            {'name': 'Band expected relative location', 'type': 'group', 'children':
                 [
                     {'name': 'IgM', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
                     {'name': 'IgG', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
@@ -98,7 +98,7 @@ key_map = {
     'sensor_threshold_factor': 'sensor_thresh_factor',
     'qr_code_border': 'qr_code_border',
     'subtract_background': 'subtract_background',
-    'peak_expected_relative_location': 'peak_expected_relative_location',
+    'band_expected_relative_location': 'peak_expected_relative_location',
     'force_fid_search': 'force_fid_search',
     'sensor_band_names': 'sensor_band_names',
     'number_of_cores_(max={})'.format(multiprocessing.cpu_count()): 'max_workers',
