@@ -672,14 +672,14 @@ class MainWindow(QMainWindow):
 
     def set_hough_rect(self):
 
-        if self.p.param('Basic parameters').param('Try to correct strip orientation').value():
+        if self.p.param('Advanced parameters').param('Try to correct strip orientation').value():
 
             currentHoughRect = self.bookKeeper.getCurrentHoughRect()
-            height_fact = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            height_fact = self.p.param('Advanced parameters').param('Strip orientation correction search rectangles').param(
                 'Relative height factor').value()
-            center_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            center_cutoff = self.p.param('Advanced parameters').param('Strip orientation correction search rectangles').param(
                 'Relative center cut-off').value()
-            border_cutoff = self.p.param('Basic parameters').param('Strip orientation correction search rectangles').param(
+            border_cutoff = self.p.param('Advanced parameters').param('Strip orientation correction search rectangles').param(
                 'Relative border cut-off').value()
 
             left_rect, right_rect = get_rectangles_from_image_and_rectangle_props(self.scene_strip.image.image.shape,

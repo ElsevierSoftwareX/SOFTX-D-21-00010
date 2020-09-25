@@ -13,8 +13,6 @@ params = [
     {
         'name': 'Basic parameters', 'type': 'group', 'children':
         [
-            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': True,
-             'tip': "Will try to find the injection inlet to assess orientation."},
             {'name': 'Sensor band names', 'type': 'group', 'children':
                 [
                     {'name': 't2', 'type': 'str', 'value': 'igm'},
@@ -22,23 +20,6 @@ params = [
                     {'name': 'ctl', 'type': 'str', 'value': 'ctl'}
                 ]
              },
-            {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
-                [
-                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.01, 'limits': (0, 1)},
-                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.01, 'limits': (0, 1)},
-                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.01, 'limits': (0, 1)},
-                ]
-             },
-            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
-             'tip': "Use prominent text such as COVID"},
-            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
-             'tip': "Set true if test is right of the sensor"},
-            # {'name': 'POCT size', 'type': 'group', 'children':
-            #     [
-            #         {'name': 'width', 'type': 'int', 'value': 10},
-            #         {'name': 'height', 'type': 'int', 'value': 10},
-            #     ]
-            # },
             {'name': 'Sensor center', 'type': 'group', 'children':
                 [
                     {'name': 'x', 'type': 'int', 'value': 10},
@@ -82,6 +63,19 @@ params = [
              'tip': "Set to true if raw image intensities should be auto-stretched"},
             {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
              'tip': "Set true if raw image white balance should be set automatically"},
+            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': True,
+             'tip': "Will try to find the injection inlet to assess orientation."},
+            {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
+                [
+                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.01, 'limits': (0, 1)},
+                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.01, 'limits': (0, 1)},
+                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.01, 'limits': (0, 1)},
+                ]
+             },
+            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
+             'tip': "Use prominent text such as COVID"},
+            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
+             'tip': "Set true if test is right of the sensor"},
             {'name': 'Force FID search', 'type': 'bool', 'value': False,
              'tip': "Set true to force FID search if the QR code with patient data is not present"}
         ]
