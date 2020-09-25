@@ -558,8 +558,8 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"                    Max number of cores: {settings['max_workers']}")
         self.print_to_console(f"           RAW auto stretch intensities: {settings['raw_auto_stretch']}")
         self.print_to_console(f"           RAW apply auto white balance: {settings['raw_auto_wb']}")
-        self.print_to_console(f"      Try to correct for strip orientation: {settings['strip_try_correct_orientation']}")
-        self.print_to_console(f"    Strip orientation rectangle properties: {settings['strip_try_correct_orientation_rects']}")
+        self.print_to_console(f"   Try to correct for strip orientation: {settings['strip_try_correct_orientation']}")
+        self.print_to_console(f" Strip orientation rectangle properties: {settings['strip_try_correct_orientation_rects']}")
         self.print_to_console(f"     Strip text to search (orientation): {settings['strip_text_to_search']}")
         self.print_to_console(f"             Strip text is on the right: {settings['strip_text_on_right']}")
         # self.print_to_console(f"                             Strip size: {settings['strip_size']}")
@@ -572,6 +572,7 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"                          Sensor border: {settings['sensor_border']}")
         self.print_to_console(f"       Expected peak relative positions: {settings['peak_expected_relative_location']}")
         self.print_to_console(f"             Subtract signal background: {settings['subtract_background']}")
+        self.print_to_console(f"                       Force FID search: {settings['force_fid_search']}")
         self.print_to_console(f"                         Verbose output: {settings['verbose']}")
         self.print_to_console(f"         Create quality-control figures: {settings['qc']}")
         self.print_to_console(f"")
@@ -595,6 +596,7 @@ class MainWindow(QMainWindow):
             sensor_border=settings['sensor_border'],
             peak_expected_relative_location=settings['peak_expected_relative_location'],
             subtract_background=settings['subtract_background'],
+            force_fid_search=settings['force_fid_search'],
             verbose=settings['verbose'],
             qc=settings['qc'],
             max_workers=settings['max_workers']

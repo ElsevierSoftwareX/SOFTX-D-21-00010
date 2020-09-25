@@ -74,7 +74,9 @@ params = [
             {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
              'tip': "Set to true if raw image intensities should be auto-stretched"},
             {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
-             'tip': "Set true if raw image white balance should be set automatically"}
+             'tip': "Set true if raw image white balance should be set automatically"},
+            {'name': 'Force FID search', 'type': 'bool', 'value': False,
+             'tip': "Set true to force FID search if the QR code with patient data is not present"}
         ]
     }
 ]
@@ -96,6 +98,7 @@ key_map = {
     'qr_code_border': 'qr_code_border',
     'subtract_background': 'subtract_background',
     'peak_expected_relative_location': 'peak_expected_relative_location',
+    'force_fid_search': 'force_fid_search',
     'number_of_cores_(max={})'.format(multiprocessing.cpu_count()): 'max_workers',
     'qc': 'qc',
     'verbose': 'verbose'
