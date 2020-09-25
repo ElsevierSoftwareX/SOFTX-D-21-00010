@@ -570,6 +570,7 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"                     Sensor search area: {settings['sensor_search_area']}")
         self.print_to_console(f"                Sensor threshold factor: {settings['sensor_thresh_factor']}")
         self.print_to_console(f"                          Sensor border: {settings['sensor_border']}")
+        self.print_to_console(f"                      Sensor band names: {settings['sensor_band_names']}")
         self.print_to_console(f"       Expected peak relative positions: {settings['peak_expected_relative_location']}")
         self.print_to_console(f"             Subtract signal background: {settings['subtract_background']}")
         self.print_to_console(f"                       Force FID search: {settings['force_fid_search']}")
@@ -597,6 +598,7 @@ class MainWindow(QMainWindow):
             peak_expected_relative_location=settings['peak_expected_relative_location'],
             subtract_background=settings['subtract_background'],
             force_fid_search=settings['force_fid_search'],
+            sensor_band_names=settings['sensor_band_names'],
             verbose=settings['verbose'],
             qc=settings['qc'],
             max_workers=settings['max_workers']

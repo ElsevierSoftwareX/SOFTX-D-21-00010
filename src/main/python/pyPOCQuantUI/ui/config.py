@@ -15,6 +15,13 @@ params = [
         [
             {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': True,
              'tip': "Will try to find the injection inlet to assess orientation."},
+            {'name': 'Sensor band names', 'type': 'group', 'children':
+                [
+                    {'name': 't2', 'type': 'str', 'value': 'igm'},
+                    {'name': 't1', 'type': 'str', 'value': 'igg'},
+                    {'name': 'ctl', 'type': 'str', 'value': 'ctl'}
+                ]
+             },
             {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
                 [
                     {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.01, 'limits': (0, 1)},
@@ -99,6 +106,7 @@ key_map = {
     'subtract_background': 'subtract_background',
     'peak_expected_relative_location': 'peak_expected_relative_location',
     'force_fid_search': 'force_fid_search',
+    'sensor_band_names': 'sensor_band_names',
     'number_of_cores_(max={})'.format(multiprocessing.cpu_count()): 'max_workers',
     'qc': 'qc',
     'verbose': 'verbose'
