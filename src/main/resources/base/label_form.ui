@@ -289,14 +289,14 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select label template</string>
+      <string>Select a label template (.xls(x) or .csv)</string>
      </property>
     </widget>
    </item>
    <item row="26" column="2">
     <widget class="QPushButton" name="label_run_btn">
      <property name="text">
-      <string>Run</string>
+      <string>Run QR label generation</string>
      </property>
     </widget>
    </item>
