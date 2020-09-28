@@ -73,8 +73,13 @@ class MainWindow(QMainWindow):
         self.actionAbout.triggered.connect(self.on_show_about)
         self.actionManual.triggered.connect(self.on_show_manual)
         self.qi = QuickInstructions()
-        self.actionQuick_instructions.setStatusTip('Hints about how to use this program')
+        self.actionQuick_instructions.setStatusTip('Opens the user manual of pyPOCQuant')
         self.actionQuick_instructions.triggered.connect(self.on_quick_instructions)
+        self.actionQuick_start.setStatusTip('Hints about how to use this program and common problems and how to avoid'
+                                            ' them')
+        self.actionQuick_start.triggered.connect(self.on_quick_start)
+        self.action_save_POCT_template.triggered.connect(self.on_show_poct_template)
+        self.action_save_QR_labels_template.triggered.connect(self.on_show_qr_label_template)
 
         # Add toolbar
         tb = self.addToolBar("File")
@@ -164,7 +169,9 @@ class MainWindow(QMainWindow):
         self.sensor_attributes = []
         self.sensor_parameters = []
         self.user_instructions_path = None
-        self.template_path = None
+        self.quick_start_path = None
+        self.poct_template_path = None
+        self.qr_labels_template_path = None
 
         self.input_edit.textChanged.connect(self.on_input_edit_change)
         self.output_edit.textChanged.connect(self.on_output_edit_change)
@@ -315,11 +322,23 @@ class MainWindow(QMainWindow):
         """
         webbrowser.open(str(Path(self.user_instructions_path)))
 
-    def on_show_template(self):
+    def on_quick_start(self):
+        """
+        Displays the quick start guide.
+        """
+        webbrowser.open(str(Path(self.quick_start_path)))
+
+    def on_show_poct_template(self):
         """
         Displays the POCT template
         """
-        webbrowser.open(str(Path(self.template_path)))
+        webbrowser.open(str(Path(self.poct_template_path)))
+
+    def on_show_qr_label_template(self):
+        """
+        Displays the QR labels template
+        """
+        webbrowser.open(str(Path(self.qr_labels_template_path)))
 
     def on_toggle_line(self):
 
@@ -960,6 +979,31 @@ class MainWindow(QMainWindow):
 
         try:
 
+            label_dir = Path(label_dir)
+            if label_dir.suffix in ['.xls', '.xlsx']:
+                # We need to convert the excel file / template to a csv file
+                dd = pd.read_excel(label_dir)
+                header = ['sample_id', 'manufacturer', 'plate', 'well', 'row', 'col', 'user']
+                if set(header).issubset(dd.columns):
+                    dd['label'] = dd['sample_id'].astype(str) + '-' + dd['manufacturer'].astype(str) + '-' + 'Plate ' + \
+                                  dd['plate'].astype(str).str.zfill(2) + '-' + 'Well ' + dd['row'].astype(str) + ' ' + \
+                                  dd['col'].astype(str).str.zfill(2) + '-' + dd['user'].astype(str)
+                    data = dd['label']
+                    # Save the converted file
+                    data.to_csv(str(Path(label_dir.parent / label_dir.stem).with_suffix('.csv')), header=False,
+                                index=False, index_label=False)
+                    data = pd.DataFrame(data)
+                else:
+                    print(
+                        f'Missing column name {list(set(dd.columns).difference(header))}. '
+                        f'Make sure the following column names exist {header}')
+            elif label_dir.suffix == '.csv':
+                # We can start right away
+                data = pd.read_csv(label_dir, header=None, sep=';')
+            else:
+                # Unknown file
+                return
+
             qrdecode_result_dir_str.mkdir(exist_ok=True)
             label_paths = []
             # Create an page with custom settings
@@ -978,14 +1022,17 @@ class MainWindow(QMainWindow):
 
             # Create the sheet.
             sheet = labels.Sheet(specs, draw_label, border=True)
-            # Read the label template
-            data = pd.read_csv(label_dir, header=None)
 
+            # Read the label template
+            # data = pd.read_csv(label_dir, header=None)
+            print('here')
+            print(data)
             for i in tqdm(range(len(data))):
+                print('a')
                 save_name_qr = qrdecode_result_dir_str.joinpath('qr', data.iloc[i, 0] + 'qr.svg')
                 qr_path = qrdecode_result_dir_str.joinpath('qr')
                 qr_path.mkdir(exist_ok=True)
-
+                print('b')
                 # Create qr code
                 qr = pyqrcode.create(data.iloc[i, 0])
 
