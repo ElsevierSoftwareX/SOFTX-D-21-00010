@@ -25,8 +25,10 @@ class Polygon(QGraphicsPolygonItem):
         self.line_items = []
         self.relative_bar_positions = []
         self._relative_bar_positions = [None] * 3
-
+        self._has_all_vertices = False
         self._centerOfMass = None
+        self.sensor_search_area_offset = (10, 10)
+        self.attributes = []
 
     def number_of_points(self):
         return len(self.polygon_vertex_items)
@@ -59,6 +61,8 @@ class Polygon(QGraphicsPolygonItem):
         self.polygon_vertex_items.append(item)
         item.setPos(p)
         self.updateCenterOfMass()
+        if len(self.polygon_vertices) == 4:
+            self._has_all_vertices = True
 
     def remove_last_vertex(self):
         if self.polygon_vertices:
@@ -111,6 +115,73 @@ class Polygon(QGraphicsPolygonItem):
         if self.scene() is not None:
             self.scene().signal_rel_bar_pos.emit(relative_bar_positions)
 
+    def get_sensor_search_area_offset(self):
+        self.attributes[6] = round(self.attributes[4] - self.attributes[2])
+        self.attributes[7] = round(self.attributes[5] - self.attributes[3])
+        self.sensor_search_area_offset = (self.attributes[6], self.attributes[7])
+
+    def update_polygon(self):
+        # @todo there might be small rounding errors making the polygon attributes and the sensor attributes in main
+        #  window out of sync and with every click move the polygon by +/- 1 pixel
+
+        # Get the current state of the polygon
+        rect_sensor = self.sceneBoundingRect()
+        sensor_size = (rect_sensor.width(), rect_sensor.height())
+        sensor_center = ((rect_sensor.x() - 0 + rect_sensor.width() / 2), (rect_sensor.y() -
+                         0 + rect_sensor.height() / 2))
+
+        # Determine the sensor_search_area_offset based on the attributes list
+        # self.get_sensor_search_area_offset()
+
+        # Get the coordinates of the vertices and move the most extreme ones (determining the bounding box to change
+        # the polygon shape
+        x = []
+        y = []
+        for point in self.polygon_vertices:
+            x.append(point.x())
+            y.append(point.y())
+        dx = max(x) - min(x)
+        dy = max(y) - min(y)
+        ox = self.attributes[2] - dx
+        oy = self.attributes[3] - dy
+        x[x.index(max(x))] = x[x.index(max(x))] + ox / 2
+        x[x.index(min(x))] = x[x.index(min(x))] - ox / 2
+        y[y.index(max(y))] = y[y.index(max(y))] + oy / 2
+        y[y.index(min(y))] = y[y.index(min(y))] - oy / 2
+
+        # Translate the polygon vertices based on the polygon center
+        for i, point in enumerate(self.polygon_vertices):
+            point.setX(round(x[i] + (self.attributes[0]) - sensor_center[0]))
+            point.setY(round(y[i] + (self.attributes[1]) - sensor_center[1]))
+            self.polygon_vertices[i] = point
+
+        # Translate the draggable elements such as the polygon, vertices and bar lines
+        for i, point in enumerate(self.polygon_vertices):
+            self.move_vertex(i, self.mapToScene(point))
+            self.move_vertex_item(i, self.mapToScene(point))
+
+        # Update the sensor_search_area in the attributes list based on the newly determined sensor_search_area_offset
+        sensor_search_area_offset = self.sensor_search_area_offset
+        sensor_search_area = (rect_sensor.width() + sensor_search_area_offset[0], rect_sensor.height() +
+                              sensor_search_area_offset[1])
+        self.attributes[4] = sensor_search_area[0]
+        self.attributes[5] = sensor_search_area[1]
+
+    def emit_sensor_attributes(self):
+
+        rect_sensor = self.sceneBoundingRect()
+        sensor_size = (rect_sensor.width()-2, rect_sensor.height()-2)
+        sensor_center = (rect_sensor.x() - 0 + rect_sensor.width() / 2, rect_sensor.y() -
+                         0 + rect_sensor.height() / 2)
+        sensor_search_area_offset = self.sensor_search_area_offset
+        sensor_search_area = (rect_sensor.width() + sensor_search_area_offset[0], rect_sensor.height() +
+                              sensor_search_area_offset[1])
+
+        sensor_attributes = sensor_center + sensor_size + sensor_search_area + sensor_search_area_offset
+
+        if self.scene() is not None:
+            self.scene().signal_sensor_attributes.emit(list(sensor_attributes))
+
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionHasChanged:
             for i, point in enumerate(self.polygon_vertices):
@@ -139,3 +210,8 @@ class Polygon(QGraphicsPolygonItem):
         y = sum_y / len(self.polygon_vertex_items)
         self._centerOfMass = QPointF(x, y)
         return self._centerOfMass
+
+    def mouseReleaseEvent(self, event):
+        if self._has_all_vertices:
+            self.emit_sensor_attributes()
+        super(Polygon, self).mouseReleaseEvent(event)

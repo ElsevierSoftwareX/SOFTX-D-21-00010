@@ -47,6 +47,12 @@ class BookKeeper:
             for idx in indices:
                 self.sensorPolygon[idx] = sensorPolygon
 
+    def getCurrentLine(self):
+        """
+        Get CompositeLine for current timepoint (or None if it does not exist).
+        """
+        return self.line[self.timepoint]
+
     def addLine(self, line, indices=None):
         """
         Add a CompositeLine at current timepoint.

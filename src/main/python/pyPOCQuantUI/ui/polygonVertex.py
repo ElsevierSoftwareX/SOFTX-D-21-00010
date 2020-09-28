@@ -38,3 +38,10 @@ class PolygonVertex(QGraphicsEllipseItem):
             if self._parent_item:
                 self._parent_item.move_vertex(self._name, value)
         return super(PolygonVertex, self).itemChange(change, value)
+
+    def mouseReleaseEvent(self, event):
+        if self._parent_item:
+            if hasattr(self._parent_item, 'emit_sensor_attributes') and hasattr(self._parent_item, '_has_all_vertices'):
+                if self._parent_item._has_all_vertices:
+                    self._parent_item.emit_sensor_attributes()
+        super(PolygonVertex, self).mouseReleaseEvent(event)

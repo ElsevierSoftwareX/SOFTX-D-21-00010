@@ -70,8 +70,8 @@ class MainWindow(QMainWindow):
         self.actionQuit.triggered.connect(self.close)
         self.about_window = About()
         self.actionAbout.setShortcut("Ctrl+A")
-        self.actionAbout.triggered.connect(self.on_about)
-        self.actionManual.triggered.connect(self.on_manual)
+        self.actionAbout.triggered.connect(self.on_show_about)
+        self.actionManual.triggered.connect(self.on_show_manual)
         self.qi = QuickInstructions()
         self.actionQuick_instructions.setStatusTip('Hints about how to use this program')
         self.actionQuick_instructions.triggered.connect(self.on_quick_instructions)
@@ -130,7 +130,9 @@ class MainWindow(QMainWindow):
         self.width_action = QAction("Measure distance", self)
         self.width_action.setStatusTip("Measure distance")
         tb.addAction(self.width_action)
-        self.width_action.triggered.connect(self.on_draw_line)
+        self.width_action.setCheckable(True)
+        self.width_action.toggled.connect(self.on_draw_line)
+        # self.width_action.triggered.connect(self.on_draw_line)
         self.action_console = QAction("Show Log", self)
         self.action_console.setShortcut("Ctrl+L")
         self.action_console.setStatusTip('Show / hide console')
@@ -153,11 +155,15 @@ class MainWindow(QMainWindow):
         # self.is_draw_strip = False
         # self.is_draw_sensor = False
         self.config_file_name = None
+        self.config_path = None
         self.run_number = 1
         self.strip_img = None
         self.current_scene = None
         self.relative_bar_positions = []
+        self.sensor_attributes = []
+        self.sensor_parameters = []
         self.user_instructions_path = None
+        self.template_path = None
 
         self.input_edit.textChanged.connect(self.on_input_edit_change)
         self.output_edit.textChanged.connect(self.on_output_edit_change)
@@ -185,6 +191,7 @@ class MainWindow(QMainWindow):
         self.scene_strip.signal_scene_nr.connect(
             self.on_signal_scene_nr)
         self.scene_strip.signal_rel_bar_pos.connect(self.on_signal_rel_bar_pos)
+        self.scene_strip.signal_sensor_attributes.connect(self.on_signal_sensor_attributes)
         self.view_strip = View(self.scene_strip)
         self.splitter_Right_Column.insertWidget(0, self.view_strip)
         self.viewO2.deleteLater()
@@ -198,6 +205,9 @@ class MainWindow(QMainWindow):
         self.p.sigTreeStateChanged.connect(self.on_parameter_tree_change)
         param_dict = self.get_parameters()
         self.relative_bar_positions = list(param_dict['peak_expected_relative_location'])
+        # self.sensor_attributes = list(param_dict['sensor_center']) + list(param_dict['sensor_size'])
+        self.sensor_attributes = list(param_dict['sensor_center']) + list(param_dict['sensor_size']) + \
+                                 list(param_dict['sensor_search_area']) + list(param_dict['sensor_search_area'])
 
         # Instantiate ThreadPool
         self.threadpool = QThreadPool()
@@ -253,6 +263,31 @@ class MainWindow(QMainWindow):
                 self.set_hough_rect()
             if path[-1] == 'Try to correct strip orientation':
                 self.set_hough_rect()
+            if path[-2] == 'Sensor center' and path[-1] == 'x':
+                print('curr', self.sensor_attributes)
+                self.sensor_attributes[0] = data
+                self.update_sensor_pos()
+            if path[-2] == 'Sensor center' and path[-1] == 'y':
+                self.sensor_attributes[1] = data
+                self.update_sensor_pos()
+            if path[-2] == 'Sensor size' and path[-1] == 'width':
+                self.sensor_attributes[2] = data
+                self.update_sensor_pos()
+            if path[-2] == 'Sensor size' and path[-1] == 'height':
+                self.sensor_attributes[3] = data
+                self.update_sensor_pos()
+            if path[-2] == 'Sensor search area' and path[-1] == 'x':
+                self.sensor_attributes[4] = data
+                self.update_sensor_pos()
+            if path[-2] == 'Sensor search area' and path[-1] == 'y':
+                self.sensor_attributes[5] = data
+                self.update_sensor_pos()
+
+    def update_sensor_pos(self):
+        currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
+        if currentSensorPolygon:
+            currentSensorPolygon._polygon_item.attributes = self.sensor_attributes
+            currentSensorPolygon._polygon_item.update_polygon()
 
     def update_bar_pos(self):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -268,17 +303,23 @@ class MainWindow(QMainWindow):
         """
         self.qi.show()
 
-    def on_about(self):
+    def on_show_about(self):
         """
         Displays the about window.
         """
         self.about_window.show()
 
-    def on_manual(self):
+    def on_show_manual(self):
         """
         Displays the instruction manual.
         """
         webbrowser.open(str(Path(self.user_instructions_path)))
+
+    def on_show_template(self):
+        """
+        Displays the POCT template
+        """
+        webbrowser.open(str(Path(self.template_path)))
 
     def on_draw_line(self):
         self.is_draw_item = 2
@@ -452,22 +493,27 @@ class MainWindow(QMainWindow):
 
     def on_file_selection_changed(self, selected):
         for ix in selected.indexes():
-            self.print_to_console(f"Selected image: {str(Path(self.input_dir / ix.data()))}")
+            file_path = Path(self.input_dir / ix.data())
+            self.print_to_console(f"Selected file: {str(file_path)}")
             try:
-                ret = load_and_process_image(Path(self.input_dir / ix.data()), to_rgb=True)
-                if ret is not None:
-                    self.scene_strip.removeHoughRect()
-                    self.scene.display_image(image=ret)
-                    self.view.resetZoom()
-                    self.image_filename = ix.data()
-
-                    # Extract the strip in a different thread and display it
-                    self.print_to_console(f"Extracting POCT from image ...")
-                    self.progressBar.setFormat("Extracting POCT from image ...")
-                    self.progressBar.setAlignment(Qt.AlignCenter)
-                    self.run_get_strip(Path(self.input_dir / ix.data()))
+                if file_path.suffix == '.conf':
+                    self.config_path = str(file_path)
+                    self.on_load_settings_file_from_path()
                 else:
-                    self.print_to_console(f"ERROR: The file {str(ix.data())} could not be opened.")
+                    ret = load_and_process_image(file_path, to_rgb=True)
+                    if ret is not None:
+                        self.scene_strip.removeHoughRect()
+                        self.scene.display_image(image=ret)
+                        self.view.resetZoom()
+                        self.image_filename = ix.data()
+
+                        # Extract the strip in a different thread and display it
+                        self.print_to_console(f"Extracting POCT from image ...")
+                        self.progressBar.setFormat("Extracting POCT from image ...")
+                        self.progressBar.setAlignment(Qt.AlignCenter)
+                        self.run_get_strip(Path(file_path))
+                    else:
+                        self.print_to_console(f"ERROR: The file {str(ix.data())} could not be opened.")
             except Exception as e:
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
@@ -475,6 +521,9 @@ class MainWindow(QMainWindow):
         self.scene_strip.display_image(image=self.strip_img)
         self.view_strip.resetZoom()
         self.set_hough_rect()
+        if self.config_path:
+            self.on_delete_items_action()
+            self.add_sensor_at_position()
         self.progressBar.setFormat('Extracting POCT from image finished successfully.')
         self.print_to_console(f"Extracting POCT from image finished successfully.")
 
@@ -500,9 +549,22 @@ class MainWindow(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(self, 'Open file', '', "All Files (*);;Text Files (*.txt);; "
                                                                        "Config Files (*.conf)")
         if file_name:
-            settings = load_settings(file_name)
+            self.config_path = file_name
+            self.on_load_settings_file_from_path()
+            # settings = load_settings(file_name)
+            # self.load_parameters(settings)
+            # self.add_sensor_at_position()
+            # self.print_to_console(f"Loaded config : {file_name}")
+
+    def on_load_settings_file_from_path(self):
+        try:
+            settings = load_settings(self.config_path)
             self.load_parameters(settings)
-            self.print_to_console(f"Loaded config : {file_name}")
+            self.on_delete_items_action()
+            self.add_sensor_at_position()
+            self.print_to_console(f"Loaded config : {self.config_path}")
+        except Exception as e:
+            self.print_to_console(f"ERROR: Loading the selected config failed. {str(e)}")
 
     def on_write_to_console(self, text):
         """
@@ -706,47 +768,6 @@ class MainWindow(QMainWindow):
         else:
             self.scene_strip.removeHoughRect()
 
-    def set_sensor_and_strip_parameter(self):
-
-        currentStripPolygon = self.bookKeeper.getCurrentStripPolygon()
-        currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
-
-        if currentStripPolygon is not None and currentSensorPolygon is not None:
-            # c_o_m_strip = currentStripPolygon.getCenterOfMass()
-            rect_strip = currentStripPolygon._polygon_item.sceneBoundingRect()
-            # c_o_m_sensor = currentSensorPolygon.getCenterOfMass()
-            rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
-
-            strip_size = (rect_strip.width(), rect_strip.height())
-            sensor_size = (rect_sensor.width(), rect_sensor.height())
-            sensor_center = (rect_sensor.x() - rect_strip.x() + rect_sensor.width() / 2, rect_sensor.y() -
-                             rect_strip.y() + rect_sensor.height() / 2)
-            sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
-            # Update the parameters in the parameterTree
-            self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
-            self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
-            self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
-            self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
-            self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
-            self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
-        elif currentSensorPolygon:
-
-            rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
-            sensor_size = (rect_sensor.width(), rect_sensor.height())
-            sensor_center = (rect_sensor.x() - 0 + rect_sensor.width() / 2, rect_sensor.y() -
-                             0 + rect_sensor.height() / 2)
-            sensor_search_area = (rect_sensor.width() + 10, rect_sensor.height() + 10)
-            # Update the parameters in the parameterTree
-            self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_size[1])
-            self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_size[0])
-            self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_center[1])
-            self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_center[0])
-            self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(sensor_search_area[1])
-            self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(sensor_search_area[0])
-        else:
-            pass
-            # self.print_to_console('Please draw POC test outline and sensor outline first')
-
     @pyqtSlot(str, Path, dict, name="on_generate_labels")
     def on_generate_labels(self, path1, path2, d):
         self.print_to_console('Starting label generation')
@@ -761,12 +782,22 @@ class MainWindow(QMainWindow):
     def on_signal_line_length(self, length):
         self.p.param('Basic parameters').param('QR code border').setValue(length)
 
-    @pyqtSlot(list, name="om_signal_rel_bar_pos")
+    @pyqtSlot(list, name="on_signal_rel_bar_pos")
     def on_signal_rel_bar_pos(self, rel_pos):
         self.relative_bar_positions = rel_pos
         self.p.param('Basic parameters').param('Band expected relative location').param('IgM').setValue(rel_pos[0])
         self.p.param('Basic parameters').param('Band expected relative location').param('IgG').setValue(rel_pos[1])
         self.p.param('Basic parameters').param('Band expected relative location').param('Ctl').setValue(rel_pos[2])
+
+    @pyqtSlot(list, name="on_signal_sensor_attributes")
+    def on_signal_sensor_attributes(self, sensor_attributes):
+        self.sensor_attributes = sensor_attributes
+        self.p.param('Basic parameters').param('Sensor center').param('x').setValue(sensor_attributes[0])
+        self.p.param('Basic parameters').param('Sensor center').param('y').setValue(sensor_attributes[1])
+        self.p.param('Basic parameters').param('Sensor size').param('width').setValue(sensor_attributes[2])
+        self.p.param('Basic parameters').param('Sensor size').param('height').setValue(sensor_attributes[3])
+        self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(sensor_attributes[4])
+        self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(sensor_attributes[5])
 
     @pyqtSlot(int, name="on_signal_scene_nr")
     def on_signal_scene_nr(self, nr):
@@ -774,16 +805,15 @@ class MainWindow(QMainWindow):
         if nr == 1:
             self.view.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
             self.view_strip.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
-            # self.print_to_console('You are working on the raw image canvas')
         else:
             self.view_strip.setBackgroundBrush(QBrush(QColor(232, 255, 238, 180), Qt.SolidPattern))
             self.view.setBackgroundBrush(QBrush(Qt.white, Qt.SolidPattern))
-            # self.print_to_console('You are working on the POCT canvas')
 
     @pyqtSlot(float, float, name="handle_add_object_at_position")
     def handle_add_object_at_position(self, x, y):
 
         if self.is_draw_item is 0:
+            print(self.current_scene)
             if self.current_scene == 2:
                 currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
                 if currentSensorPolygon is None:
@@ -799,13 +829,14 @@ class MainWindow(QMainWindow):
 
                 # Add the vertices
                 if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
+                    print(QPointF(x, y))
                     currentSensorPolygon.addVertex(QPointF(x, y))
                     self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
                     if len(currentSensorPolygon._polygon_item.polygon_vertices) == 4:
                         rect_sensor = currentSensorPolygon._polygon_item.sceneBoundingRect()
                         settings = self.get_parameters()
                         currentSensorPolygon.addLine(settings['peak_expected_relative_location'])
-                self.set_sensor_and_strip_parameter()
+                # self.set_sensor_and_strip_parameter()
             else:
                 self.print_to_console('Wrong canvas. Use the POCT canvas above.')
 
@@ -826,21 +857,57 @@ class MainWindow(QMainWindow):
             if len(currentStripPolygon._polygon_item.polygon_vertices) < 4:
                 currentStripPolygon.addVertex(QPointF(x, y))
                 self.print_to_console('Drawing POCT corner')
-            self.set_sensor_and_strip_parameter()
 
         elif self.is_draw_item is 2:
-            # Create a CompositeLine
-            currentLine = CompositeLine(QPointF(x, y))
+            currentLine = self.bookKeeper.getCurrentLine()
+            if currentLine is None:
+                # Create a CompositeLine
+                currentLine = CompositeLine(QPointF(x, y))
+
+                # Add the CompositeLine to the Scene. Note that the CompositeLine is
+                # not a QGraphicsItem itself and cannot be added to the Scene directly.
+                currentLine.addToScene(self.scene)
+
+                # Store the line
+                self.bookKeeper.addLine(currentLine)
+
+                # Deactivate drawing mode
+                self.is_draw_item = -1
+
+        else:
+            pass
+
+    def add_sensor_at_position(self):
+        currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
+        if currentSensorPolygon is None:
+            # Create a CompositePolygon
+            currentSensorPolygon = CompositePolygon()
 
             # Add the CompositeLine to the Scene. Note that the CompositeLine is
             # not a QGraphicsItem itself and cannot be added to the Scene directly.
-            currentLine.addToScene(self.scene)
+            currentSensorPolygon.addToScene(self.scene_strip)
 
-            # Store the line
-            self.bookKeeper.addLine(currentLine)
+            # Store the polygon
+            self.bookKeeper.addSensorPolygon(currentSensorPolygon)
 
-            # Deactivate drawing mode
-            self.is_draw_item = -1
+            # Add the vertices
+            settings = self.get_parameters()
+            sensor_center = settings['sensor_center']
+            sensor_size = settings['sensor_size']
+            scene_size = self.scene_strip.sceneRect()
+            print('draw', sensor_center, sensor_size, scene_size)
+            print(scene_size.width())
+            center_offset_x = abs(scene_size.width()/2 - sensor_center[1])
+            center_offset_y = abs(scene_size.height() / 2 - sensor_center[0])
+            vertex_x = [(scene_size.width()/2 - sensor_size[1] / 2) + center_offset_x, scene_size.width()/2 + (sensor_size[1] / 2 + center_offset_x),
+                         scene_size.width()/2 + (sensor_size[1]/2 + center_offset_x), (scene_size.width()/2 - sensor_size[1]/2) + center_offset_x]
+            vertex_y = [scene_size.height()/2 - (sensor_size[0] / 2 + center_offset_y), scene_size.height()/2 - (sensor_size[0] / 2 + center_offset_y),
+                        scene_size.height()/2 + (sensor_size[0] / 2 + center_offset_y), scene_size.height()/2 + (sensor_size[0] / 2 + center_offset_y)]
+            for i in range(0, 4):
+                currentSensorPolygon.addVertex(QPoint(vertex_x[i], vertex_y[i]))
+            currentSensorPolygon.addLine(settings['peak_expected_relative_location'])
+        else:
+            pass
 
     def print_to_console(self, text):
         """

@@ -20,6 +20,7 @@ class Scene(QGraphicsScene):
     signal_scene_nr = pyqtSignal(int, name='signal_scene_nr')
     signal_rel_bar_pos = pyqtSignal(list, name='signal_rel_bar_pos')
     signal_line_length = pyqtSignal(int, name='signal_line_length')
+    signal_sensor_attributes = pyqtSignal(list, name='signal_sensor_attributes')
 
     def __init__(self, image, x=0, y=0, width=500, height=500, nr=None, parent=None):
         super().__init__(x, y, width, height, parent)
