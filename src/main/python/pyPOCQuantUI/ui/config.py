@@ -20,42 +20,42 @@ params = [
                     {'name': 'ctl', 'type': 'str', 'value': 'ctl'}
                 ]
              },
+            {'name': 'Band expected relative location', 'type': 'group', 'children':
+                [
+                    {'name': 't2', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 't1', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': 'ctl', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
+                ]
+             },
             {'name': 'Sensor center', 'type': 'group', 'children':
                 [
-                    {'name': 'x', 'type': 'int', 'value': 10},
-                    {'name': 'y', 'type': 'int', 'value': 10}
+                    {'name': 'y', 'type': 'int', 'value': 10},
+                    {'name': 'x', 'type': 'int', 'value': 10}
                 ]
             },
             {'name': 'Sensor size', 'type': 'group', 'children':
                 [
-                    {'name': 'width', 'type': 'int', 'value': 10},
-                    {'name': 'height', 'type': 'int', 'value': 10}
+                    {'name': 'height', 'type': 'int', 'value': 10},
+                    {'name': 'width', 'type': 'int', 'value': 10}
                 ]
             },
             {'name': 'Sensor border', 'type': 'group', 'children':
                 [
-                    {'name': 'x', 'type': 'int', 'value': 7},
                     {'name': 'y', 'type': 'int', 'value': 7},
+                    {'name': 'x', 'type': 'int', 'value': 7},
                 ]
             },
             {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
             {'name': 'QR code border', 'type': 'int', 'value': 40},
-            {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"},
-            {'name': 'Band expected relative location', 'type': 'group', 'children':
-                [
-                    {'name': 'IgM', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 'IgG', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 'Ctl', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
-                ]
-            }
+            {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"}
         ]},
     {
         'name': 'Advanced parameters', 'type': 'group', 'children':
         [
             {'name': 'Sensor search area', 'type': 'group', 'children':
                 [
-                    {'name': 'x', 'type': 'int', 'value': 7},
                     {'name': 'y', 'type': 'int', 'value': 7},
+                    {'name': 'x', 'type': 'int', 'value': 7},
                 ]
              },
             {'name': 'Sensor threshold factor', 'type': 'float', 'value': 2.0, 'step': 0.1},
