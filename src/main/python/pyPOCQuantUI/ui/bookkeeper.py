@@ -63,6 +63,12 @@ class BookKeeper:
             for idx in indices:
                 self.line[idx] = line
 
+    def removeLine(self):
+        """
+        Removes the CompositeLine from the bookKeeper.
+        """
+        self.line = self.num_timepoints * [None]
+
     def addHoughRect(self, rect, indices=None):
         """
         Add a hough rect at current timepoint.

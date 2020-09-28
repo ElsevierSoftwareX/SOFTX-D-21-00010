@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         self.width_action.setStatusTip("Measure distance")
         tb.addAction(self.width_action)
         self.width_action.setCheckable(True)
-        self.width_action.toggled.connect(self.on_draw_line)
+        self.width_action.toggled.connect(self.on_toggle_line)
         # self.width_action.triggered.connect(self.on_draw_line)
         self.action_console = QAction("Show Log", self)
         self.action_console.setShortcut("Ctrl+L")
@@ -152,6 +152,7 @@ class MainWindow(QMainWindow):
         self.output_dir = None
         self.test_dir = None
         self.is_draw_item = None
+        self.is_line_toggle = False
         # self.is_draw_strip = False
         # self.is_draw_sensor = False
         self.config_file_name = None
@@ -246,13 +247,13 @@ class MainWindow(QMainWindow):
     def on_parameter_tree_change(self, param, changes):
         for param, change, data in changes:
             path = self.p.childPath(param)
-            if path[-1] == 'IgM':
+            if path[-1] == 't2':
                 self.relative_bar_positions[0] = data
                 self.update_bar_pos()
-            if path[-1] == 'IgG':
+            if path[-1] == 't1':
                 self.relative_bar_positions[1] = data
                 self.update_bar_pos()
-            if path[-1] == 'Ctl':
+            if path[-1] == 'ctl':
                 self.relative_bar_positions[2] = data
                 self.update_bar_pos()
             if path[-1] == 'Relative height factor':
@@ -264,7 +265,6 @@ class MainWindow(QMainWindow):
             if path[-1] == 'Try to correct strip orientation':
                 self.set_hough_rect()
             if path[-2] == 'Sensor center' and path[-1] == 'x':
-                print('curr', self.sensor_attributes)
                 self.sensor_attributes[0] = data
                 self.update_sensor_pos()
             if path[-2] == 'Sensor center' and path[-1] == 'y':
@@ -320,6 +320,17 @@ class MainWindow(QMainWindow):
         Displays the POCT template
         """
         webbrowser.open(str(Path(self.template_path)))
+
+    def on_toggle_line(self):
+
+        self.is_line_toggle = not self.is_line_toggle
+        if self.is_line_toggle:
+            # Draw line on scene
+            self.on_draw_line()
+        else:
+            # Remove from scene and bookKeeper
+            self.scene.removeCompositeLine()
+            self.bookKeeper.removeLine()
 
     def on_draw_line(self):
         self.is_draw_item = 2
@@ -551,10 +562,6 @@ class MainWindow(QMainWindow):
         if file_name:
             self.config_path = file_name
             self.on_load_settings_file_from_path()
-            # settings = load_settings(file_name)
-            # self.load_parameters(settings)
-            # self.add_sensor_at_position()
-            # self.print_to_console(f"Loaded config : {file_name}")
 
     def on_load_settings_file_from_path(self):
         try:
@@ -785,9 +792,9 @@ class MainWindow(QMainWindow):
     @pyqtSlot(list, name="on_signal_rel_bar_pos")
     def on_signal_rel_bar_pos(self, rel_pos):
         self.relative_bar_positions = rel_pos
-        self.p.param('Basic parameters').param('Band expected relative location').param('IgM').setValue(rel_pos[0])
-        self.p.param('Basic parameters').param('Band expected relative location').param('IgG').setValue(rel_pos[1])
-        self.p.param('Basic parameters').param('Band expected relative location').param('Ctl').setValue(rel_pos[2])
+        self.p.param('Basic parameters').param('Band expected relative location').param('t2').setValue(rel_pos[0])
+        self.p.param('Basic parameters').param('Band expected relative location').param('t1').setValue(rel_pos[1])
+        self.p.param('Basic parameters').param('Band expected relative location').param('ctl').setValue(rel_pos[2])
 
     @pyqtSlot(list, name="on_signal_sensor_attributes")
     def on_signal_sensor_attributes(self, sensor_attributes):
@@ -813,7 +820,6 @@ class MainWindow(QMainWindow):
     def handle_add_object_at_position(self, x, y):
 
         if self.is_draw_item is 0:
-            print(self.current_scene)
             if self.current_scene == 2:
                 currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
                 if currentSensorPolygon is None:
@@ -829,7 +835,6 @@ class MainWindow(QMainWindow):
 
                 # Add the vertices
                 if len(currentSensorPolygon._polygon_item.polygon_vertices) < 4:
-                    print(QPointF(x, y))
                     currentSensorPolygon.addVertex(QPointF(x, y))
                     self.print_to_console(f'Drawing sensor corner {len(currentSensorPolygon._polygon_item.polygon_vertices)}')
                     if len(currentSensorPolygon._polygon_item.polygon_vertices) == 4:
@@ -878,6 +883,10 @@ class MainWindow(QMainWindow):
             pass
 
     def add_sensor_at_position(self):
+        """
+        Add the sensor to the scene if a config is loaded
+        :return:
+        """
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
         if currentSensorPolygon is None:
             # Create a CompositePolygon
@@ -895,8 +904,6 @@ class MainWindow(QMainWindow):
             sensor_center = settings['sensor_center']
             sensor_size = settings['sensor_size']
             scene_size = self.scene_strip.sceneRect()
-            print('draw', sensor_center, sensor_size, scene_size)
-            print(scene_size.width())
             center_offset_x = abs(scene_size.width()/2 - sensor_center[1])
             center_offset_y = abs(scene_size.height() / 2 - sensor_center[0])
             vertex_x = [(scene_size.width()/2 - sensor_size[1] / 2) + center_offset_x, scene_size.width()/2 + (sensor_size[1] / 2 + center_offset_x),

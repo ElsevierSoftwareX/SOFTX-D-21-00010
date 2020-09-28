@@ -9,6 +9,8 @@ from .polygon import Polygon
 from .polygonVertex import PolygonVertex
 from .circle import Circle
 from .line import Line
+from .compositeLine import CompositeLine
+from .vertex import Vertex
 
 
 class Scene(QGraphicsScene):
@@ -91,7 +93,7 @@ class Scene(QGraphicsScene):
                 item.setZValue(0)
             else:
                 item.setZValue(10)
-            #self.addItem(item)
+            # self.addItem(item)
 
     def removeCompositePolygon(self):
         """
@@ -105,7 +107,22 @@ class Scene(QGraphicsScene):
                     type(item) is Line:
                 self.removeItem(item)
 
+    def removeCompositeLine(self):
+        """
+        Remove CompositeLine if it exists from the scene, but does not
+        delete the object.
+        """
+        for item in self.items():
+            if type(item) is CompositeLine or \
+                type(item) is Line or \
+                    type(item) is Vertex:
+                self.removeItem(item)
+
     def removeHoughRect(self):
+        """
+        Remove HoughRect if it exists from the scene, but does not
+        delete the object.
+        """
         for item in self.items():
             if type(item) is QGraphicsRectItem:
                 self.removeItem(item)
