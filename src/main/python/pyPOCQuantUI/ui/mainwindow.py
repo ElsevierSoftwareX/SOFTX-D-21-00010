@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         message (`str`)         Text to be sent to the console
     """
 
-    def __init__(self, ui, splash1, splash2, parent=None):
+    def __init__(self, ui, splash1, splash2, icon, parent=None):
         super().__init__(parent)
         uic.loadUi(ui, self)
 
@@ -68,7 +68,8 @@ class MainWindow(QMainWindow):
         self.action_load_settings_file.triggered.connect(self.on_load_settings_file)
         self.action_load_settings_file.setShortcut("Ctrl+O")
         self.actionQuit.triggered.connect(self.close)
-        self.about_window = About()
+        self.about_window_icon = icon
+        self.about_window = About(icon_path=self.about_window_icon)
         self.actionAbout.setShortcut("Ctrl+A")
         self.actionAbout.triggered.connect(self.on_show_about)
         self.actionManual.triggered.connect(self.on_show_manual)
