@@ -138,7 +138,7 @@ class About(QWidget):
         self.dependencies.setReadOnly(True)
         self.dependencies.setOpenExternalLinks(True)
         logo = QtGui.QPixmap(self.icon_path)
-        logo = logo.scaled(256, 256, Qt.KeepAspectRatio)
+        logo = logo.scaled(180, 256, Qt.KeepAspectRatio)
         self.le.setPixmap(logo)
         print(self.icon_path)
         self.le.setAlignment(Qt.AlignCenter)
