@@ -95,11 +95,12 @@ class About(QWidget):
     """
     Implementation of the about dialog.
     """
-    def __init__(self,):
+    def __init__(self, icon_path=None):
         super(About, self).__init__()
         self.setWindowTitle('pyPOCQuant :: About')
         self.setFixedSize(400, 500)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.icon_path = icon_path
         about_icon = QIcon()
         about_icon.addPixmap(self.style().standardPixmap(QStyle.SP_FileDialogInfoView))
         self.setWindowIcon(about_icon)
@@ -136,6 +137,10 @@ class About(QWidget):
                                 <br>jupytext, under the <a href=https://github.com/mwouts/jupytext/blob/master/LICENSE>MIT License</a>")
         self.dependencies.setReadOnly(True)
         self.dependencies.setOpenExternalLinks(True)
+        logo = QtGui.QPixmap(self.icon_path)
+        logo = logo.scaled(180, 256, Qt.KeepAspectRatio)
+        self.le.setPixmap(logo)
+        print(self.icon_path)
         self.le.setAlignment(Qt.AlignCenter)
         self.build.setAlignment(Qt.AlignCenter)
 
