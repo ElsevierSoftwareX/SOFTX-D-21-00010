@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 import site
 
-from pypocquant.manual import build_manual
+from pypocquant.manual import build_manual, build_quickstart
 from ui import versionInfo
 
 def copy_and_print_missing_files(source_root_dir: Path, target_root_dir: Path, list_items: list):
@@ -111,6 +111,8 @@ versionInfo.increase_build_number()
 
 # Build manual
 build_manual()
+# Build quickstart
+build_quickstart()
 
 # clean the app out dir
 print('Running: fbs clean')
