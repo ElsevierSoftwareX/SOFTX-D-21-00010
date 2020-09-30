@@ -56,7 +56,7 @@ class AppContext(ApplicationContext):
         ui = self.get_design()
         splash = self.get_resource("img/pyPOCQuantSplash-01.png")
         splash2 = self.get_resource("img/pyPOCQuantSplash-02.png")
-        icon = self.get_resource('icon.png')
+        icon = self.get_resource('img/icon.png')
         return MainWindow(ui, splash, splash2, icon)
 
     def show_tesseract_install_dialog(self):
