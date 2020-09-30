@@ -19,6 +19,7 @@ import drawSvg as draw
 from svglib.svglib import svg2rlg
 import pyqrcode
 import labels
+import tempfile
 
 from pypocquant.lib.io import load_and_process_image
 from ui.config import params, key_map
@@ -280,15 +281,21 @@ class MainWindow(QMainWindow):
                 self.update_sensor_pos()
             if path[-2] == 'Sensor size' and path[-1] == 'width':
                 self.sensor_attributes[2] = data
+                self.p.param('Advanced parameters').param('Sensor search area').param('x').setValue(
+                    round(self.sensor_attributes[2] + self.sensor_attributes[6]) + 2)
                 self.update_sensor_pos()
             if path[-2] == 'Sensor size' and path[-1] == 'height':
                 self.sensor_attributes[3] = data
+                self.p.param('Advanced parameters').param('Sensor search area').param('y').setValue(
+                    round(self.sensor_attributes[3] + self.sensor_attributes[7]) + 2)
                 self.update_sensor_pos()
             if path[-2] == 'Sensor search area' and path[-1] == 'x':
                 self.sensor_attributes[4] = data
+                self.sensor_attributes[6] = round(self.sensor_attributes[4] - self.sensor_attributes[2]) - 2
                 self.update_sensor_pos()
             if path[-2] == 'Sensor search area' and path[-1] == 'y':
                 self.sensor_attributes[5] = data
+                self.sensor_attributes[7] = round(self.sensor_attributes[5] - self.sensor_attributes[3]) - 2
                 self.update_sensor_pos()
 
     def update_sensor_pos(self):
@@ -333,13 +340,19 @@ class MainWindow(QMainWindow):
         """
         Displays the POCT template
         """
-        webbrowser.open(str(Path(self.poct_template_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.poct_template_path), str(tmp_path))
+        webbrowser.open(str(tmp_path))
 
     def on_show_qr_label_template(self):
         """
         Displays the QR labels template
         """
-        webbrowser.open(str(Path(self.qr_labels_template_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.qr_labels_template_path), str(tmp_path))
+        webbrowser.open(str(tmp_path))
 
     def on_toggle_line(self):
 

@@ -115,7 +115,7 @@ class About(QWidget):
                                 "\nMattenstrasse 26 \n4058 Basel Switzerland ")
         self.dependencies = QTextBrowser()
         self.dependencies.setHtml("The authors appreciate and use the following 3rd parties libraries: <br> \
-                                <br>Python v3.5, under the <a href=https://docs.python.org/3/license.html>PSF License</a> \
+                                <br>Python v3.6, under the <a href=https://docs.python.org/3/license.html>PSF License</a> \
                                 <br>numpy v1.14.5, under the <a href=https://docs.scipy.org/doc/numpy-1.10.0/license.html>BSD 3-Clause License</a> \
                                 <br>scipy v1.1.0, under the <a href=https://docs.scipy.org/doc/numpy-1.10.0/license.html>BSD 3-Clause License</a> \
                                 <br>pandas v0.23.3, under the <a href=https://pandas.pydata.org/pandas-docs/stable/getting_started/overview.html>BSD 3-Clause License</a> \
@@ -140,7 +140,6 @@ class About(QWidget):
         logo = QtGui.QPixmap(self.icon_path)
         logo = logo.scaled(180, 256, Qt.KeepAspectRatio)
         self.le.setPixmap(logo)
-        print(self.icon_path)
         self.le.setAlignment(Qt.AlignCenter)
         self.build.setAlignment(Qt.AlignCenter)
 
@@ -152,11 +151,6 @@ class About(QWidget):
         self.author.setFont(font)
         self.copyright.setFont(font)
         self.dependencies.setFont(font_b)
-
-        # logo = QtGui.QPixmap(resource_path(os.path.join(os.path.join("ui", "icons", "logo.png"))))
-        # logo = logo.scaled(250, 250, Qt.KeepAspectRatio)
-        # self.le.setPixmap(logo)
-
         v_box = QVBoxLayout()
         v_box.addWidget(self.le)
         v_box.addWidget(self.build)

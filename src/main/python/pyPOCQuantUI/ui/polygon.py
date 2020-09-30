@@ -27,7 +27,7 @@ class Polygon(QGraphicsPolygonItem):
         self._relative_bar_positions = [None] * 3
         self._has_all_vertices = False
         self._centerOfMass = None
-        self.sensor_search_area_offset = (10, 10)
+        self.sensor_search_area_offset = (8, 8)
         self.attributes = []
 
     def number_of_points(self):
@@ -47,7 +47,6 @@ class Polygon(QGraphicsPolygonItem):
             self._y = sensor.y() + sensor.height()
 
             # Add the Line
-            # print(self)
             item = Line(self._x0, self._y0, self._x, self._y, idx, self, self._composite)
             item.setZValue(10)
             self.scene().addItem(item)
@@ -115,23 +114,17 @@ class Polygon(QGraphicsPolygonItem):
         if self.scene() is not None:
             self.scene().signal_rel_bar_pos.emit(relative_bar_positions)
 
-    def get_sensor_search_area_offset(self):
-        self.attributes[6] = round(self.attributes[4] - self.attributes[2])
-        self.attributes[7] = round(self.attributes[5] - self.attributes[3])
-        self.sensor_search_area_offset = (self.attributes[6], self.attributes[7])
-
     def update_polygon(self):
-        # @todo there might be small rounding errors making the polygon attributes and the sensor attributes in main
-        #  window out of sync and with every click move the polygon by +/- 1 pixel
+        """
+        Upated the polygon attribues
+        :return:
+        """
 
         # Get the current state of the polygon
         rect_sensor = self.sceneBoundingRect()
         sensor_size = (rect_sensor.width(), rect_sensor.height())
         sensor_center = ((rect_sensor.x() - 0 + rect_sensor.width() / 2), (rect_sensor.y() -
                          0 + rect_sensor.height() / 2))
-
-        # Determine the sensor_search_area_offset based on the attributes list
-        # self.get_sensor_search_area_offset()
 
         # Get the coordinates of the vertices and move the most extreme ones (determining the bounding box to change
         # the polygon shape
@@ -161,7 +154,10 @@ class Polygon(QGraphicsPolygonItem):
             self.move_vertex_item(i, self.mapToScene(point))
 
         # Update the sensor_search_area in the attributes list based on the newly determined sensor_search_area_offset
-        sensor_search_area_offset = self.sensor_search_area_offset
+        if not self.attributes:
+            sensor_search_area_offset = self.sensor_search_area_offset
+        else:
+            sensor_search_area_offset = tuple(self.attributes[-2:])
         sensor_search_area = (rect_sensor.width() + sensor_search_area_offset[0], rect_sensor.height() +
                               sensor_search_area_offset[1])
         sensor_search_area = [round(el) for el in sensor_search_area]
@@ -170,12 +166,14 @@ class Polygon(QGraphicsPolygonItem):
 
     def emit_sensor_attributes(self):
 
-        old_sensor_attributes = self.attributes
         rect_sensor = self.sceneBoundingRect()
         sensor_size = (rect_sensor.width()-2, rect_sensor.height()-2)
         sensor_center = (rect_sensor.x() - 0 + rect_sensor.width() / 2, rect_sensor.y() -
                          0 + rect_sensor.height() / 2)
-        sensor_search_area_offset = self.sensor_search_area_offset
+        if not self.attributes:
+            sensor_search_area_offset = self.sensor_search_area_offset
+        else:
+            sensor_search_area_offset = tuple(self.attributes[-2:])
         sensor_search_area = (rect_sensor.width() + sensor_search_area_offset[0], rect_sensor.height() +
                               sensor_search_area_offset[1])
 
