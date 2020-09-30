@@ -164,11 +164,13 @@ class Polygon(QGraphicsPolygonItem):
         sensor_search_area_offset = self.sensor_search_area_offset
         sensor_search_area = (rect_sensor.width() + sensor_search_area_offset[0], rect_sensor.height() +
                               sensor_search_area_offset[1])
+        sensor_search_area = [round(el) for el in sensor_search_area]
         self.attributes[4] = sensor_search_area[0]
         self.attributes[5] = sensor_search_area[1]
 
     def emit_sensor_attributes(self):
 
+        old_sensor_attributes = self.attributes
         rect_sensor = self.sceneBoundingRect()
         sensor_size = (rect_sensor.width()-2, rect_sensor.height()-2)
         sensor_center = (rect_sensor.x() - 0 + rect_sensor.width() / 2, rect_sensor.y() -
@@ -178,9 +180,12 @@ class Polygon(QGraphicsPolygonItem):
                               sensor_search_area_offset[1])
 
         sensor_attributes = sensor_center + sensor_size + sensor_search_area + sensor_search_area_offset
+        sensor_attributes = [round(el) for el in sensor_attributes]
 
         if self.scene() is not None:
             self.scene().signal_sensor_attributes.emit(list(sensor_attributes))
+
+        self.attributes = sensor_attributes
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionHasChanged:
