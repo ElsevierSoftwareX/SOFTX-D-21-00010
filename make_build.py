@@ -66,9 +66,9 @@ def prepare_freezing():
             'cssselect2/VERSION',
             'tinycss2/VERSION',
             'sklearn/utils/_cython_blas.cp36-win_amd64.pyd',
-            'skimage/feature/_orb_descriptor_positions',
+            'skimage/feature/_orb_descriptor_positions.py',
             'dask/dask.yaml',
-            'pywt/_extensions/_cwt.cp36-win_amd64',
+            'pywt/_extensions/_cwt.cp36-win_amd64.pyd',
             'pyzbar',
             'scipy/.libs',
             'scipy/special/cython_special.cp36-win_amd64.pyd'
@@ -80,6 +80,13 @@ def prepare_freezing():
             Path(target_root_dir / 'src/freeze/windows'),
             item_list
         )
+        
+        # Copy version info
+        Path(target_root_dir / 'src/freeze/windows/ui').mkdir(parents=True, exist_ok=True)
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows/ui'))
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows'))
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'), Path(target_root_dir / 'src/freeze/windows/ui'))
+
 
         # Original list -- kept for reference
         # print(str(Path(packages_root_dir, 'cairosvg')), str(Path('src/freeze/windows/cairosvg')))
@@ -128,12 +135,12 @@ print('Prepare freezing')
 prepare_freezing()
 
 # print('Running: fbs freeze')
-# stream = os.popen('fbs freeze')
-# print(stream.read())
+stream = os.popen('fbs freeze')
+print(stream.read())
 #
 # print('Running: fbs installer')
-# stream = os.popen('fbs installer')
-# print(stream.read())
+stream = os.popen('fbs installer')
+print(stream.read())
 
 
 print('|---------------------------------------------------------------------------------------------------|')
