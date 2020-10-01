@@ -454,6 +454,20 @@ class MainWindow(QMainWindow):
         # Make sure the results folder exists
         self.test_dir = Path(self.input_dir / "test")
         self.test_dir.mkdir(exist_ok=True)
+
+        # Clear the directory for subsequent re tests. Otherwise it would run the pipeline on all old images too.
+        try:
+            if any(Path(str(self.test_dir)).iterdir()):
+                for p in self.test_dir.iterdir():
+                    if p.is_dir():
+                        shutil.rmtree(p)
+                    else:
+                        p.unlink()
+        except Exception as e:
+            self.print_to_console(f"ERROR: Could not delete old files. Close all open files first and try again. "
+                                  f"{str(e)}")
+            return
+
         # 2. Copy displayed image to temp folder
         shutil.copy(str(self.input_dir / self.image_filename), str(self.test_dir))
         # 3. Create config file form param tree
@@ -466,7 +480,6 @@ class MainWindow(QMainWindow):
         # Run the pipeline
         self.run_worker(input_dir=self.test_dir, output_dir=self.test_dir, settings=settings)
         # 5. Display control images by opening the test folder
-        # webbrowser.open(str(self.test_dir))
         QDesktopServices.openUrl(QUrl(f'file:///{str(self.test_dir)}'))
 
     def on_run_pipeline(self):
@@ -490,7 +503,7 @@ class MainWindow(QMainWindow):
         # Run full pipeline
         self.run_worker(input_dir=self.input_dir, output_dir=self.output_dir, settings=settings)
         # Display control images by opening the output folder
-        # webbrowser.open(str(self.output_dir))
+        self.output_dir.mkdir(exist_ok=True)
         QDesktopServices.openUrl(QUrl(f'file:///{str(self.output_dir)}'))
 
     def on_select_input(self):
