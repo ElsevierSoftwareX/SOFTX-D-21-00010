@@ -32,7 +32,7 @@ class AppContext(ApplicationContext):
             self.window.width_action.setIcon(QIcon(self.get_resource("img/width-01.png")))
             self.window.action_console.setIcon(QIcon(self.get_resource("img/log-01.png")))
             self.window.user_instructions_path = self.get_resource("UserInstructions.html")
-            # self.window.quick_start_path = self.get_resource("QuickStart.html")
+            self.window.quick_start_path = self.get_resource("QuickStart.html")
             self.window.poct_template_path = self.get_resource("pyPOCQuantTemplate.pdf")
             self.window.qr_labels_template_path = self.get_resource("sample_qr_code_template.xls")
             # Setup label form generator
