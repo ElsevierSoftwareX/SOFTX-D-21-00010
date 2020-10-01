@@ -1,4 +1,4 @@
-# pyPOCQuantUI
+# ![pyPOCQuantUI](src\main\icons\linux\128.png) pyPOCQuantUI
 
 User interface for pyPOCQuant
 
