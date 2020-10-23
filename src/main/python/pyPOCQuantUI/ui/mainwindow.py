@@ -1051,15 +1051,11 @@ class MainWindow(QMainWindow):
             sheet = labels.Sheet(specs, draw_label, border=True)
 
             # Read the label template
-            # data = pd.read_csv(label_dir, header=None)
-            print('here')
-            print(data)
             for i in tqdm(range(len(data))):
-                print('a')
                 save_name_qr = qrdecode_result_dir_str.joinpath('qr', data.iloc[i, 0] + 'qr.svg')
                 qr_path = qrdecode_result_dir_str.joinpath('qr')
                 qr_path.mkdir(exist_ok=True)
-                print('b')
+
                 # Create qr code
                 qr = pyqrcode.create(data.iloc[i, 0])
 
@@ -1071,9 +1067,10 @@ class MainWindow(QMainWindow):
                 value_string = data.iloc[i, 0].split('-')
                 d = draw.Drawing(300, 150)
                 d.append(draw.Text(value_string[0], 20, 150, 105, **{"font-family": "Aria, sans-serif"}))
-                d.append(draw.Text(value_string[1], 17, 150, 72, **{"font-family": "Aria, sans-serif"}))
-                d.append(draw.Text(value_string[2], 25, 150, 38, **{"font-family": "Aria, sans-serif"}))
-                d.append(draw.Text(value_string[3], 25, 150, 5, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[1], 18, 150, 80, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[2], 22, 150, 55, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[3], 22, 150, 30, **{"font-family": "Aria, sans-serif"}))
+                d.append(draw.Text(value_string[4], 18, 150, 5, **{"font-family": "Aria, sans-serif"}))
                 d.append(draw.Image(1, 1, 145, 145, str(save_name_qr)))
                 save_name = qrdecode_result_dir_str.joinpath(data.iloc[i, 0] + '.svg')
                 d.saveSvg(str(save_name))
@@ -1091,7 +1088,7 @@ class MainWindow(QMainWindow):
                 sheet.add_label(scaled_drawing)
 
             # Save the file and we are done.
-            sheet.save(str(Path(qrdecode_result_dir_str / 'qc_labels.pdf')))
+            sheet.save(str(Path(qrdecode_result_dir_str / label_dir.stem).with_suffix('.pdf')))
         except Exception as e:
             print(e)
 

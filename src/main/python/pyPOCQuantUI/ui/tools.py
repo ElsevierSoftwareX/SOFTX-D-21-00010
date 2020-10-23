@@ -32,7 +32,7 @@ class LabelGen(QDialog):
     def on_update_res_dir(self):
         self.qrdecode_result_dir_str = Path(self.label_dir_edit.text())
         self.qrdecode_result_dir_str = Path(self.qrdecode_result_dir_str.parent / str(
-            self.qrdecode_result_dir_str.stem + "_QRCodes"))
+            self.qrdecode_result_dir_str.stem + "_qr_labels"))
 
     def get_dir(self):
         try:
