@@ -22,7 +22,7 @@ import labels
 import tempfile
 import os
 
-from pypocquant.lib.io import load_and_process_image
+from pypocquant.lib.io import load_and_process_image, is_raw
 from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
@@ -578,14 +578,21 @@ class MainWindow(QMainWindow):
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
     def on_strip_extraction_finished(self):
-        self.scene_strip.display_image(image=self.strip_img)
+        if self.strip_img is not None:
+            self.scene_strip.display_image(image=self.strip_img)
+        else:
+            self.scene_strip.display_image(image=self.image_splash1.image.copy())
         self.view_strip.resetZoom()
         self.set_hough_rect()
         if self.config_path:
             self.on_delete_items_action()
             self.add_sensor_at_position()
-        self.progressBar.setFormat('Extracting POCT from image finished successfully.')
-        self.print_to_console(f"Extracting POCT from image finished successfully.")
+        if self.strip_img is not None:
+            self.progressBar.setFormat('Extracting POCT from image finished successfully.')
+            self.print_to_console(f"Extracting POCT from image finished successfully.")
+        else:
+            self.progressBar.setFormat('Extracting POCT from image finished with an error.')
+            self.print_to_console(f"Extracting POCT from image finished with an error.")
 
     def on_pipeline_finished(self):
         self.print_to_console(f"Results written to {Path(self.output_dir / 'quantification_data.csv')}")
@@ -744,20 +751,27 @@ class MainWindow(QMainWindow):
         img = load_and_process_image(image_path, to_rgb=False)
         # Extract the strip
         progress_callback.emit(60)
-        strip_img, _, left_rect, right_rect = extract_strip(
+        stretch_for_hough = is_raw(str(image_path)) is True and settings['raw_auto_stretch'] is False
+        strip_img, error_message, left_rect, right_rect = extract_strip(
             img,
             settings['qr_code_border'],
             settings['strip_try_correct_orientation'],
             settings['strip_try_correct_orientation_rects'],
+            stretch_for_hough,
             settings['strip_text_to_search'],
             settings['strip_text_on_right']
         )
         progress_callback.emit(80)
 
-        # Change to RGB for display
-        strip_img[:, :, [0, 1, 2]] = strip_img[:, :, [2, 1, 0]]
+        if strip_img is None:
+            self.print_to_console("ERROR: " + error_message)
+
+        else:
+            # Change to RGB for display
+            strip_img[:, :, [0, 1, 2]] = strip_img[:, :, [2, 1, 0]]
 
         self.strip_img = strip_img
+
         progress_callback.emit(100)
 
     def get_filename(self):
