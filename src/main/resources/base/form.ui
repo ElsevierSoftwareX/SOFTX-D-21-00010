@@ -267,6 +267,7 @@
     <addaction name="action_save_POCT_template"/>
     <addaction name="action_save_QR_labels_template"/>
     <addaction name="action_gen_qr_labels"/>
+    <addaction name="action_split_images_by_type"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -333,6 +334,11 @@
   <action name="action_save_QR_labels_template">
    <property name="text">
     <string>Save QR labels template</string>
+   </property>
+  </action>
+  <action name="action_split_images_by_type">
+   <property name="text">
+    <string>Split images by type</string>
    </property>
   </action>
  </widget>
