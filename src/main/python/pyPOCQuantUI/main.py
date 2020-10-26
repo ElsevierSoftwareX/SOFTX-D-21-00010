@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 from ui.mainwindow import MainWindow
-from ui.tools import LabelGen
+from ui.tools import LabelGen, SplitImages
 
 
 class AppContext(ApplicationContext):
@@ -40,6 +40,11 @@ class AppContext(ApplicationContext):
             self.window.label_gen = LabelGen(label_gen_ui)
             self.window.label_gen.signal_run_label.connect(self.window.on_generate_labels)
             self.window.action_gen_qr_labels.triggered.connect(self.window.label_gen.show)
+            # Setup split images from
+            split_images_ui = self.get_resource("split_form.ui")
+            self.window.split_images = SplitImages(split_images_ui)
+            self.window.split_images.signal_run_split_images.connect(self.window.on_split_images)
+            self.window.action_split_images_by_type.triggered.connect(self.window.split_images.show)
         else:
             self.show_tesseract_install_dialog()
         return appctxt.app.exec_()

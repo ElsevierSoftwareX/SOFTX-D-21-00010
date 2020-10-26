@@ -20,6 +20,7 @@ from svglib.svglib import svg2rlg
 import pyqrcode
 import labels
 import tempfile
+import os
 
 from pypocquant.lib.io import load_and_process_image
 from ui.config import params, key_map
@@ -38,6 +39,7 @@ from pypocquant.lib.analysis import get_rectangles_from_image_and_rectangle_prop
 from pypocquant.pipeline import run_pipeline
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
+from pypocquant.split_images_by_strip_type_parallel import run_pool
 import pypocquant as pq
 from ui.tools import LabelGen
 
@@ -149,6 +151,7 @@ class MainWindow(QMainWindow):
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
         self.label_gen = None
+        self.split_images = None
         self.display_on_startup = None
         self.image_splash1 = None
         self.image_splash2 = None
@@ -831,6 +834,16 @@ class MainWindow(QMainWindow):
     def on_done_labels(self):
         self.print_to_console('Done with creating labels')
 
+    @pyqtSlot(dict, name="on_split_images")
+    def on_split_images(self, args):
+        self.print_to_console('Starting splitting images')
+        worker = Worker(self.run_split_images, args)
+        worker.signals.finished.connect(self.on_done_split_images)
+        self.threadpool.start(worker)
+
+    def on_done_split_images(self):
+        self.print_to_console('Done with splitting images')
+
     @pyqtSlot(int, name="on_signal_line_length")
     def on_signal_line_length(self, length):
         self.p.param('Basic parameters').param('QR code border').setValue(length)
@@ -1091,6 +1104,22 @@ class MainWindow(QMainWindow):
             sheet.save(str(Path(qrdecode_result_dir_str / label_dir.stem).with_suffix('.pdf')))
         except Exception as e:
             print(e)
+
+    def run_split_images(self, args, progress_callback):
+        # Input and output dirs
+        input_folder_path = Path(args['input_folder'])
+        output_folder_path = Path(args['output_folder'])
+
+        output_folder_path.mkdir(parents=True, exist_ok=True)
+
+        undefined_path = Path(args['undefined_folder'])
+        undefined_path.mkdir(parents=True, exist_ok=True)
+
+        # Get the list of all files
+        filenames = sorted(os.listdir(str(input_folder_path)))
+
+        # Get quantification results
+        run_pool(filenames, input_folder_path, output_folder_path, undefined_path, args['max_workers'])
 
     @staticmethod
     def scale(drawing, scaling_factor):
