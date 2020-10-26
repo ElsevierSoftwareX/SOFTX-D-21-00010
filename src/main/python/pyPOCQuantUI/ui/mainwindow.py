@@ -545,7 +545,7 @@ class MainWindow(QMainWindow):
     def on_output_edit_change(self):
         new_path = self.output_edit.text()
         # Validate if path exists
-        if Path(new_path).is_dir():
+        if Path(new_path).parent.is_dir():
             self.output_dir = Path(new_path)
             self.print_to_console(f"Updated output directory: {Path(new_path)}")
         else:
@@ -1133,7 +1133,7 @@ class MainWindow(QMainWindow):
         filenames = sorted(os.listdir(str(input_folder_path)))
 
         # Get quantification results
-        run_pool(filenames, input_folder_path, output_folder_path, undefined_path, args['max_workers'])
+        run_pool(filenames, input_folder_path, output_folder_path, undefined_path, args['max_workers'], args['types'])
 
     @staticmethod
     def scale(drawing, scaling_factor):

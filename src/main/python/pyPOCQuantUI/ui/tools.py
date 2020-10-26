@@ -4,6 +4,7 @@ from PyQt5 import uic
 from pathlib import Path
 import multiprocessing
 from pypocquant.lib.consts import KnownManufacturers
+from pypocquant.lib.settings import load_list_file
 
 
 class LabelGen(QDialog):
@@ -93,43 +94,34 @@ class SplitImages(QDialog):
                 self.undefined_dir = str(Path(Path(self.output_edit.text()) / 'UNDEFINED'))
         elif sender_name == 'output_edit':
             new_path = self.output_edit.text()
-            # Validate if path exists
-            if Path(new_path).is_dir():
-                self.output_edit.setText(str(new_path))
-                self.undefined_dir = str(Path(Path(self.output_edit.text()) / 'UNDEFINED'))
-        # elif sender_name == 'type_edit':
-        #     new_path = self.type_edit.toPlainText()
-        #     # Validate if text is capital
-        #     self.type_edit.setPlainText(new_path)
+            self.output_edit.setText(str(new_path))
+            self.undefined_dir = str(Path(Path(self.output_edit.text()) / 'UNDEFINED'))
 
     def get_dir(self):
         sending_button = self.sender()
         sender = str(sending_button.objectName())
         try:
-            dir = QFileDialog.getExistingDirectory(self, "Select Directory", "")
+            selected_dir = QFileDialog.getExistingDirectory(self, "Select Directory", "")
             if sender == 'input_btn':
-                self.input_edit.setText(dir)
+                self.input_edit.setText(selected_dir)
             if sender == 'output_btn':
-                self.output_edit.setText(dir)
-            # if sender == 'type_btn':
-            #     self.type_edit.setPlainText(dir)
+                self.output_edit.setText(selected_dir)
         except Exception as e:
             QMessageBox.information(self, "Error!", "No valid directory selected".format(e))
 
     def on_open_file(self):
         try:
-            # Read file,
-            # Validate content
-            # Add to type_list
-            # self.type_edit.setPlainText(QFileDialog.getOpenFileName(self, "Select file", "")[0])
-            print('to be implemented')
+            type_names = load_list_file(str(Path(QFileDialog.getOpenFileName(self, "Select file", "")[0])))
+            self.type_edit.setPlainText(", ".join(map(str, type_names)))
         except Exception as e:
             QMessageBox.information(self, "Error!", "No valid file selected".format(e))
 
     def emit_data(self):
+        types = self.type_edit.toPlainText().split(",")
+        types = [el.strip() for el in types]
         args = {'input_folder': self.input_edit.text(), 'output_folder': self.output_edit.text(),
                 'undefined_folder': self.undefined_dir, 'max_workers': self.worker_spin.value(),
-                'types': self.type_edit.toPlainText()}
+                'types': types}
         self.signal_run_split_images.emit(args)
 
 
