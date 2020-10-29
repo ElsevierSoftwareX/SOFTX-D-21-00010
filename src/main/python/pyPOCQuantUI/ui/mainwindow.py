@@ -1156,6 +1156,7 @@ class MainWindow(QMainWindow):
                                            quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+            self.qi.close()
             event.accept()
         else:
             event.ignore()
