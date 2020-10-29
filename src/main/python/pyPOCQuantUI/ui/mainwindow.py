@@ -1037,11 +1037,11 @@ class MainWindow(QMainWindow):
             if label_dir.suffix in ['.xls', '.xlsx']:
                 # We need to convert the excel file / template to a csv file
                 dd = pd.read_excel(label_dir)
-                header = ['sample_id', 'manufacturer', 'plate', 'well', 'row', 'col', 'user']
+                header = ['sample_id', 'manufacturer', 'plate', 'well', 'row', 'col', 'userdata']
                 if set(header).issubset(dd.columns):
                     dd['label'] = dd['sample_id'].astype(str) + '-' + dd['manufacturer'].astype(str) + '-' + 'Plate ' + \
                                   dd['plate'].astype(str).str.zfill(2) + '-' + 'Well ' + dd['row'].astype(str) + ' ' + \
-                                  dd['col'].astype(str).str.zfill(2) + '-' + dd['user'].astype(str)
+                                  dd['col'].astype(str).str.zfill(2) + '-' + dd['userdata'].astype(str)
                     data = dd['label']
                     # Save the converted file
                     data.to_csv(str(Path(label_dir.parent / label_dir.stem).with_suffix('.csv')), header=False,
