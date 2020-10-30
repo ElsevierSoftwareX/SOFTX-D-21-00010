@@ -26,6 +26,6 @@ pytesseract
 rawpy
 pyzbar
 scikit-learn
-scikit-image
+# scikit-image # should be installed with conda install scikit-image
 nbconvert
 jupytext
