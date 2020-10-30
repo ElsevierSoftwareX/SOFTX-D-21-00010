@@ -1,3 +1,4 @@
+# Tested with python==3.6.8 (before using a more recent Python check fbs instructions / support)
 fbs==0.8.6
 pyqtgraph
 imageio
