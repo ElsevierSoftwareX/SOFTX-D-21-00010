@@ -1,10 +1,31 @@
 fbs==0.8.6
 pyqtgraph
 imageio
-pyqt5
+PyQt5==5.9.2
+# pyqt==5.9.2
+pyqtgraph
+pandas
+numpy
+tqdm
 svglib
-drawsvg
+drawSvg
 pyqrcode
 pylabels
 jupytext
 jupyter-contrib-nbextensions
+opencv-python==3.4.2.16
+opencv-contrib-python==3.4.2.16
+# opencv-python==4.1.1.26
+# opencv-contrib-python==4.1.1.26
+# opencv-contrib-python-nonfree==4.1.1.1
+exifread
+imutils
+matplotlib
+scipy
+pytesseract
+rawpy
+pyzbar
+scikit-learn
+scikit-image
+nbconvert
+jupytext
