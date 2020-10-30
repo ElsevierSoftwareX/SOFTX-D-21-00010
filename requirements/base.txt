@@ -7,5 +7,4 @@ drawsvg
 pyqrcode
 pylabels
 jupytext
-platform
 jupyter-contrib-nbextensions
