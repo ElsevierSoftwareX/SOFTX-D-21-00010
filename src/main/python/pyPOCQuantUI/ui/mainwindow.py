@@ -331,13 +331,21 @@ class MainWindow(QMainWindow):
         """
         Displays the instruction manual.
         """
-        webbrowser.open(str(Path(self.user_instructions_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.user_instructions_path), str(tmp_path))
+        file_url = self.get_file_url(str(Path(tmp_path / Path(self.user_instructions_path).name)))
+        webbrowser.open(file_url)
 
     def on_quick_start(self):
         """
         Displays the quick start guide.
         """
-        webbrowser.open(str(Path(self.quick_start_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.quick_start_path), str(tmp_path))
+        file_url = self.get_file_url(str(Path(tmp_path / Path(self.quick_start_path).name)))
+        webbrowser.open(file_url)
 
     def on_show_poct_template(self):
         """
@@ -346,7 +354,8 @@ class MainWindow(QMainWindow):
         tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
         tmp_path.mkdir(parents=True, exist_ok=True)
         shutil.copy(str(self.poct_template_path), str(tmp_path))
-        webbrowser.open(str(tmp_path))
+        file_url = self.get_file_url(str(tmp_path))
+        webbrowser.open(file_url)
 
     def on_show_qr_label_template(self):
         """
@@ -355,7 +364,8 @@ class MainWindow(QMainWindow):
         tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
         tmp_path.mkdir(parents=True, exist_ok=True)
         shutil.copy(str(self.qr_labels_template_path), str(tmp_path))
-        webbrowser.open(str(tmp_path))
+        file_url = self.get_file_url(str(tmp_path))
+        webbrowser.open(file_url)
 
     def on_toggle_line(self):
 
@@ -1134,6 +1144,14 @@ class MainWindow(QMainWindow):
 
         # Get quantification results
         run_pool(filenames, input_folder_path, output_folder_path, undefined_path, args['max_workers'], args['types'])
+
+    @staticmethod
+    def get_file_url(url):
+        if platform == "darwin":
+            file_url = "file:///" + url
+        else:
+            file_url = url
+        return file_url
 
     @staticmethod
     def scale(drawing, scaling_factor):
