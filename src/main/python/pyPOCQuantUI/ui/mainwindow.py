@@ -1147,7 +1147,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def get_file_url(url):
-        if platform == "darwin":
+        if platform.system() == "Darwin":
             file_url = "file:///" + url
         else:
             file_url = url
