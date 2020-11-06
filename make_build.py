@@ -56,10 +56,11 @@ def prepare_freezing():
 
     # Source root folder
     python_dir = site.getsitepackages()
-    packages_root_dir = python_dir[1]
 
     # Build the list of files and folder to copy to the correct `freeze` subfolder
     if platform.system() == 'Windows':
+
+        packages_root_dir = python_dir[1]
 
         # Build map of files/folders to copy
         item_list = [
@@ -81,7 +82,7 @@ def prepare_freezing():
             Path(target_root_dir / 'src/freeze/windows'),
             item_list
         )
-        
+
         # Copy version info
         Path(target_root_dir / 'src/freeze/windows/ui').mkdir(parents=True, exist_ok=True)
         shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows/ui'))
@@ -105,6 +106,8 @@ def prepare_freezing():
         # print(str(Path(packages_root_dir, 'scipy/special', 'cython_special.cp36-win_amd64')),
         #       str(Path('src/freeze/windows/scipy/special')))
     elif platform.system() == 'Darwin':
+
+        packages_root_dir = python_dir[0]
 
         # Build map of files/folders to copy
         item_list = [
@@ -132,6 +135,16 @@ def prepare_freezing():
                     Path(target_root_dir / 'src/freeze/mac/Contents/MacOS'))
         shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
                     Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui'))
+
+    elif platform.system() == 'Linux':
+
+        packages_root_dir = python_dir[0]
+
+        raise Exception("Platform not yet supported! Stay tuned!")
+
+    else:
+
+        raise Exception("Platform not supported!")
 
 
 print('|---------------------------------------------------------------------------------------------------|')
