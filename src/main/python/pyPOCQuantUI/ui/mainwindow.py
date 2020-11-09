@@ -1,10 +1,10 @@
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDir, QPointF, QSize, QMetaObject, Q_ARG, pyqtSlot, QRectF, QPoint, QThreadPool, \
-    QObject, pyqtSignal, QUrl
+from PyQt5.QtCore import Qt, QDir, QPointF, pyqtSlot, QRectF, QPoint, QThreadPool, \
+    pyqtSignal, QUrl
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QDesktopServices
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QPlainTextEdit, QSizePolicy, \
-    QMessageBox, QStyle, QApplication, QProgressBar, QLineEdit, QDoubleSpinBox
-from pyqtgraph.parametertree import Parameter, ParameterTree
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QMessageBox, QStyle, QApplication, \
+    QDoubleSpinBox
+from pyqtgraph.parametertree import Parameter
 from datetime import date
 from pathlib import Path
 import pyqtgraph as pg
@@ -36,12 +36,10 @@ from ui.help import About, QuickInstructions
 from ui.stream import Stream
 from ui import versionInfo
 from pypocquant.lib.analysis import get_rectangles_from_image_and_rectangle_props
-from pypocquant.pipeline import run_pipeline
+from pypocquant.lib.pipeline import run_pipeline
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
 from pypocquant.split_images_by_strip_type_parallel import run_pool
-import pypocquant as pq
-from ui.tools import LabelGen
 
 import platform
 
