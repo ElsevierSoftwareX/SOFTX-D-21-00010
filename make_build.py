@@ -8,6 +8,7 @@ import site
 from pypocquant.manual import build_manual, build_quickstart
 from ui import versionInfo
 
+
 def copy_and_print_missing_files(source_root_dir: Path, target_root_dir: Path, list_items: list):
     """Copy missing files before freezing.
 
@@ -55,10 +56,11 @@ def prepare_freezing():
 
     # Source root folder
     python_dir = site.getsitepackages()
-    packages_root_dir = python_dir[1]
 
     # Build the list of files and folder to copy to the correct `freeze` subfolder
     if platform.system() == 'Windows':
+
+        packages_root_dir = python_dir[1]
 
         # Build map of files/folders to copy
         item_list = [
@@ -80,7 +82,7 @@ def prepare_freezing():
             Path(target_root_dir / 'src/freeze/windows'),
             item_list
         )
-        
+
         # Copy version info
         Path(target_root_dir / 'src/freeze/windows/ui').mkdir(parents=True, exist_ok=True)
         shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows/ui'))
@@ -103,13 +105,53 @@ def prepare_freezing():
         # print(str(Path(packages_root_dir, 'scipy/.libs', )), str(Path('src/freeze/windows/scipy/')))
         # print(str(Path(packages_root_dir, 'scipy/special', 'cython_special.cp36-win_amd64')),
         #       str(Path('src/freeze/windows/scipy/special')))
+    elif platform.system() == 'Darwin':
+
+        packages_root_dir = python_dir[0]
+
+        # Build map of files/folders to copy
+        item_list = [
+            'cairosvg/VERSION',
+            'cairocffi/VERSION',
+            'cv2',
+            'reportlab',
+            'skimage',
+            'sklearn',
+            'pywt',
+        ]
+
+        # Copy missing files
+        copy_and_print_missing_files(
+            packages_root_dir,
+            Path(target_root_dir / 'src/freeze/mac/Contents/MacOS'),
+            item_list
+        )
+
+        # Copy version info
+        Path(target_root_dir / 'src/freeze/mac/Contents/MacOS').mkdir(parents=True, exist_ok=True)
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui'))
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS'))
+        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
+                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui'))
+
+    elif platform.system() == 'Linux':
+
+        packages_root_dir = python_dir[0]
+
+        raise Exception("Platform not yet supported! Stay tuned!")
+
+    else:
+
+        raise Exception("Platform not supported!")
 
 
 print('|---------------------------------------------------------------------------------------------------|')
 print('| Start building pyPOCQUANT')
 print('|---------------------------------------------------------------------------------------------------|')
 
-__VERSION__ = "0.0.3"
+__VERSION__ = "0.9.0"
 
 # Update version and build info
 if not versionInfo.compare_version(__VERSION__):

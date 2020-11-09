@@ -63,7 +63,7 @@ params = [
              'tip': "Set to true if raw image intensities should be auto-stretched"},
             {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
              'tip': "Set true if raw image white balance should be set automatically"},
-            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': True,
+            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': False,
              'tip': "Will try to find the injection inlet to assess orientation."},
             {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
                 [

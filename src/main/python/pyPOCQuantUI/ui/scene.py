@@ -136,8 +136,8 @@ class Scene(QGraphicsScene):
         if event.buttons() == Qt.LeftButton:
             x = event.scenePos().x()
             y = event.scenePos().y()
-            self.signal_add_object_at_position.emit(x, y)
             self.signal_scene_nr.emit(self.nr)
+            self.signal_add_object_at_position.emit(x, y)
         else:
             pass
 

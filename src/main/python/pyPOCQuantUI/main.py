@@ -1,12 +1,14 @@
 from fbs_runtime.application_context.PyQt5 import ApplicationContext, cached_property
 
+import os
 import sys
 import shutil
+import platform
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 from ui.mainwindow import MainWindow
-from ui.tools import LabelGen
+from ui.tools import LabelGen, SplitImages
 
 
 class AppContext(ApplicationContext):
@@ -40,6 +42,11 @@ class AppContext(ApplicationContext):
             self.window.label_gen = LabelGen(label_gen_ui)
             self.window.label_gen.signal_run_label.connect(self.window.on_generate_labels)
             self.window.action_gen_qr_labels.triggered.connect(self.window.label_gen.show)
+            # Setup split images from
+            split_images_ui = self.get_resource("split_form.ui")
+            self.window.split_images = SplitImages(split_images_ui)
+            self.window.split_images.signal_run_split_images.connect(self.window.on_split_images)
+            self.window.action_split_images_by_type.triggered.connect(self.window.split_images.show)
         else:
             self.show_tesseract_install_dialog()
         return appctxt.app.exec_()
@@ -49,7 +56,21 @@ class AppContext(ApplicationContext):
         return qtCreatorFile
 
     def cmd_exists(self, cmd):
-        return shutil.which(cmd) is not None
+        # Test if tesseract is on PATH
+        if shutil.which(cmd):
+            return True
+        else:
+            # Check default installations
+            if platform.system() == "Linux":
+                if os.path.exists(r'/usr/bin/tesseract') is not None:
+                    return True
+            elif platform.system() == "Darwin":
+                if os.path.exists(r'/usr/local/bin/tesseract') is not None:
+                    return True
+            elif platform.system() == "Windows":
+                if os.path.exists(r'C:\Program Files\Tesseract-OCR\tesseract1.exe') is not None:
+                    return True
+        return False
 
     @cached_property
     def window(self):

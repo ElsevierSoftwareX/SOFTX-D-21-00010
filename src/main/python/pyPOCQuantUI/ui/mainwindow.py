@@ -20,8 +20,9 @@ from svglib.svglib import svg2rlg
 import pyqrcode
 import labels
 import tempfile
+import os
 
-from pypocquant.lib.io import load_and_process_image
+from pypocquant.lib.io import load_and_process_image, is_raw
 from ui.config import params, key_map
 from ui.view import View
 from ui.scene import Scene
@@ -38,6 +39,7 @@ from pypocquant.lib.analysis import get_rectangles_from_image_and_rectangle_prop
 from pypocquant.pipeline import run_pipeline
 from pypocquant.lib.tools import extract_strip
 from pypocquant.lib.settings import save_settings, load_settings
+from pypocquant.split_images_by_strip_type_parallel import run_pool
 import pypocquant as pq
 from ui.tools import LabelGen
 
@@ -149,6 +151,7 @@ class MainWindow(QMainWindow):
         # Instantiate a BookKeeper
         self.bookKeeper = BookKeeper()
         self.label_gen = None
+        self.split_images = None
         self.display_on_startup = None
         self.image_splash1 = None
         self.image_splash2 = None
@@ -328,13 +331,21 @@ class MainWindow(QMainWindow):
         """
         Displays the instruction manual.
         """
-        webbrowser.open(str(Path(self.user_instructions_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.user_instructions_path), str(tmp_path))
+        file_url = self.get_file_url(str(Path(tmp_path / Path(self.user_instructions_path).name)))
+        webbrowser.open(file_url)
 
     def on_quick_start(self):
         """
         Displays the quick start guide.
         """
-        webbrowser.open(str(Path(self.quick_start_path)))
+        tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(self.quick_start_path), str(tmp_path))
+        file_url = self.get_file_url(str(Path(tmp_path / Path(self.quick_start_path).name)))
+        webbrowser.open(file_url)
 
     def on_show_poct_template(self):
         """
@@ -343,7 +354,8 @@ class MainWindow(QMainWindow):
         tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
         tmp_path.mkdir(parents=True, exist_ok=True)
         shutil.copy(str(self.poct_template_path), str(tmp_path))
-        webbrowser.open(str(tmp_path))
+        file_url = self.get_file_url(str(tmp_path))
+        webbrowser.open(file_url)
 
     def on_show_qr_label_template(self):
         """
@@ -352,7 +364,8 @@ class MainWindow(QMainWindow):
         tmp_path = Path(tempfile.gettempdir()).joinpath('pyPOCQuant')
         tmp_path.mkdir(parents=True, exist_ok=True)
         shutil.copy(str(self.qr_labels_template_path), str(tmp_path))
-        webbrowser.open(str(tmp_path))
+        file_url = self.get_file_url(str(tmp_path))
+        webbrowser.open(file_url)
 
     def on_toggle_line(self):
 
@@ -507,7 +520,11 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(QUrl(f'file:///{str(self.output_dir)}'))
 
     def on_select_input(self):
-        self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
+        input_dir = QFileDialog.getExistingDirectory(None, "Select Directory")
+        if input_dir == '':
+            # The user cancelled the selection
+            return
+        self.input_dir = Path(input_dir)
         self.input_edit.setText(str(self.input_dir))
         self.output_dir = Path(self.input_dir / 'pipeline')
         self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
@@ -535,14 +552,18 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"Selected input folder: {self.input_dir}")
 
     def on_select_output(self):
-        self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
+        output_dir = QFileDialog.getExistingDirectory(None, "Select Directory")
+        if output_dir == '':
+            # The user cancelled the selection
+            return
+        self.output_dir = Path(output_dir)
         self.output_edit.setText(str(self.output_dir))
         self.print_to_console(f"Selected output folder: {self.output_dir}")
 
     def on_output_edit_change(self):
         new_path = self.output_edit.text()
         # Validate if path exists
-        if Path(new_path).is_dir():
+        if Path(new_path).parent.is_dir():
             self.output_dir = Path(new_path)
             self.print_to_console(f"Updated output directory: {Path(new_path)}")
         else:
@@ -575,14 +596,21 @@ class MainWindow(QMainWindow):
                 self.print_to_console(f"ERROR: Loading the selected image failed. {str(e)}")
 
     def on_strip_extraction_finished(self):
-        self.scene_strip.display_image(image=self.strip_img)
+        if self.strip_img is not None:
+            self.scene_strip.display_image(image=self.strip_img)
+        else:
+            self.scene_strip.display_image(image=self.image_splash1.image.copy())
         self.view_strip.resetZoom()
         self.set_hough_rect()
         if self.config_path:
             self.on_delete_items_action()
             self.add_sensor_at_position()
-        self.progressBar.setFormat('Extracting POCT from image finished successfully.')
-        self.print_to_console(f"Extracting POCT from image finished successfully.")
+        if self.strip_img is not None:
+            self.progressBar.setFormat('Extracting POCT from image finished successfully.')
+            self.print_to_console(f"Extracting POCT from image finished successfully.")
+        else:
+            self.progressBar.setFormat('Extracting POCT from image finished with an error.')
+            self.print_to_console(f"Extracting POCT from image finished with an error.")
 
     def on_pipeline_finished(self):
         self.print_to_console(f"Results written to {Path(self.output_dir / 'quantification_data.csv')}")
@@ -741,20 +769,27 @@ class MainWindow(QMainWindow):
         img = load_and_process_image(image_path, to_rgb=False)
         # Extract the strip
         progress_callback.emit(60)
-        strip_img, _, left_rect, right_rect = extract_strip(
+        stretch_for_hough = is_raw(str(image_path)) is True and settings['raw_auto_stretch'] is False
+        strip_img, error_message, left_rect, right_rect = extract_strip(
             img,
             settings['qr_code_border'],
             settings['strip_try_correct_orientation'],
             settings['strip_try_correct_orientation_rects'],
+            stretch_for_hough,
             settings['strip_text_to_search'],
             settings['strip_text_on_right']
         )
         progress_callback.emit(80)
 
-        # Change to RGB for display
-        strip_img[:, :, [0, 1, 2]] = strip_img[:, :, [2, 1, 0]]
+        if strip_img is None:
+            self.print_to_console("ERROR: " + error_message)
+
+        else:
+            # Change to RGB for display
+            strip_img[:, :, [0, 1, 2]] = strip_img[:, :, [2, 1, 0]]
 
         self.strip_img = strip_img
+
         progress_callback.emit(100)
 
     def get_filename(self):
@@ -830,6 +865,16 @@ class MainWindow(QMainWindow):
 
     def on_done_labels(self):
         self.print_to_console('Done with creating labels')
+
+    @pyqtSlot(dict, name="on_split_images")
+    def on_split_images(self, args):
+        self.print_to_console('Starting splitting images')
+        worker = Worker(self.run_split_images, args)
+        worker.signals.finished.connect(self.on_done_split_images)
+        self.threadpool.start(worker)
+
+    def on_done_split_images(self):
+        self.print_to_console('Done with splitting images')
 
     @pyqtSlot(int, name="on_signal_line_length")
     def on_signal_line_length(self, length):
@@ -1010,11 +1055,11 @@ class MainWindow(QMainWindow):
             if label_dir.suffix in ['.xls', '.xlsx']:
                 # We need to convert the excel file / template to a csv file
                 dd = pd.read_excel(label_dir)
-                header = ['sample_id', 'manufacturer', 'plate', 'well', 'row', 'col', 'user']
+                header = ['sample_id', 'manufacturer', 'plate', 'well', 'row', 'col', 'userdata']
                 if set(header).issubset(dd.columns):
                     dd['label'] = dd['sample_id'].astype(str) + '-' + dd['manufacturer'].astype(str) + '-' + 'Plate ' + \
                                   dd['plate'].astype(str).str.zfill(2) + '-' + 'Well ' + dd['row'].astype(str) + ' ' + \
-                                  dd['col'].astype(str).str.zfill(2) + '-' + dd['user'].astype(str)
+                                  dd['col'].astype(str).str.zfill(2) + '-' + dd['userdata'].astype(str)
                     data = dd['label']
                     # Save the converted file
                     data.to_csv(str(Path(label_dir.parent / label_dir.stem).with_suffix('.csv')), header=False,
@@ -1092,6 +1137,30 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(e)
 
+    def run_split_images(self, args, progress_callback):
+        # Input and output dirs
+        input_folder_path = Path(args['input_folder'])
+        output_folder_path = Path(args['output_folder'])
+
+        output_folder_path.mkdir(parents=True, exist_ok=True)
+
+        undefined_path = Path(args['undefined_folder'])
+        undefined_path.mkdir(parents=True, exist_ok=True)
+
+        # Get the list of all files
+        filenames = sorted(os.listdir(str(input_folder_path)))
+
+        # Get quantification results
+        run_pool(filenames, input_folder_path, output_folder_path, undefined_path, args['max_workers'], args['types'])
+
+    @staticmethod
+    def get_file_url(url):
+        if platform.system() == "Darwin":
+            file_url = "file:///" + url
+        else:
+            file_url = url
+        return file_url
+
     @staticmethod
     def scale(drawing, scaling_factor):
         """
@@ -1113,6 +1182,7 @@ class MainWindow(QMainWindow):
                                            quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+            self.qi.close()
             event.accept()
         else:
             event.ignore()

@@ -1,11 +1,34 @@
+# Tested with python==3.6.8 (before using a more recent Python check fbs instructions / support)
 fbs==0.8.6
 pyqtgraph
 imageio
-pyqt5
+PyQt5==5.9.2
+# pyqt==5.9.2
+pyqtgraph
+pandas
+numpy
+tqdm
 svglib
-drawsvg
+drawSvg
 pyqrcode
 pylabels
 jupytext
-platform
 jupyter-contrib-nbextensions
+opencv-python==3.4.2.16
+opencv-contrib-python==3.4.2.16
+# opencv-python-headless # other opencv interferes with pyqt namespace
+# opencv-python==4.1.1.26
+# opencv-contrib-python==4.1.1.26
+# opencv-contrib-python-nonfree==4.1.1.1
+exifread
+imutils
+matplotlib # matplotlib==3.2.2 # fixes 'defaultParams' error from 3.2.3 for Darwin
+scipy # scipy==1.4 # fixes scipy.stats._stats which originates in 1.5.0 (there is a pyinstaller hook) for Darwin 
+pytesseract
+rawpy
+pyzbar
+scikit-learn
+scikit-image 
+nbconvert
+jupytext
+xlrd
