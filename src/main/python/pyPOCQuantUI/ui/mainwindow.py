@@ -520,7 +520,11 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(QUrl(f'file:///{str(self.output_dir)}'))
 
     def on_select_input(self):
-        self.input_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
+        input_dir = QFileDialog.getExistingDirectory(None, "Select Directory")
+        if input_dir == '':
+            # The user cancelled the selection
+            return
+        self.input_dir = Path(input_dir)
         self.input_edit.setText(str(self.input_dir))
         self.output_dir = Path(self.input_dir / 'pipeline')
         self.output_edit.setText(str(Path(self.input_dir / 'pipeline')))
@@ -548,7 +552,11 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"Selected input folder: {self.input_dir}")
 
     def on_select_output(self):
-        self.output_dir = Path(QFileDialog.getExistingDirectory(None, "Select Directory"))
+        output_dir = QFileDialog.getExistingDirectory(None, "Select Directory")
+        if output_dir == '':
+            # The user cancelled the selection
+            return
+        self.output_dir = Path(output_dir)
         self.output_edit.setText(str(self.output_dir))
         self.print_to_console(f"Selected output folder: {self.output_dir}")
 
