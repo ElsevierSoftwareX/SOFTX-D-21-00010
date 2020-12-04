@@ -24,7 +24,7 @@ class Polygon(QGraphicsPolygonItem):
         self.polygon_vertex_items = []
         self.line_items = []
         self.relative_bar_positions = []
-        self._relative_bar_positions = [None] * 3
+        # self._relative_bar_positions = [None] * 3
         self._has_all_vertices = False
         self._centerOfMass = None
         self.sensor_search_area_offset = (8, 8)

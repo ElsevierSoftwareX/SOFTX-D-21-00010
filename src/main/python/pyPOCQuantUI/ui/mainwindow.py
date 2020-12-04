@@ -14,6 +14,7 @@ import shutil
 import logging
 import sys
 import pandas as pd
+from pyqtgraph.parametertree.parameterTypes import SimpleParameter
 from tqdm import tqdm
 import drawSvg as draw
 from svglib.svglib import svg2rlg
@@ -257,6 +258,9 @@ class MainWindow(QMainWindow):
     def on_parameter_tree_change(self, param, changes):
         for param, change, data in changes:
             path = self.p.childPath(param)
+            if path is None:
+                # This happens, for instance, after a node removal
+                return
             if path[-1] == 't2':
                 self.relative_bar_positions[0] = data
                 self.update_bar_pos()
@@ -298,6 +302,9 @@ class MainWindow(QMainWindow):
                 self.sensor_attributes[5] = data
                 self.sensor_attributes[7] = round(self.sensor_attributes[5] - self.sensor_attributes[3]) - 2
                 self.update_sensor_pos()
+            if path[-1] == 'Number of sensor bands':
+                num_bands = int(data)
+                self._update_sensor_band_parameters_for_num_bands(num_bands)
 
     def update_sensor_pos(self):
         currentSensorPolygon = self.bookKeeper.getCurrentSensorPolygon()
@@ -713,6 +720,7 @@ class MainWindow(QMainWindow):
         self.print_to_console(f"                          Sensor border: {settings['sensor_border']}")
         self.print_to_console(f"                      Sensor band names: {settings['sensor_band_names']}")
         self.print_to_console(f"       Expected peak relative positions: {settings['peak_expected_relative_location']}")
+        self.print_to_console(f"                     Control band index: {settings['control_band_index']}")
         self.print_to_console(f"             Subtract signal background: {settings['subtract_background']}")
         self.print_to_console(f"                       Force FID search: {settings['force_fid_search']}")
         self.print_to_console(f"                         Verbose output: {settings['verbose']}")
@@ -737,6 +745,7 @@ class MainWindow(QMainWindow):
             sensor_thresh_factor=settings['sensor_thresh_factor'],
             sensor_border=settings['sensor_border'],
             peak_expected_relative_location=settings['peak_expected_relative_location'],
+            control_band_index=settings['control_band_index'],
             subtract_background=settings['subtract_background'],
             force_fid_search=settings['force_fid_search'],
             sensor_band_names=settings['sensor_band_names'],
@@ -797,6 +806,10 @@ class MainWindow(QMainWindow):
         return self.config_file_name
 
     def get_parameters(self):
+
+        # Update dependencies among virtual parameters
+        self._update_dynamic_parameter_dependencies()
+
         dd = {}
         vals = self.p.getValues()
         for key, value in vals.items():
@@ -811,7 +824,115 @@ class MainWindow(QMainWindow):
                     else:
                         dd[keyy.lower().replace(' ', '_')] = valuee[0]
             parameters = self.change_parameter_keys(dd, key_map)
+
         return parameters
+
+    def _update_dynamic_parameter_dependencies(self):
+        """Update dynamic parameters that depend on each other."""
+
+        num_sensor_bands = len(self.p.param("Basic parameters").param("Sensor band names").children())
+        self.p.param("Basic parameters").param("Number of sensor bands").setValue(num_sensor_bands)
+        control_band_index = self.p.param("Basic parameters").param("Control band index")
+        if int(control_band_index.value()) > (num_sensor_bands - 1):
+            control_band_index.setValue(num_sensor_bands - 1)
+        control_band_index.setLimits((-1, num_sensor_bands - 1))
+
+    def _update_sensor_band_parameters_for_num_bands(self, num_bands: int):
+        """Update the various sensor bands parameters to match the new number of bands."""
+
+        # We need to update the parameters in the Tree so that we can have it update
+        # itself properly.
+
+        # Get the relevant parameters
+        number_of_sensor_bands = self.p.param("Basic parameters").param("Number of sensor bands")
+        control_band_index = self.p.param("Basic parameters").param("Control band index")
+        sensor_band_names = self.p.param("Basic parameters").param("Sensor band names")
+        band_expected_relative_location = self.p.param("Basic parameters").param("Band expected relative location")
+
+        # Current number of bands
+        current_num_bands = len(sensor_band_names.children())
+
+        # Let's consider the different cases.
+
+        if num_bands == current_num_bands:
+
+            # The number of bands did not change (this stops recursion).
+            return
+
+        elif num_bands < current_num_bands:
+
+            # The number of bands was reduced
+
+            # Remove sensor band names
+            with sensor_band_names.treeChangeBlocker():
+
+                n = current_num_bands
+                while n > num_bands:
+                    sensor_band_names.children()[n - 1].remove()
+                    n -= 1
+
+            # Remove expected band positions
+            with band_expected_relative_location.treeChangeBlocker():
+
+                n = current_num_bands
+                while n > num_bands:
+                    band_expected_relative_location.children()[n - 1].remove()
+                    n -= 1
+
+            if int(control_band_index.value()) > (num_bands - 1):
+                control_band_index.setValue(num_bands - 1)
+
+            # Check
+            assert(int(number_of_sensor_bands.value()) == num_bands)
+
+        else:
+
+            # The number of bands was increased
+
+            new_sensor_indices = [f"{i}" for i in range(num_bands)]
+            new_sensor_band_names = [f"tl{i}" for i in range(num_bands)]
+            new_peak_expected_relative_location = [(0.5/num_bands) + (float(i) / num_bands) for i in range(num_bands)]
+
+            # Add sensor band names
+            with sensor_band_names.treeChangeBlocker():
+
+                n = current_num_bands
+                while n < num_bands:
+                    sensor_band_names.addChild(
+                        SimpleParameter(
+                            name=new_sensor_indices[n],
+                            type='str',
+                            value=new_sensor_band_names[n]
+                        )
+                    )
+                    n += 1
+
+            # Add expected band positions
+            with band_expected_relative_location.treeChangeBlocker():
+
+                n = current_num_bands
+                while n < num_bands:
+                    band_expected_relative_location.addChild(
+                        SimpleParameter(
+                            name=new_sensor_indices[n],
+                            type='float',
+                            value=new_peak_expected_relative_location[n],
+                            step=0.05,
+                            limits=(0, 1)
+                        )
+                    )
+                    n += 1
+
+        # Ensure strict increasing numbering of children
+        with sensor_band_names.treeChangeBlocker():
+            for i in range(num_bands):
+                if sensor_band_names.children()[i].name() != str(i):
+                    sensor_band_names.children()[i].setName(str(i))
+
+        with band_expected_relative_location.treeChangeBlocker():
+            for i in range(num_bands):
+                if band_expected_relative_location.children()[i].name() != str(i):
+                    band_expected_relative_location.children()[i].setName(str(i))
 
     @staticmethod
     def change_parameter_keys(parameters, key_map):
