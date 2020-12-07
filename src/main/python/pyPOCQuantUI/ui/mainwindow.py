@@ -261,14 +261,9 @@ class MainWindow(QMainWindow):
             if path is None:
                 # This happens, for instance, after a node removal
                 return
-            if path[-1] == 't2':
-                self.relative_bar_positions[0] = data
-                self.update_bar_pos()
-            if path[-1] == 't1':
-                self.relative_bar_positions[1] = data
-                self.update_bar_pos()
-            if path[-1] == 'ctl':
-                self.relative_bar_positions[2] = data
+            if len(path) == 3 and path[1] == 'Band expected relative location':
+                index = int(path[2])
+                self.relative_bar_positions[index] = data
                 self.update_bar_pos()
             if path[-1] == 'Relative height factor':
                 self.set_hough_rect()
@@ -934,6 +929,9 @@ class MainWindow(QMainWindow):
                 if band_expected_relative_location.children()[i].name() != str(i):
                     band_expected_relative_location.children()[i].setName(str(i))
 
+        # Remove current sensor from the canvas
+        self.on_delete_items_action()
+
     @staticmethod
     def change_parameter_keys(parameters, key_map):
         parameter_out = dict((key_map[key], value) for (key, value) in parameters.items())
@@ -1002,9 +1000,11 @@ class MainWindow(QMainWindow):
     @pyqtSlot(list, name="on_signal_rel_bar_pos")
     def on_signal_rel_bar_pos(self, rel_pos):
         self.relative_bar_positions = rel_pos
-        self.p.param('Basic parameters').param('Band expected relative location').param('t2').setValue(rel_pos[0])
-        self.p.param('Basic parameters').param('Band expected relative location').param('t1').setValue(rel_pos[1])
-        self.p.param('Basic parameters').param('Band expected relative location').param('ctl').setValue(rel_pos[2])
+
+        # Process all bands
+        bands = self.p.param('Basic parameters').param('Band expected relative location').children()
+        for i, band in enumerate(bands):
+            band.setValue(rel_pos[i])
 
     @pyqtSlot(list, name="on_signal_sensor_attributes")
     def on_signal_sensor_attributes(self, sensor_attributes):
