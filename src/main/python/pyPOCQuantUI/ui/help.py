@@ -10,7 +10,7 @@
 # *******************************************************************************/
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtWidgets import QPushButton, QApplication, QStyle, \
     QTextBrowser, QWidget, QGridLayout, QTextEdit, QCheckBox, QVBoxLayout, QLabel
 from PyQt5.Qt import QFont, QIcon
@@ -37,7 +37,9 @@ class QuickInstructions(QWidget):
         # self.setAttribute(Qt.WA_DeleteOnClose) # Deletes instance on window close
         self.setWindowTitle('pyPOCQuant :: Quick instructions')
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.display_on_startup = 2
+
+        self._settings = QSettings("CSB & SCF", "pyPOCQuantUI")
+
         self.resize(400, 370)
         # self.setWindowIcon(QtGui.QIcon(resource_path(os.path.join(os.path.join("ui", "icons",
         #                                                                        "icon.ico")))))
@@ -49,7 +51,7 @@ class QuickInstructions(QWidget):
         ok.clicked.connect(self.close)
         self.chk = QCheckBox('Display quick instructions at startup')
         self.chk.setFont(QFont('Arial', 9, QFont.Bold))
-        self.chk.setChecked(1)
+        self.chk.setChecked(self._settings.value("quickstart/show_on_start", True, type=bool))
         self.chk.clicked.connect(self.on_display_qi)
 
         self.quick_instructions = QTextEdit(self)
@@ -84,7 +86,7 @@ class QuickInstructions(QWidget):
         self.setLayout(grid)
 
     def on_display_qi(self):
-        self.display_on_startup = self.chk.checkState()
+        self._settings.setValue("quickstart/show_on_start", self.chk.checkState())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

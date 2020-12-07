@@ -1,6 +1,6 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QDir, QPointF, pyqtSlot, QRectF, QPoint, QThreadPool, \
-    pyqtSignal, QUrl
+    pyqtSignal, QUrl, QSettings
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QDesktopServices
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileSystemModel, QAction, QMessageBox, QStyle, QApplication, \
     QDoubleSpinBox
@@ -75,7 +75,11 @@ class MainWindow(QMainWindow):
         self.actionAbout.setShortcut("Ctrl+A")
         self.actionAbout.triggered.connect(self.on_show_about)
         self.actionManual.triggered.connect(self.on_show_manual)
-        self.qi = QuickInstructions()
+        settings = QSettings("CSB & SCF", "pyPOCQuantUI")
+        self.qi = None
+        if settings.value("quickstart/show_on_start", True, type=bool):
+            self.qi = QuickInstructions()
+            self.qi.show()
         self.actionQuick_instructions.setStatusTip('Opens the user manual of pyPOCQuant')
         self.actionQuick_instructions.triggered.connect(self.on_quick_instructions)
         self.actionQuick_start.setStatusTip('Hints about how to use this program and common problems and how to avoid'
@@ -245,17 +249,6 @@ class MainWindow(QMainWindow):
         self.progressBar.setValue(0)
         self.progressBar.setTextVisible(True)
 
-        # Open quick instructions
-        try:
-            if self.display_on_startup is None:
-                self.display_on_startup = 2
-                self.qi.show()
-
-            elif self.display_on_startup == 2:
-                self.qi.show()
-        except Exception as e:
-            self.print_to_console('Could not load quick instruction window due to corrupt settings.ini file' + str(e))
-
     def on_parameter_tree_change(self, param, changes):
         for param, change, data in changes:
             path = self.p.childPath(param)
@@ -320,6 +313,8 @@ class MainWindow(QMainWindow):
         """
         Displays the quick instructions window.
         """
+        if self.qi is None:
+            self.qi = QuickInstructions()
         self.qi.show()
 
     def on_show_about(self):
@@ -1302,7 +1297,8 @@ class MainWindow(QMainWindow):
                                            quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            self.qi.close()
+            if self.qi is not None:
+                self.qi.close()
             event.accept()
         else:
             event.ignore()
