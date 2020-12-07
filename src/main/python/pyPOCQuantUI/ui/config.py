@@ -13,18 +13,22 @@ params = [
     {
         'name': 'Basic parameters', 'type': 'group', 'children':
         [
+            {'name': 'Number of sensor bands', 'type': 'int', 'value': 3, 'default': 3, 'limits': (1, 100),
+             'tip': "Number of bands on the sensor."},
+            {'name': 'Control band index', 'type': 'int', 'value': -1, 'default': -1, 'limits': (-1, 100),
+             'tip': "Index of the control band (set to -1 for right-most position)"},
             {'name': 'Sensor band names', 'type': 'group', 'children':
                 [
-                    {'name': 't2', 'type': 'str', 'value': 'igm'},
-                    {'name': 't1', 'type': 'str', 'value': 'igg'},
-                    {'name': 'ctl', 'type': 'str', 'value': 'ctl'}
+                    {'name': '0', 'type': 'str', 'value': 'igm'},
+                    {'name': '1', 'type': 'str', 'value': 'igg'},
+                    {'name': '2', 'type': 'str', 'value': 'ctl'}
                 ]
              },
             {'name': 'Band expected relative location', 'type': 'group', 'children':
                 [
-                    {'name': 't2', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 't1', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': 'ctl', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': '0', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': '1', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
+                    {'name': '2', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
                 ]
              },
             {'name': 'Sensor center', 'type': 'group', 'children':
@@ -98,7 +102,9 @@ key_map = {
     'sensor_threshold_factor': 'sensor_thresh_factor',
     'qr_code_border': 'qr_code_border',
     'subtract_background': 'subtract_background',
+    'number_of_sensor_bands': 'sensor_bands_number',
     'band_expected_relative_location': 'peak_expected_relative_location',
+    'control_band_index': 'control_band_index',
     'force_fid_search': 'force_fid_search',
     'sensor_band_names': 'sensor_band_names',
     'number_of_cores_(max={})'.format(multiprocessing.cpu_count()): 'max_workers',
