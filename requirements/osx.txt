@@ -1,7 +1,7 @@
 # Tested with python==3.6.8 (before using a more recent Python check fbs instructions / support)
 #
 # Note: "matplotlib==3.2.2" fixes 'defaultParams' error from 3.2.3 for Darwin
-# Note: "matplotlib==3.2.2" fixes 'defaultParams' error from 3.2.3 for Darwin
+# Note: "scipy==1.4" fixes scipy.stats._stats which originates in 1.5.0 (there is a pyinstaller hook) for Darwin)
 pyinstaller==3.4
 fbs==0.8.6
 pyqtgraph
