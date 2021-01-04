@@ -1,9 +1,56 @@
 import os
 import platform
-import shutil
-import sys
-from pathlib import Path
 import site
+import sys
+import shutil
+from pathlib import Path
+
+# Try adding the python devel libs to LD_LIBRARY_PATH
+if sys.platform == "Linux":
+
+    # Python library path
+    python_dir = site.getsitepackages()
+    packages_root_dir = python_dir[0]
+    python_library_path = Path(packages_root_dir, '../..').resolve()
+
+    # Keep track of possible interpreter restart
+    restart_required = False
+
+    # If necessary, add to the LD_LIBRARY_PATH
+    if 'LD_LIBRARY_PATH' not in os.environ:
+
+        # LD_LIBRARY_PATH is not set. Add python_library_path
+        os.environ['LD_LIBRARY_PATH'] = python_library_path
+
+        # Flag for restart
+        restart_required = True
+
+    else:
+
+        # Get currebt list
+        paths = os.environ['LD_LIBRARY_PATH']
+        path_list = paths.split(':')
+
+        # Is the python library path in the list?
+        if python_library_path not in path_list:
+
+            # Append python_library_path
+            paths = paths + ':' + python_library_path
+
+            # Update LD_LIBRARY_PATH in the environment
+            os.environ['LD_LIBRARY_PATH'] = paths
+
+            # Flag for restart
+            restart_required = True
+
+    if restart_required:
+        
+        try:
+            os.execv(sys.argv[0], sys.argv)
+        except Exception as exc:
+            print(f"Failed re-exec: {exc}")
+            sys.exit(1)
+
 
 try:
     from pypocquant.manual import build_manual
