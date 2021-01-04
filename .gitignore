@@ -1,3 +1,4 @@
 .idea/
 __pycache__/
 /src/main/resources/base/split_form
+/target/
