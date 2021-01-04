@@ -2,6 +2,7 @@
 #
 # Note: PyQt 5.9.x has a bug in Linux that causes objects in the GraphicsScene to move around.
 # Note: install fpm as explained here: https://fpm.readthedocs.io/en/latest/installing.html
+# Note: "matplotlib==3.2.2" fixes 'defaultParams' error from 3.2.3 for Darwin
 pyinstaller==3.4
 fbs==0.9.0
 pyqtgraph
@@ -21,7 +22,7 @@ opencv-python==3.4.2.17
 opencv-contrib-python==3.4.2.17
 exifread
 imutils
-matplotlib
+matplotlib==3.2.2
 scipy
 pytesseract
 rawpy

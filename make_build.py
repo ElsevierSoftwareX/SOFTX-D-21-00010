@@ -152,7 +152,11 @@ def prepare_freezing():
             'cairosvg/VERSION',
             'cairocffi/VERSION',
             'sklearn/utils/_weight_vector.cpython-36m-x86_64-linux-gnu.so',
-            'sklearn/utils/_weight_vector.pxd'
+            'scipy/special/cython_special.cpython-36m-x86_64-linux-gnu.so',
+            'pywt/_extensions/_cwt.cpython-36m-x86_64-linux-gnu.so',
+            'skimage/feature/orb_cy.cpython-36m-x86_64-linux-gnu.so',
+            'skimage/feature/_orb_descriptor_positions.py',
+            'sklearn/utils/_cython_blas.cpython-36m-x86_64-linux-gnu.so'
         ]
 
         # Copy missing files
