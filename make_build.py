@@ -47,7 +47,7 @@ if sys.platform == "linux":
 
         # Inform
         print(f"Adding {python_library_path} to "
-              f"LD_LIBRARY_PATH and restarting the interpreter,")
+              f"LD_LIBRARY_PATH and restarting the interpreter.")
 
         try:
             os.execv(sys.executable, ['python'] + sys.argv)
