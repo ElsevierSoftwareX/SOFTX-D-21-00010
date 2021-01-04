@@ -6,9 +6,10 @@
 .. image:: ../src/main/resources/base/img/icon.png
     :alt: pyPOCQuant
     
+
 Welcome to pyPOCQuant's documentation!
 ======================================
-    
+
 The tool pyPOCQuant aims to automatically detect and quantify signal bands from lateral flow assays (LFA) or Point of Care tests (POC or POCT) from an image. It can batch analyze large amounts of images in parallel.
 An analysis pipeline can be run either from the command line (good for automating large numbers of analysis) or from a desktop application.
 
@@ -16,16 +17,19 @@ An analysis pipeline can be run either from the command line (good for automatin
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    installation
    manual
    group
    license
-   
-Readme
-======
+   authors
+   citation
 
-.. .. mdinclude:: ../README.md
+
+
+.. mdinclude:: ../README.md
+
+
 
 
 Indices and tables
@@ -33,6 +37,5 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 

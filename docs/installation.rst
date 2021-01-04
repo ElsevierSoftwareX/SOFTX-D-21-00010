@@ -34,13 +34,15 @@ pre-compiled executable matching your operating system:
 .. only:: html
 
     * `Download the latest in one portable for WINDOWS x64 systems <https://git.gitlab.com/csb.ethz/pypocquantui/releases/>`_
-    
+    * `Download the latest in one portable for MAC x64 systems <https://git.gitlab.com/csb.ethz/pypocquantui/releases/>`_
+    * `Download the latest in one portable for LINUX x64 systems <https://git.gitlab.com/csb.ethz/pypocquantui/releases/>`_
+
 Install tesseract following these instructions depending your operating system:
 
 .. only:: html
 
     * `Download the latest version of tesseract <https://tesseract-ocr.github.io/tessdoc/Home.html>`_
- 
+
 .. warning::
     Make sure tesseract is on PATH of your environment.
 
@@ -78,10 +80,22 @@ The latest sources for pypocquantui can be downloaded from the `Github repo`_.
 
     $ git clone git://git.gitlab.com/csb.ethz/pypocquantui.git
 
-Once you have a copy of the source, navigate into the directory and run:
+Once you have a copy of the source, navigate into the directory `pypocquantui` and to start the UI run:
 
 .. code-block:: console
 
     $ fbs run
+
+If you use PyCharm make sure you open the project with its root folder and add 
+
+ `/pypocquantui/src/main/python/main.py` 
+ 
+to the run configuration.
+
+To package the UI from source run:
+
+.. code-block:: console
+
+	$ fbs freeze
 
 .. _Github repo: https://git.gitlab.com/csb.ethz/pypocquantui.git
