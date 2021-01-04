@@ -5,6 +5,12 @@ import sys
 from pathlib import Path
 import site
 
+try:
+    from pypocquant.manual import build_manual
+except:
+    pypocquant_path = Path(__file__).resolve().parent / 'src' / 'main' / 'python' / 'pyPOCQuantUI'
+    sys.path.insert(0, str(pypocquant_path))
+
 from pypocquant.manual import build_manual, build_quickstart
 from ui import versionInfo
 
@@ -85,26 +91,19 @@ def prepare_freezing():
 
         # Copy version info
         Path(target_root_dir / 'src/freeze/windows/ui').mkdir(parents=True, exist_ok=True)
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows/ui'))
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'), Path(target_root_dir / 'src/freeze/windows'))
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'), Path(target_root_dir / 'src/freeze/windows/ui'))
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/windows/ui')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/windows')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
+            Path(target_root_dir / 'src/freeze/windows/ui')
+        )
 
-
-        # Original list -- kept for reference
-        # print(str(Path(packages_root_dir, 'cairosvg')), str(Path('src/freeze/windows/cairosvg')))
-        # print(str(Path(packages_root_dir,'cssselect2','VERSION')), str(Path('src/freeze/windows/cssselect2')))
-        # print(str(Path(packages_root_dir, 'tinycss2', 'VERSION')), str(Path('src/freeze/windows/tinycss2')))
-        # print(str(Path(packages_root_dir, 'sklearn/utils', '_cython_blas.cp36-win_amd64')),
-        #       str(Path('src/freeze/windows/sklearn/utils')))
-        # print(str(Path(packages_root_dir, 'skimage/feature', '_orb_descriptor_positions')),
-        #       str(Path('src/freeze/windows/skimage/feature')))
-        # print(str(Path(packages_root_dir, 'dask', 'dask.yaml')), str(Path('src/freeze/windows/dask')))
-        # print(str(Path(packages_root_dir, 'pywt/_extensions', '_cwt.cp36-win_amd64')),
-        #       str(Path('src/freeze/windows/pywt/_extensions')))
-        # print(str(Path(packages_root_dir, 'pyzbar')), str(Path('src/freeze/windows/pyzbar')))
-        # print(str(Path(packages_root_dir, 'scipy/.libs', )), str(Path('src/freeze/windows/scipy/')))
-        # print(str(Path(packages_root_dir, 'scipy/special', 'cython_special.cp36-win_amd64')),
-        #       str(Path('src/freeze/windows/scipy/special')))
     elif platform.system() == 'Darwin':
 
         packages_root_dir = python_dir[0]
@@ -129,18 +128,54 @@ def prepare_freezing():
 
         # Copy version info
         Path(target_root_dir / 'src/freeze/mac/Contents/MacOS').mkdir(parents=True, exist_ok=True)
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
-                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui'))
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
-                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS'))
-        shutil.copy(Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
-                    Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui'))
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/mac/Contents/MacOS')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
+            Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui')
+        )
 
     elif platform.system() == 'Linux':
 
         packages_root_dir = python_dir[0]
 
-        raise Exception("Platform not yet supported! Stay tuned!")
+        print(f"Packages root dir = {packages_root_dir}")
+
+        # Build map of files/folders to copy
+        item_list = [
+            'cairosvg/VERSION',
+            'cairocffi/VERSION',
+            'sklearn/utils/_weight_vector.cpython-36m-x86_64-linux-gnu.so',
+            'sklearn/utils/_weight_vector.pxd'
+        ]
+
+        # Copy missing files
+        copy_and_print_missing_files(
+            packages_root_dir,
+            Path(target_root_dir / 'src/freeze/linux'),
+            item_list
+        )
+
+        # Copy version info
+        Path(target_root_dir / 'src/freeze/linux/ui').mkdir(parents=True, exist_ok=True)
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/linux/ui')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
+            Path(target_root_dir / 'src/freeze/linux')
+        )
+        shutil.copy(
+            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
+            Path(target_root_dir / 'src/freeze/linux/ui')
+        )
 
     else:
 
