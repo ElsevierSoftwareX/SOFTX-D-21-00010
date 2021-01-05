@@ -17,6 +17,15 @@ import shutil
 import subprocess
 from pathlib import Path
 
+try:
+    from pypocquant.manual import build_manual
+except:
+    pypocquant_path = Path(__file__).resolve().parent / 'src' / 'main' / 'python' / 'pyPOCQuantUI'
+    sys.path.insert(0, str(pypocquant_path))
+
+from pypocquant.manual import build_manual, build_quickstart
+
+
 def run_process(command):
     working_dir = str(Path(__file__).parent / "docs")
     p = subprocess.Popen(command,
@@ -44,9 +53,16 @@ def copy_files(src, dst):
 def make_doc():
     """Run Sphinx to build the doc."""
     try:
+        # First, build the manual
+        build_manual()
+
+        # Build quickstart
+        build_quickstart()
+
         # removing previous build
+        print("|---------------------------------------------------------------------------------------------------|")
         print('BUILDING DOCS')
-        print('=============')
+        print("|---------------------------------------------------------------------------------------------------|")
         print('removing previous build')
 
         run_process('make clean')
@@ -97,11 +113,16 @@ def make_doc():
 
         for idx in range(0, len(src)):
             copy_files(src[idx], dst[idx])
-				
-		# Copy files for README 		
-        shutil.copytree( str(Path(__file__).parent / "src" / "main" / "resources" / "base" / "img"), str(docs_dir / "_build" / "html" / "src" / "main" / "resources" / "base" / "img"))
 
-        print('done')
+        # Copy files for README
+        shutil.copytree(
+            str(Path(__file__).parent / "src" / "main" / "resources" / "base" / "img"),
+            str(docs_dir / "_build" / "html" / "src" / "main" / "resources" / "base" / "img")
+        )
+
+        print("|---------------------------------------------------------------------------------------------------|")
+        print('Done.')
+        print("|---------------------------------------------------------------------------------------------------|")
 
     except Exception as error:
         print(error)
