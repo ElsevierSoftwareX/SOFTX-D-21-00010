@@ -50,7 +50,7 @@ git clone git://git.gitlab.com/csb.ethz/pypocquantui.git
 install dependencies with:
 
 ```bash
-pip install -r /requirements/base.txt
+pip install -r /requirements/win32.txt
 ```
 instead of `win32.txt` use `osx.txt` or `linux.txt` depending on your platform.
 

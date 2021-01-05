@@ -72,7 +72,7 @@ The latest sources for pypocquantui can be downloaded from the `Github repo`_.
    $ activate pyPOCQuantEnv
 
 .. note::
-   Note: more information about conda environments can be found `here <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_
+   More information about conda environments can be found `here <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_
 
 3. You can clone the public repository:
 
@@ -80,7 +80,16 @@ The latest sources for pypocquantui can be downloaded from the `Github repo`_.
 
     $ git clone git://git.gitlab.com/csb.ethz/pypocquantui.git
 
-Once you have a copy of the source, navigate into the directory `pypocquantui` and to start the UI run:
+Once you have a copy of the source, navigate into the directory `pypocquantui` and install dependencies with:
+
+.. code-block:: console
+
+	$ pip install -r /requirements/win32.txt
+
+.. note::
+   Instead of `win32.txt` use `osx.txt` or `linux.txt` depending on your platform.
+
+Then to start the UI run:
 
 .. code-block:: console
 
@@ -89,13 +98,18 @@ Once you have a copy of the source, navigate into the directory `pypocquantui` a
 If you use PyCharm make sure you open the project with its root folder and add 
 
  `/pypocquantui/src/main/python/main.py` 
- 
+
 to the run configuration.
+
+Build from source
+------------
 
 To package the UI from source run:
 
 .. code-block:: console
 
-	$ fbs freeze
+	$ python make_build.py
+	
+This will compile the user instructions as well as to source code for your platform.
 
 .. _Github repo: https://git.gitlab.com/csb.ethz/pypocquantui.git

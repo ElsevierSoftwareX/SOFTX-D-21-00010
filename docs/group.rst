@@ -12,6 +12,7 @@ The examples show the basic usage of **pyPOCQuant** to analyze images
 
    quickstart
    cli
+   scripting
    example_nb
 
 .. only:: html

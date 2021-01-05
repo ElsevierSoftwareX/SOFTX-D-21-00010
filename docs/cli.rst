@@ -2,15 +2,15 @@
 Command line usage
 ==================
 
-**pyPOCQuant** can be used trough its command line interface (cli). It is convinient to process a large amount of different folder torugh i.e a bash script.
+**pyPOCQuant** can be used trough its command line interface (cli). It is convenient to process a large amount of different folder trough i.e a bash script.
 
 To show the usage type:
 
 .. code-block:: bash
 
    python -m pypocquant.pyPOCQuant --help
-   
-   
+
+
 To run the pipline for a given folder and config type:
 
 .. code-block:: bash
