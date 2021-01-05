@@ -219,6 +219,7 @@ def prepare_freezing():
         item_list = [
             'cairosvg/VERSION',
             'cairocffi/VERSION',
+            'pyzbar',
             'sklearn/utils/_weight_vector.cpython-36m-x86_64-linux-gnu.so',
             'scipy/special/cython_special.cpython-36m-x86_64-linux-gnu.so',
             'pywt/_extensions/_cwt.cpython-36m-x86_64-linux-gnu.so',
