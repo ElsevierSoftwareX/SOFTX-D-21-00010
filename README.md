@@ -194,7 +194,7 @@ or double click on the pyPOCQuant icon installed by the installer or directly on
 
 After selecting the `INPUT FOLDER` and clicking on an image as i.e IMG_8489.JPG the POCT gets extracted and displayed on the right top. Clicking on the `Draw sensor` button (red arrow) allows to identify the sensor area by clicking into its corners. After aligning the relative position of the test lines (TLs) by dragging the vertical lines the button `Test parameters` will open the `OUTPUT FOLDER` and show the results for the selected image. Clicking the button __`Run`__ will apply the parameters to all images in the selected folder and process each image in parallel.
 
-![](src/main/resources/base/img/pyPOCQuantUI_extracting_POCT.png)
+![](src/main/resources/base/img/ui_drawing_arrow.JPG)
 
 
 
