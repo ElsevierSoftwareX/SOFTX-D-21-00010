@@ -17,6 +17,7 @@ Please [cite the paper(s)](https://github.com/) if you are using this code in yo
 
 
 
+
 ## Overview
 
 ![](src/main/resources/base/img/ReadmeFigure-01.png)
@@ -51,7 +52,7 @@ install dependencies with:
 ```bash
 pip install -r /requirements/base.txt
 ```
-instead of `base.txt` use `mac.txt` or `darwin.txt` depending on your platform.
+instead of `win32.txt` use `osx.txt` or `linux.txt` depending on your platform.
 
 2.3 from installer / binaries:
 
