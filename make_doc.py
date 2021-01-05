@@ -97,6 +97,9 @@ def make_doc():
 
         for idx in range(0, len(src)):
             copy_files(src[idx], dst[idx])
+				
+		# Copy files for README 		
+        shutil.copytree( str(Path(__file__).parent / "src" / "main" / "resources" / "base" / "img"), str(docs_dir / "_build" / "html" / "src" / "main" / "resources" / "base" / "img"))
 
         print('done')
 

@@ -183,11 +183,9 @@ A settings file must not necessarily be created in advance. The Parameter Tree c
 
 2. Hit the `Draw sensor outline` icon (red arrow) in the toolbar. This will allow you to interactively define the `sensor area` and the `peak_expected_relative_location` parameters.
 
-
-
-| Drawing sensor by clicking into the corners              | Drawing finished with aligned test lines (vertical lines) |
-| -------------------------------------------------------- | --------------------------------------------------------- |
-| ![img](src/main/resources/base/img/ui_drawing_arrow.JPG) | ![img](src/main/resources/base/img/ui_bar_aligned.JPG)    |
+| Drawing sensor by clicking into the corners                  | Drawing finished with aligned test lines (vertical lines)   |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| <img src="src/main/resources/base/img/ui_drawing_arrow.JPG"/> | <img src="src/main/resources/base/img/ui_bar_aligned.JPG"/> |
 
 
 
