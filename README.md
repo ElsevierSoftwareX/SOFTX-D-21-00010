@@ -31,39 +31,122 @@ For a more detailed description please read the user manual or the paper.
 
 ## Installation
 
-This package requires Python 3.6 and runs on various platforms. If not explicitly stated differently all the steps below are the same on each platform. Read the installation page in the documentation for more specific information.
+This package requires Python 3.6 and runs on various platforms. If not explicitly stated differently all the steps below are the same on each platform. 
 
-1. Please first [install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html)
-2. In Linux, install `libzmq3-dev`, `tesseract-ocr`, `libzbar0`, and `fpm` (https://fpm.readthedocs.io/en/latest/installing.html); also, see below,
+###  Install | run compiled binaries
 
-2.1 *pyPOCQuant* can then be installed with `pip`:
+The easiest way to run _pyPOCQuant_ is to use the compiled binaries which includes everything (except tesseract and zbar, see below) ready to be used.
+
+* [download pyPOCQuantUI binaries]( https://github.com/) 
+
+### Install python and all requirements | run from source
+
+#### Windows
+
+[Install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html).
+
+#### Linux
+
+Install the following dependences (instructions for Ubuntu Linux):
 
 ```bash
-pip install pypocquant
+$ sudo apt install libzmq3-dev, tesseract-ocr, libzbar0
 ```
 
-2.2. from source:
+#### macOS
+
+To install the required dependencies we recommend to use the packaging manager `brew`. Install it from here if you have't allready [Install brew](https://brew.sh/).
+
+```bash
+$ brew install zbar
+$ brew install tesseract
+```
+
+#### All platforms
+
+_pyPOCQuant_ requires python 3.6. It is recommended to use miniconda: https://docs.conda.io/en/latest/miniconda.html. When miniconda is installed, start the terminal and type:
+
+```bash
+# Create and activate an environment
+$ conda create -n pypocquant python=3.6
+$ conda activate pypocquant
+```
+
+Clone the repo.
 
 ```bash
 git clone git://git.gitlab.com/csb.ethz/pypocquantui.git
 ```
 
-install dependencies with:
+Then, install all requirements.
 
 ```bash
-pip install -r /requirements/win32.txt
+$ cd ${pyPOCQuantUI_root_folder}
+$ pip install -r requirements/${platform}
 ```
-instead of `win32.txt` use `osx.txt` or `linux.txt` depending on your platform.
 
-2.3 from installer / binaries:
+where `${platform}` is one of `win32.txt`, `linux.txt`, or `osx.txt`.
 
-​	[download pyPOCQuantUI binaries]( https://github.com/) 
+
+
+Run the GUI with (from within `${pyPOCQuantUI_root_folder}`):
+
+```bash
+$ fbs run
+```
+
+For other ways to use _pyPOCQuant_ please read the documentation.
+
+
+
+### Build pyPOCQuantUI
+
+To compile and create a pyPOCQuantUI installer, perform following steps. In the following `{ppcqui_root}` points to the root folder of the `pyPOCQuantUI` checked-out code.
+
+#### Windows
+
+```bash
+$ cd ${ppcqui_root}
+$ python ./make_build.py
+```
+
+You will find the installer in `${ppcqui_root}\target\pyPOCQuant`.
+
+#### Linux
+
+```bash
+$ sudo apt install ruby ruby-dev rubygems build-essential
+$ sudo gem install --no-document fpm
+$ cd ${ppcqui_root}
+$ python ./make_build.py
+```
+
+This will create a `${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb` package that can be installed and redistributed. 
+
+```bash
+sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
+```
+
+Please notice that client machines will need to install also two dependences:
+
+```bash
+sudo apt install tesseract-ocr, libzbar0
+sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
+```
+
+### macOS
+
+```bash
+$ cd ${ppcqui_root}
+$ python ./make_build.py
+```
+
 
 #### Notes
 
 - Depending on your Python installation, you may need to use `pip3` instead of `pip`.
 
-- For both running it from source or with the compiled binaries tesseract needs to be installed and be on PATH.
+- For both running it from source or with the compiled binaries `zbar` and `tesseract` needs to be installed and be on PATH. On Windows `zbar` libs are installed automatically.
 
   
 
@@ -201,83 +284,8 @@ After selecting the `INPUT FOLDER` and clicking on an image (e.g. `IMG_9068.JPG`
 
 ## Troubleshooting
 
-Installation requires Python 3.6 , PyQT 5 and fbs 0.9 with PyInstaller 3.4. We have tested the package on (macOS, Linux, Windows 7 and 10) Please [open an issue](https://github.com/) if you have problems that are not resolved by the information below.
+Installation requires Python 3.6 , PyQT 5 and fbs 0.9 with PyInstaller 3.4. We have tested the package on (macOS, Linux, Windows 7 and 10) Please [open an issue](https://github.com/) if you have problems that are not resolved by our installation guidelines above.
 
-### Install python and all requirements
-
-#### Windows
-
-[Install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html).
-
-#### Linux
-
-Install the following dependences (instructions for Ubuntu Linux):
-
-```bash
-$ sudo apt install libzmq3-dev, tesseract-ocr, libzbar0
-```
-
-#### macOS
-
-TO BE WRITTEN.
-
-#### All platforms
-
-pyPOCQuant requires python 3.6. It is recommended to use miniconda: https://docs.conda.io/en/latest/miniconda.html. When miniconda is installed, start the terminal and type:
-
-```bash
-# Create and activate an environment
-$ conda create -n pypocquant python=3.6
-$ conda activate pypocquant
-```
-
-Then, install all requirements.
-
-```bash
-$ cd ${pyPOCQuantUI_root_folder}
-$ pip install -r requirements/${platform}
-```
-
-where `${platform}` is one of `win32.txt`, `linux.txt`, or `osx.txt`.
-
-### Build pyPOCQuantUI
-
-To compile and create a pyPOCQuantUI installer, perform following steps. In the following `{ppcqui_root}` points to the root folder of the `pyPOCQuantUI` checked-out code.
-
-#### Windows
-
-```bash
-$ cd ${ppcqui_root}
-$ python ./make_build.py
-```
-
-You will find the installer in `${ppcqui_root}\target\pyPOCQuant`.
-
-#### Linux
-
-```bash
-$ sudo apt install ruby ruby-dev rubygems build-essential
-$ sudo gem install --no-document fpm
-$ cd ${ppcqui_root}
-$ python ./make_build.py
-```
-
-This will create a `${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb` package that can be installed and redistributed. 
-
-```bash
-sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
-```
-
-Please notice that client machines will need to install also two dependences:
-
-```bash
-sudo apt install tesseract-ocr, libzbar0
-sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
-```
-
-### macOS
-
-TO BE WRITTEN.
 
 ## Contributors ✨
 
