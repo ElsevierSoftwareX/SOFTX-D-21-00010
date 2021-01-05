@@ -15,14 +15,15 @@ import sys
 import errno
 import shutil
 import subprocess
-
+from pathlib import Path
 
 def run_process(command):
+    working_dir = str(Path(__file__).parent / "docs")
     p = subprocess.Popen(command,
-                         shell=False,
+                         shell=True,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
-                         cwd='docs')
+                         cwd=working_dir)
     stdout, stderr = p.communicate()
 
 
@@ -52,14 +53,24 @@ def make_doc():
 
         print('copy files')
 
-        src = [r'src\main\python\pyPOCQuantUI\pypocquant\manual\ui_images',
-               r'src\main\python\pyPOCQuantUI\pypocquant\manual\demo_image',
-               r'src\main\python\pyPOCQuantUI\pypocquant\manual\problem_solutions',
-               r'src\main\python\pyPOCQuantUI\pypocquant\manual\setup',
-               r'src\main\python\pyPOCQuantUI\pypocquant\manual\QuickStart.md',
-               r'src\main\python\pyPOCQuantUI\pypocquant\manual\UserInstructions.md', ]
-        dst = [r'docs\ui_images', r'docs\demo_image', r'docs\problem_solutions',
-               r'docs\setup', r'docs\QuickStart.md', r'docs\UserInstructions.md']
+        manual_dir = Path(__file__).parent / "src" / "main" / "python" / "pyPOCQuantUI" / "pypocquant" / "manual"
+        docs_dir = Path(__file__).parent / "docs"
+        src = [
+            str(manual_dir / "ui_images"),
+            str(manual_dir / "demo_image"),
+            str(manual_dir / "problem_solutions"),
+            str(manual_dir / "setup"),
+            str(manual_dir / "QuickStart.md"),
+            str(manual_dir / "UserInstructions.md")
+        ]
+        dst = [
+            str(docs_dir / "ui_images"),
+            str(docs_dir / "demo_image"),
+            str(docs_dir / "problem_solutions"),
+            str(docs_dir / "setup"),
+            str(docs_dir / "QuickStart.md"),
+            str(docs_dir / "UserInstructions.md")
+        ]
 
         for idx in range(0, len(src)):
             copy_files(src[idx], dst[idx])
@@ -71,9 +82,18 @@ def make_doc():
 
         # copy missing resources to build directory
         print('copy files')
-        src = [r'docs\ui_images', r'docs\demo_image', r'docs\problem_solutions', r'docs\setup']
-        dst = [r'docs\_build\html\ui_images', r'docs\_build\html\demo_image',
-               r'docs\_build\html\problem_solutions', r'docs\_build\html\setup']
+        src = [
+            str(docs_dir / "ui_images"),
+            str(docs_dir / "demo_image"),
+            str(docs_dir / "problem_solutions"),
+            str(docs_dir / "setup")
+        ]
+        dst = [
+            str(docs_dir / "_build" / "html" / "ui_images"),
+            str(docs_dir / "_build" / "html" / "demo_image"),
+            str(docs_dir / "_build" / "html" / "problem_solutions"),
+            str(docs_dir / "_build" / "html" / "setup")
+        ]
 
         for idx in range(0, len(src)):
             copy_files(src[idx], dst[idx])
