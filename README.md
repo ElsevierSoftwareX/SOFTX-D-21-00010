@@ -19,27 +19,18 @@ Please [cite the paper(s)](https://github.com/) if you are using this code in yo
 
 ## Overview
 
+![](src/main/resources/base/img/ReadmeFigure-01.png)
 
+We developed pyPOCQuant to quantify lateral flow assays (LFA) based Point of Care tests (POCT) from images. The above figure shows an image of a POCT placed on our QR code template as well as a QR code label providing metadata about the sample and test. The POCT gets extracted from the QR code box and fine aligned prior to the detection of the test lines (TLs) from the sensor area. The TLs and their signal strength get quantified after a background subtraction and the results are compiled in a table along with the metadata of the tests automatically for each image.
 
-ADD SOME BRIEF INTRO HERE AND A CATCHY FIGURE OF HOW THE TOOL WORKS
-
-
-| Input ->                                                     | Result                                                       |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![img](src/main/python/pypocquantui/pypocquant/manual/demo_image/IMG_8489_JPG_box.png) | ![img](src/main/python/pypocquantui/pypocquant/manual/demo_image/IMG_8489_JPG_peak_analysis.png) |
-
-
-_The tool pyPOCQuant aims to automatically detect and quantify signal bands from lateral flow assays (LFA) or Point of Care tests (POC or POCT) from an image. It can batch analyze large amounts of images in parallel.
-An analysis pipeline can be run either from the command line (good for automating large numbers of analysis) or from a desktop application (GUI)._
-
-
+For a more detailed description please read the user manual or the paper.
 
 
 
 
 ## Installation
 
-This package requires Python 3.6 and runs on various platforms. If not explicitly stated differently all the steps below are the same on each platform.
+This package requires Python 3.6 and runs on various platforms. If not explicitly stated differently all the steps below are the same on each platform. Read the installation page in the documentation for more specific information.
 
 1. Please first [install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html)
 
@@ -85,14 +76,14 @@ In the following we present a brief overview how to create a working config file
 
 Important parameters are the `sensor_size`, `sensor_center`, and `sensor_search_area` (the latter being an advanced parameter).
 
-![](src/main/python/pyPOCQuantUI/pypocquant/manual/demo_image/strip_annotated.png)
+![](src/main/resources/base/img/strip_annotated.png)
 
 #### Creating a config file with Fiji
 
 1. Open a settings file (i.e default settings) and adjust the parameters to fit your images.
 2. Load an image with Fiji and crop it to the size of the POCT
 
-![](src/main/python/pyPOCQuantUI/pypocquant/manual/demo_image/fiji_selection.png)
+![](src/main/resources/base/img/fiji_selection.png)
 
 3. After drawing a rectangular region of interest, the size is displayed in Fiji’s toolbar; e.g. `x=539, y=145, **w=230, h=62**`.
 
@@ -111,13 +102,13 @@ A settings file must not necessarily be created in advance. The Parameter Tree c
 
 | Drawing sensor by clicking into the corners                  | Drawing finished with aligned test lines (vertical lines)    |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![img](src/main/python/pyPOCQuantUI/pypocquant/manual/ui_images/ui_drawing_arrow.jpg) | ![img](src/main/python/pyPOCQuantUI/pypocquant/manual/ui_images/ui_bar_aligned.JPG) |
+| ![img](src/main/resources/base/img/ui_drawing_arrow.jpg) | ![img](src/main/resources/base/img/ui_bar_aligned.JPG) |
 
 
 
 3. Draw the four corners of the sensor and place the vertical bars on the test lines (TLs). This will cause all relevant parameters to be populated in the Parameter Tree. Please notice that, by default, the `sensor_search_area` is set to be 10 pixels wider and taller than the `sensor_size`. This can be changed in the advanced parameters (but beware to keep it only slightly larger than the `sensor_size`: it is meant only for small refinements).
 
-![img](src/main/python/pyPOCQuantUI/pypocquant/manual/ui_images/ui_new_settings.JPG)
+![img](src/main/resources/base/img/ui_new_settings.JPG)
 
 4. Save the settings file (Ctrl+S, `File`->`Save settings file`) or test current parameters on one image by clicking the `Test parameters` button under the Parameter Tree.
 
@@ -202,7 +193,7 @@ or double click on the pyPOCQuant icon installed by the installer or directly on
 
 After selecting the `INPUT FOLDER` and clicking on an image as i.e IMG_8489.JPG the POCT gets extracted and displayed on the right top. Clicking on the `Draw sensor` button (red arrow) allows to identify the sensor area by clicking into its corners. After aligning the relative position of the test lines (TLs) by dragging the vertical lines the button `Test parameters` will open the `OUTPUT FOLDER` and show the results for the selected image. Clicking the button __`Run`__ will apply the parameters to all images in the selected folder and process each image in parallel.
 
-![](src/main/python/pypocquantui/pypocquant/manual/ui_images/pyPOCQuantUI_extracting_POCT.png)
+![](src/main/resources/base/img/pyPOCQuantUI_extracting_POCT.png)
 
 
 
