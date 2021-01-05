@@ -101,9 +101,9 @@ A settings file must not necessarily be created in advance. The Parameter Tree c
 
 
 
-| Drawing sensor by clicking into the corners                  | Drawing finished with aligned test lines (vertical lines)    |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![img](src/main/resources/base/img/ui_drawing_arrow.jpg) | ![img](src/main/resources/base/img/ui_bar_aligned.JPG) |
+| Drawing sensor by clicking into the corners              | Drawing finished with aligned test lines (vertical lines) |
+| -------------------------------------------------------- | --------------------------------------------------------- |
+| ![img](src/main/resources/base/img/ui_drawing_arrow.JPG) | ![img](src/main/resources/base/img/ui_bar_aligned.JPG)    |
 
 
 
