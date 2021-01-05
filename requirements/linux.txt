@@ -4,7 +4,7 @@
 # Note: install fpm as explained here: https://fpm.readthedocs.io/en/latest/installing.html
 # Note: "matplotlib==3.2.2" fixes 'defaultParams' error from 3.2.3
 #
-# Make sure to install also the following packages (via apt or dnf): libzmq3-dev and tesseract-ocr
+# Make sure to install also the following packages (via apt or dnf): libzmq3-dev, tesseract-ocr, libzbar-dev
 pyinstaller==3.4
 fbs==0.9.0
 pyqtgraph
