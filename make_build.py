@@ -4,6 +4,8 @@ import site
 import sys
 import shutil
 from pathlib import Path
+import json
+
 
 # Try adding the python devel libs to LD_LIBRARY_PATH
 if sys.platform == "linux":
@@ -27,7 +29,7 @@ if sys.platform == "linux":
 
     else:
 
-        # Get currebt list
+        # Get current list
         paths = os.environ['LD_LIBRARY_PATH']
         path_list = paths.split(':')
 
@@ -63,6 +65,30 @@ except:
 
 from pypocquant.manual import build_manual, build_quickstart
 from ui import versionInfo
+
+
+def update_application_metadata():
+    """Update application metadata before freeze."""
+
+    # Get the path to src/build/settings/base.json
+    current_folder = Path(__file__).parent.resolve()
+    base_json_path = current_folder / "src" / "build" / "settings" / "base.json"
+
+    # Make sure that the file exists
+    if not base_json_path.is_file():
+        print(f"Settings file {str(base_json_path)} not found! Cannot update metadata")
+        return
+
+    # Read the file
+    with open(base_json_path) as json_file:
+        metadata = json.load(json_file)
+
+    # Update the version
+    metadata["version"] = versionInfo.get_version_string()
+
+    # Save the file
+    with open(base_json_path, 'w') as json_file:
+        json.dump(metadata, json_file)
 
 
 def copy_and_print_missing_files(source_root_dir: Path, target_root_dir: Path, list_items: list):
@@ -149,10 +175,6 @@ def prepare_freezing():
             Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
             Path(target_root_dir / 'src/freeze/windows')
         )
-        shutil.copy(
-            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
-            Path(target_root_dir / 'src/freeze/windows/ui')
-        )
 
     elif platform.system() == 'Darwin':
 
@@ -185,10 +207,6 @@ def prepare_freezing():
         shutil.copy(
             Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
             Path(target_root_dir / 'src/freeze/mac/Contents/MacOS')
-        )
-        shutil.copy(
-            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
-            Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui')
         )
 
     elif platform.system() == 'Linux':
@@ -226,10 +244,6 @@ def prepare_freezing():
             Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
             Path(target_root_dir / 'src/freeze/linux')
         )
-        shutil.copy(
-            Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/BUILD'),
-            Path(target_root_dir / 'src/freeze/linux/ui')
-        )
 
     else:
 
@@ -240,15 +254,12 @@ print('|------------------------------------------------------------------------
 print('| Start building pyPOCQUANT')
 print('|---------------------------------------------------------------------------------------------------|')
 
-__VERSION__ = "0.9.0"
-
-# Update version and build info
-if not versionInfo.compare_version(__VERSION__):
-    versionInfo.set_new_version(__VERSION__)
-versionInfo.increase_build_number()
+# First, update application version
+update_application_metadata()
 
 # Build manual
 build_manual()
+
 # Build quickstart
 build_quickstart()
 
