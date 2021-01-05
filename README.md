@@ -13,7 +13,7 @@ This repository contains the implementation of *pyPOCQuant* to automatically det
 
 
 
-Please [cite the paper(s)](https://github.com/) if you are using this code in your research or work.
+Please [cite the paper(s)](https://www.medrxiv.org/content/10.1101/2020.11.08.20227470v1) if you are using this code in your research or work.
 
 
 
