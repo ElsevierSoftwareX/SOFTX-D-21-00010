@@ -216,6 +216,19 @@ remarks how to install and compile on Windows.
 
 
 
+## Contributors ✨
+
+pyPOCQuant is developed by Andreas P. Cuny and Aaron Ponti. If you want to contribute and further develop the project feel free to do so
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/cunyap"><img src="https://avatars2.githubusercontent.com/u/16665588?s=400&u=6489cdd348df91eba79af4c4f54b94dff95342d6&v=4" width="100px;" alt=""/><br /><sub><b>Andreas P. Cuny</b></sub></a><br /><a href="#projectManagement" title="Project Management">📆</a><a href="https://git.bsse.ethz.ch/cunya/pypocquantui/-/graphs/master" title="Code">💻</a> <a href="#design" title="Design">🎨</a> <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a><a href="#infra" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/aarpon"><img src="https://avatars2.githubusercontent.com/u/1226043?s=400&u=1a8877023c6810a70ae0f1985d6cd11f62c6e184&v=4" width="100px;" alt=""/><br /><sub><b>Aaron Ponti</b></sub></a><br /><a href="#projectManagement" title="Project Management">📆</a><a href="https://git.bsse.ethz.ch/cunya/pypocquantui/-/graphs/master" title="Code">💻</a> <a href="#design" title="Design">🎨</a> <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a><a href="#infra" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+  </tr>
+</table>
+
+
+
 ## How to cite 
 ```bibtex
 @article{cuny2020,
