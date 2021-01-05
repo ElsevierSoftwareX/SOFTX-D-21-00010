@@ -109,7 +109,7 @@ class About(QWidget):
 
         self.le = QLabel()
         self.build = QLabel("[version: v%s %s]" % (versionInfo.get_version_string(), __operating_system__))
-        self.author = QLabel("pyPOCQuant: Point of Care Test\nQuantification tool. \n\nwritten by Andreas P. Cuny "
+        self.author = QLabel("pyPOCQuant: Point of Care Test\nquantification tool. \n\nwritten by Andreas P. Cuny "
                              "and Aaron Ponti")
         self.license = QLabel("Licensed under the GPL v3 license.")
         self.copyright = QLabel("\u00a9 Copyright  Andreas P. Cuny and Aaron Ponti \n2020. All rights reserved. \
