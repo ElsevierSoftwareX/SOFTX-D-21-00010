@@ -22,7 +22,7 @@ Please [cite the paper(s)](https://github.com/) if you are using this code in yo
 
 ![](src/main/resources/base/img/ReadmeFigure-01.png)
 
-We developed pyPOCQuant to quantify lateral flow assays (LFA) based Point of Care tests (POCT) from images. The above figure shows an image of a POCT placed on our QR code template as well as a QR code label providing metadata about the sample and test. The POCT gets extracted from the QR code box and fine aligned prior to the detection of the test lines (TLs) from the sensor area. The TLs and their signal strength get quantified after a background subtraction and the results are compiled in a table along with the metadata of the tests automatically for each image.
+We developed pyPOCQuant to quantify lateral flow assays (LFA) based Point of Care tests (POCT) from images. The above figure shows an image of a POCT placed on our QR code template as well as a QR code label providing metadata about the sample and test. The POCT gets extracted from the QR code box and finely aligned prior to the detection of the test lines (TLs) from the sensor area. The TLs and their signal strength get quantified after a background subtraction and the results are compiled in a table along with the metadata of the tests automatically for each image.
 
 For a more detailed description please read the user manual or the paper.
 
@@ -34,6 +34,7 @@ For a more detailed description please read the user manual or the paper.
 This package requires Python 3.6 and runs on various platforms. If not explicitly stated differently all the steps below are the same on each platform. Read the installation page in the documentation for more specific information.
 
 1. Please first [install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html)
+2. In Linux, install `libzmq3-dev`, `tesseract-ocr`, `libzbar0`, and `fpm` (https://fpm.readthedocs.io/en/latest/installing.html); also, see below,
 
 2.1 *pyPOCQuant* can then be installed with `pip`:
 
@@ -62,7 +63,7 @@ instead of `win32.txt` use `osx.txt` or `linux.txt` depending on your platform.
 
 - Depending on your Python installation, you may need to use `pip3` instead of `pip`.
 
-- For both running it from source or with the compiled binaries tesseract needs to be installed an be on PATH.
+- For both running it from source or with the compiled binaries tesseract needs to be installed and be on PATH.
 
   
 
@@ -151,18 +152,18 @@ run_pipeline(
 
 Running *pyPOCQuant* from the CLI is best suited when automating the processing  of  large  amounts  of  images  and  folders.   
 
-To create a default configuration from the CLI, use the ’-c’ flag of pyPOCQuant.py.
+To create a default configuration from the CLI, use the `-c` flag of pyPOCQuant.py.
 
 ```python 
 python pyPOCQuant.py −c /PATH/TO/CONFIG/FILE.conf
 ```
 
- However, the  easiest  approach  is  to  use  the _pyPOCQuantUI_ (GUI)  for  this  purpose, but it could also be done with other tools, such as Fiji (as described in the manual). 
+By far the  easiest  approach  is  to  use  the _pyPOCQuantUI_ (GUI)  for  this  purpose, but it could also be done with other tools, such as Fiji (as described in the manual). 
 
-Once the configuration file is ready, a full study can be started by running  pyPOCQuant  on  a  full  folder  of  images  The  analysis  is performed in parallel, and the number of concurrent tasks can be adjusted by the’-w’(--workers) argument.  
+Once the configuration file is ready, a full study can be started by running  pyPOCQuant  on  a  full  folder  of  images  The  analysis  is performed in parallel, and the number of concurrent tasks can be adjusted by the `-w` (`--workers`) argument.  
 
 ```
-python pyPOCQuant.py −f /PATH/TO/INPUT/FOLDER −o /PATH/220TO/RESULTS/FOLDER −s /PATH/TO/CONFIG/FILE −w ${NUMWORKERS}
+python pyPOCQuant.py −f /PATH/TO/INPUT/FOLDER −o /PATH/TO/RESULTS/FOLDER −s /PATH/TO/CONFIG/FILE −w ${NUMWORKERS}
 ```
 
 - __`-f`__ `/PATH/TO/INPUT/FOLDER/MANUFACTURER`: path to the folder that contains all images for a given camera and manufacturer.
@@ -176,13 +177,13 @@ python pyPOCQuant.py −f /PATH/TO/INPUT/FOLDER −o /PATH/220TO/RESULTS/FOLDER 
 
 ### Graphical user interface (GUI)
 
-We also provide a graphical user interface _pyPOCQuantUI_ that enables interactive configuration creation, parameter testing, running the pipeline on a folder, create custom sample identifier QR codes as well as a tool to split images depending on keyword in a QR code tag. 
+We also provide a graphical user interface _pyPOCQuantUI_ that enables interactive parameter configuration, parameter testing, and parallel processing of all files in a folder. The UI also offers a graphical tool to create custom sample identifier QR codes, and another to split images by vendor (either by keyword or QR code tag). 
 
 Detailed installation and usage instructions can be found in the manual and documentation. 
 
 
 
-To start the GUI from source navigate into the `pypocquantui` folder and run:
+To start the GUI from source navigate into the `pyPOCQuantUI` root folder and run:
 
 ```
 fbs run
@@ -192,7 +193,7 @@ or double click on the pyPOCQuant icon installed by the installer or directly on
 
 
 
-After selecting the `INPUT FOLDER` and clicking on an image as i.e IMG_8489.JPG the POCT gets extracted and displayed on the right top. Clicking on the `Draw sensor` button (red arrow) allows to identify the sensor area by clicking into its corners. After aligning the relative position of the test lines (TLs) by dragging the vertical lines the button `Test parameters` will open the `OUTPUT FOLDER` and show the results for the selected image. Clicking the button __`Run`__ will apply the parameters to all images in the selected folder and process each image in parallel.
+After selecting the `INPUT FOLDER` and clicking on an image (e.g. `IMG_9068.JPG` in the figure below), the POCT gets extracted and displayed on the right top. Clicking on the `Draw sensor` button (red arrow) allows to identify the sensor area by clicking into its corners. After aligning the relative position of the test lines (TLs) by dragging the vertical lines the button `Test parameters` will open the `OUTPUT FOLDER` and show the results for the selected image. Clicking the button __`Run`__ will apply the parameters to all images in the selected folder and process each image in parallel.
 
 ![](src/main/resources/base/img/ui_drawing_arrow.JPG)
 
@@ -202,23 +203,85 @@ After selecting the `INPUT FOLDER` and clicking on an image as i.e IMG_8489.JPG 
 
 Installation requires Python 3.6 , PyQT 5 and fbs 0.9 with PyInstaller 3.4. We have tested the package on (macOS, Linux, Windows 7 and 10) Please [open an issue](https://github.com/) if you have problems that are not resolved by the information below.
 
-### Linux
+### Install python and all requirements
 
-remarks how to install and compile on Linux.
+#### Windows
+
+[Install tesseract]( https://tesseract-ocr.github.io/tessdoc/Home.html).
+
+#### Linux
+
+Install the following dependences (instructions for Ubuntu Linux):
+
+```bash
+$ sudo apt install libzmq3-dev, tesseract-ocr, libzbar0
+```
+
+#### macOS
+
+TO BE WRITTEN.
+
+#### All platforms
+
+pyPOCQuant requires python 3.6. It is recommended to use miniconda: https://docs.conda.io/en/latest/miniconda.html. When miniconda is installed, start the terminal and type:
+
+```bash
+# Create and activate an environment
+$ conda create -n pypocquant python=3.6
+$ conda activate pypocquant
+```
+
+Then, install all requirements.
+
+```bash
+$ cd ${pyPOCQuantUI_root_folder}
+$ pip install -r requirements/${platform}
+```
+
+where `${platform}` is one of `win32.txt`, `linux.txt`, or `osx.txt`.
+
+### Build pyPOCQuantUI
+
+To compile and create a pyPOCQuantUI installer, perform following steps. In the following `{ppcqui_root}` points to the root folder of the `pyPOCQuantUI` checked-out code.
+
+#### Windows
+
+```bash
+$ cd ${ppcqui_root}
+$ python ./make_build.py
+```
+
+You will find the installer in `${ppcqui_root}\target\pyPOCQuant`.
+
+#### Linux
+
+```bash
+$ sudo apt install ruby ruby-dev rubygems build-essential
+$ sudo gem install --no-document fpm
+$ cd ${ppcqui_root}
+$ python ./make_build.py
+```
+
+This will create a `${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb` package that can be installed and redistributed. 
+
+```bash
+sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
+```
+
+Please notice that client machines will need to install also two dependences:
+
+```bash
+sudo apt install tesseract-ocr, libzbar0
+sudo apt install ${ppcqui_root}/target/pyPOCQuant/pyPOCQuant.deb
+```
 
 ### macOS
 
-remarks how to install and compile on macOS.
-
-### Windows
-
-remarks how to install and compile on Windows.
-
-
+TO BE WRITTEN.
 
 ## Contributors ✨
 
-pyPOCQuant is developed by Andreas P. Cuny and Aaron Ponti. If you want to contribute and further develop the project feel free to do so
+pyPOCQuant is developed by Andreas P. Cuny and Aaron Ponti. If you want to contribute and further develop the project feel free to do so!
 
 <table>
   <tr>
