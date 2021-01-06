@@ -155,6 +155,15 @@ $ python ./make_build.py
 
 We provide an example workflow in a Jupyter [notebook](https://github.com/) that illustrate how this library can be used as well as a step by step __QuickStart__ (add link) guide in the documentation.
 
+### Example data
+
+We provide example data as well as an example configuration in this repo under:
+
+   ```bash
+   examples/config.conf
+   examples/images
+   ```
+
 ### Creating a config file
 
 In the following we present a brief overview how to create a working config file for your images. Detailed instructions and the definition of each parameter can be found in detail in the manual and documentation.  We show how to obtain position and extent of the sensor areas in Fiji or ImageJ. Later we will see how to do the same in the _pyPOCQuant_ user interface (GUI).
@@ -254,6 +263,11 @@ python pyPOCQuant.py −f /PATH/TO/INPUT/FOLDER −o /PATH/TO/RESULTS/FOLDER −
 - __`-v`__: `VERSION` : displays current version of _pyPOCQuant_.
 - __`-h`__ `HELP`: displays the CLI arguments and their usage.
 
+To run it with the provided example data type:
+
+```bash
+python pyPOCQuant.py −f examples/images −o examples/images/results −s examples/config.conf −w 4
+```
 
 
 ### Graphical user interface (GUI)
