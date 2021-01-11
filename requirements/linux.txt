@@ -1,13 +1,12 @@
 # Tested with python==3.6.8 (before using a more recent Python check fbs instructions / support)
 #
 # Note: PyQt 5.9.x has a bug in Linux that causes objects in the GraphicsScene to move around.
-# Note: install fpm as explained here: https://fpm.readthedocs.io/en/latest/installing.html
 # Note: "matplotlib==3.2.2" fixes 'defaultParams' error from 3.2.3
 #
 # Make sure to install also the following packages (via apt or dnf): libzmq3-dev, tesseract-ocr, libzbar0
 # Finally, you will need fpm: see https://fpm.readthedocs.io/en/latest/installing.html.
 pyinstaller==3.4
-fbs==0.9.0
+fbs==0.8.6
 pyqtgraph
 imageio
 PyQt5==5.14.2

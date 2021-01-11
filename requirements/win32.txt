@@ -1,4 +1,6 @@
 # Tested with python==3.6.8 (before using a more recent Python check fbs instructions / support)
+#
+# Make sure to install tesseract: https://tesseract-ocr.github.io/tessdoc/Home.html
 pyinstaller==3.4
 fbs==0.8.6
 pyqtgraph
