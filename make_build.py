@@ -145,7 +145,7 @@ def prepare_freezing():
     # Create common folders
     Path(target_root_dir / 'src/freeze').mkdir(parents=True, exist_ok=True)
     Path(target_root_dir / 'src/freeze/windows').mkdir(parents=True, exist_ok=True)
-    Path(target_root_dir / 'src/freeze/osx').mkdir(parents=True, exist_ok=True)
+    Path(target_root_dir / 'src/freeze/mac').mkdir(parents=True, exist_ok=True)
     Path(target_root_dir / 'src/freeze/linux').mkdir(parents=True, exist_ok=True)
 
     # Source root folder
