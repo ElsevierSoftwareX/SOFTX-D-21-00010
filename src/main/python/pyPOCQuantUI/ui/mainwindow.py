@@ -983,23 +983,23 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(str, Path, dict, name="on_generate_labels")
     def on_generate_labels(self, path1, path2, d):
-        self.print_to_console('Starting label generation')
+        self.print_to_console('QR labels creation started.')
         worker = Worker(self.run_get_qr_codes, path1, path2, d)
         worker.signals.finished.connect(self.on_done_labels)
         self.threadpool.start(worker)
 
     def on_done_labels(self):
-        self.print_to_console('Done with creating labels')
+        self.print_to_console('QR labels creation completed.')
 
     @pyqtSlot(dict, name="on_split_images")
     def on_split_images(self, args):
-        self.print_to_console('Starting splitting images')
+        self.print_to_console('Image splitting started.')
         worker = Worker(self.run_split_images, args)
         worker.signals.finished.connect(self.on_done_split_images)
         self.threadpool.start(worker)
 
     def on_done_split_images(self):
-        self.print_to_console('Done with splitting images')
+        self.print_to_console('Image splitting completed.')
 
     @pyqtSlot(int, name="on_signal_line_length")
     def on_signal_line_length(self, length):
@@ -1260,7 +1260,12 @@ class MainWindow(QMainWindow):
                 sheet.add_label(scaled_drawing)
 
             # Save the file and we are done.
-            sheet.save(str(Path(qrdecode_result_dir_str / label_dir.stem).with_suffix('.pdf')))
+            pdf_file = str(Path(qrdecode_result_dir_str / label_dir.stem).with_suffix('.pdf'))
+            sheet.save(pdf_file)
+
+            # Print summary information to the console
+            self.print_to_console(f"QR labels written to {pdf_file}.")
+
         except Exception as e:
             print(e)
 
@@ -1309,8 +1314,18 @@ class MainWindow(QMainWindow):
                                            quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+
+            # If open, close all child dialogs
+
             if self.qi is not None:
                 self.qi.close()
+
+            if self.label_gen is not None:
+                self.label_gen.close()
+
+            if self.split_images is not None:
+                self.split_images.close()
+
             event.accept()
         else:
             event.ignore()
