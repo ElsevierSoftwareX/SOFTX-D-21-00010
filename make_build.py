@@ -211,7 +211,7 @@ def prepare_freezing():
         )
 
         # Copy version info
-        Path(target_root_dir / 'src/freeze/mac/Contents/MacOS').mkdir(parents=True, exist_ok=True)
+        Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui').mkdir(parents=True, exist_ok=True)
         shutil.copy(
             Path(target_root_dir / 'src/main/python/pyPOCQuantUI/ui/VERSION'),
             Path(target_root_dir / 'src/freeze/mac/Contents/MacOS/ui')
