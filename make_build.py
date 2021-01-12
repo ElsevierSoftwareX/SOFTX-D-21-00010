@@ -17,6 +17,7 @@ import sys
 import shutil
 from pathlib import Path
 import json
+import unittest
 
 
 # Try adding the python devel libs to LD_LIBRARY_PATH
@@ -261,13 +262,26 @@ def prepare_freezing():
 
         raise Exception("Platform not supported!")
 
-
 print('|---------------------------------------------------------------------------------------------------|')
-print('| Start building pyPOCQUANT')
+print('| Update application metadata')
 print('|---------------------------------------------------------------------------------------------------|')
 
 # First, update application version
 update_application_metadata()
+
+print('|---------------------------------------------------------------------------------------------------|')
+print('| Run unit tests')
+print('|---------------------------------------------------------------------------------------------------|')
+
+from pypocquant import tests
+
+# Run all unit tests
+suite = unittest.TestLoader().loadTestsFromModule(tests)
+unittest.TextTestRunner().run(suite)
+
+print('|---------------------------------------------------------------------------------------------------|')
+print('| Start building pyPOCQUANT')
+print('|---------------------------------------------------------------------------------------------------|')
 
 # Build manual
 build_manual()
