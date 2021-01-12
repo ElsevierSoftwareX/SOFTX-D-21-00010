@@ -632,15 +632,28 @@ class MainWindow(QMainWindow):
         file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
                                                   "All Files (*);;Text Files (*.txt)", options=options)
         if file_name:
+            # Get current settings
             settings = self.get_parameters()
+
+            # Drop some settings that are not used (and incompatible) with
+            # the command-line and jupyter usage of the pipeline
+            if 'max_workers' in settings:
+                del settings['max_workers']
+            if 'sensor_bands_number' in settings:
+                del settings['sensor_bands_number']
+
             # Save parameters into input folder with timestamp
             save_path = Path(Path(file_name).parent, Path(file_name).stem + '.conf')
             save_settings(settings, save_path)
             self.print_to_console(f"Saved config file under: {save_path}")
 
     def on_load_settings_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, 'Open file', '', "All Files (*);;Text Files (*.txt);; "
-                                                                       "Config Files (*.conf)")
+        file_name, _ = QFileDialog.getOpenFileName(
+            self,
+            'Open file',
+            '',
+            "All Files (*);;Text Files (*.txt);; Config Files (*.conf)"
+        )
         if file_name:
             self.config_path = file_name
             self.on_load_settings_file_from_path()
@@ -683,6 +696,15 @@ class MainWindow(QMainWindow):
             self.actionView_Console.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogApplyButton))
 
     def load_parameters(self, settings):
+
+        # Add UI-only parameters
+        settings["max_workers"] = 2
+        settings["sensor_bands_number"] = len(settings["peak_expected_relative_location"])
+
+        # Back-compatibility: make sure that recent settings are in
+        if "control_band_index" not in settings:
+            settings["control_band_index"] = -1
+
         # Populate parameter tree
         for c in self.p.children():
             for gc in self.p.param(c.name()):
@@ -833,12 +855,12 @@ class MainWindow(QMainWindow):
     def _update_dynamic_parameter_dependencies(self):
         """Update dynamic parameters that depend on each other."""
 
-        num_sensor_bands = len(self.p.param("Basic parameters").param("Sensor band names").children())
-        self.p.param("Basic parameters").param("Number of sensor bands").setValue(num_sensor_bands)
+        sensor_bands_number = len(self.p.param("Basic parameters").param("Sensor band names").children())
+        self.p.param("Basic parameters").param("Number of sensor bands").setValue(sensor_bands_number)
         control_band_index = self.p.param("Basic parameters").param("Control band index")
-        if int(control_band_index.value()) > (num_sensor_bands - 1):
-            control_band_index.setValue(num_sensor_bands - 1)
-        control_band_index.setLimits((-1, num_sensor_bands - 1))
+        if int(control_band_index.value()) > (sensor_bands_number - 1):
+            control_band_index.setValue(sensor_bands_number - 1)
+        control_band_index.setLimits((-1, sensor_bands_number - 1))
 
     def _update_sensor_band_parameters_for_num_bands(self, num_bands: int):
         """Update the various sensor bands parameters to match the new number of bands."""
