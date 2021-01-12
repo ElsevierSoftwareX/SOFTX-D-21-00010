@@ -37,7 +37,7 @@ This package requires Python 3.6 and runs on various platforms. If not explicitl
 
 The easiest way to run _pyPOCQuant_ is to use the compiled binaries which includes everything (except tesseract and zbar, see below) ready to be used.
 
-* [download pyPOCQuantUI binaries]( https://github.com/) 
+* [download pyPOCQuantUI binaries]( https://git.bsse.ethz.ch/cunya/pypocquantui/-/tags/1.0.0) 
 
 ### Install python and all requirements | run from source
 
