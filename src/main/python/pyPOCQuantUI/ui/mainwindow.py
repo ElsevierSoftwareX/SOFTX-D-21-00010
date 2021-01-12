@@ -464,7 +464,7 @@ class MainWindow(QMainWindow):
                 msg = "Please select an input folder first."
             elif not self.image_filename:
                 msg = "Please select a test image first"
-            reply = QMessageBox.question(self, 'Message', msg, QMessageBox.Ok)
+            reply = QMessageBox.question(self, 'pyPOCQuant :: Test', msg, QMessageBox.Ok)
 
             if reply == QMessageBox.Ok:
                 return
@@ -510,7 +510,7 @@ class MainWindow(QMainWindow):
                 msg = "Please select an input folder first."
             elif not self.output_dir:
                 msg = "Please select an output folder first"
-            reply = QMessageBox.question(self, 'Message', msg, QMessageBox.Ok)
+            reply = QMessageBox.question(self, 'pyPOCQuant :: Run', msg, QMessageBox.Ok)
 
             if reply == QMessageBox.Ok:
                 return
@@ -1332,7 +1332,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
 
         quit_msg = "Are you sure you want to exit the program?"
-        reply = QMessageBox.question(self, 'Message',
+        reply = QMessageBox.question(self, 'pyPOCQuant :: Quit',
                                            quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
