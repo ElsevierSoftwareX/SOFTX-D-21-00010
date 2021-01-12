@@ -15,4 +15,8 @@ from pypocquant import tests
 
 # Run all unit tests
 suite = unittest.TestLoader().loadTestsFromModule(tests)
-unittest.TextTestRunner().run(suite)
+result = unittest.TextTestRunner().run(suite)
+
+print(f"Run {result.testsRun} tests: "
+      f"{len(result.errors)} error(s) and "
+      f"{len(result.failures)} failure(s).")

@@ -277,7 +277,18 @@ from pypocquant import tests
 
 # Run all unit tests
 suite = unittest.TestLoader().loadTestsFromModule(tests)
-unittest.TextTestRunner().run(suite)
+result = unittest.TextTestRunner().run(suite)
+
+# Do not continue with the build if there are errors
+num_errors = len(result.errors) + len(result.failures)
+if num_errors > 0:
+    print("*")
+    print("*")
+    print("* Unit testing failed! Aborting build!")
+    print("*")
+    print("*")
+    sys.exit(1)
+
 
 print('|---------------------------------------------------------------------------------------------------|')
 print('| Start building pyPOCQUANT')
