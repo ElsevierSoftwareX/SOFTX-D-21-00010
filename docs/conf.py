@@ -53,6 +53,7 @@ m2r_anonymous_references = True
 
 autoapi_type = 'python'
 autoapi_dirs = ['../src/main/python/pyPOCQuantUI/pypocquant']
+master_doc = 'index'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
