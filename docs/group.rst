@@ -17,9 +17,4 @@ The examples show the basic usage of **pyPOCQuant** to analyze images
 
 .. only:: html
 
-.. .. toctree::
-   tutorial
 
-.. .. toctree::
-   example_nanonis_longterm
-.. .. only:: html

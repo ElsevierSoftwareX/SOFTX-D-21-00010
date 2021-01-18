@@ -1,4 +1,4 @@
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-brightgreen.svg)](https://www.python.org/) [![made-with-python3.6](https://img.shields.io/pypi/pyversions/pyimd.svg)](https://www.python.org/) [![supported-platform](https://img.shields.io/badge/platform-linux--x64%20%7C%20osx--x64%20%7C%20win--x64-lightgrey.svg)]() [![License](https://img.shields.io/badge/license-GPLv3-brightgreen.svg)](https://git.bsse.ethz.ch/cunya/pypocquantui/master/LICENSE)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-brightgreen.svg)](https://www.python.org/) [![made-with-python3.6](https://img.shields.io/pypi/pyversions/pyimd.svg)](https://www.python.org/) [![supported-platform](https://img.shields.io/badge/platform-linux--x64%20%7C%20osx--x64%20%7C%20win--x64-lightgrey.svg)]() [![License](https://img.shields.io/badge/license-GPLv3-brightgreen.svg)](https://git.bsse.ethz.ch/cunya/pypocquantui/master/LICENSE) [![Documentation Status](https://readthedocs.org/projects/pypocquant/badge/?version=latest)](https://pypocquant.readthedocs.io/en/latest/?badge=latest)
 
 pyPOCQuant  - A tool to automatically quantify Point-Of-Care Tests from images
 ======================================
@@ -7,6 +7,8 @@ pyPOCQuant  - A tool to automatically quantify Point-Of-Care Tests from images
 This repository contains the implementation of *pyPOCQuant* to automatically detect and quantify test line (TL) signal bands from lateral flow assays (LFA) images,  as described in the paper: 
 
 
+
+<br>
 
 
 * Cuny, A. P., Rudolf, F., & Ponti, A. (2020). pyPOCQuant - A tool to automatically quantify Point-Of-Care Tests from images. MedRxiv,. https://doi.org/10.1101/2020.11.08.20227470
