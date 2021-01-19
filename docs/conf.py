@@ -144,7 +144,7 @@ autoapi_type = 'python'
 print('autoapi path:', str(Path(pypocquant_path / 'pypocquant')))
 # print('autoapi path:', str(pypocquant_path))
 autoapi_dirs = [str(Path(pypocquant_path / 'pypocquant'))] # ['../src/main/python/pyPOCQuantUI/pypocquant']
-autoapi_ignore = ['tests', 'pypocquant/tests', 'ui', 'main.py', 'example_nb']
+autoapi_ignore = ["*/test_*.py", "*/manual/*",  "*/tests/*",  "*setup.py*",]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
