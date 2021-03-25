@@ -1143,13 +1143,14 @@ class MainWindow(QMainWindow):
             settings = self.get_parameters()
             sensor_center = settings['sensor_center']
             sensor_size = settings['sensor_size']
-            scene_size = self.scene_strip.sceneRect()
-            center_offset_x = abs(scene_size.width()/2 - sensor_center[1])
-            center_offset_y = abs(scene_size.height() / 2 - sensor_center[0])
-            vertex_x = [(scene_size.width()/2 - sensor_size[1] / 2) + center_offset_x, scene_size.width()/2 + (sensor_size[1] / 2 + center_offset_x),
-                         scene_size.width()/2 + (sensor_size[1]/2 + center_offset_x), (scene_size.width()/2 - sensor_size[1]/2) + center_offset_x]
-            vertex_y = [scene_size.height()/2 - (sensor_size[0] / 2 + center_offset_y), scene_size.height()/2 - (sensor_size[0] / 2 + center_offset_y),
-                        scene_size.height()/2 + (sensor_size[0] / 2 + center_offset_y), scene_size.height()/2 + (sensor_size[0] / 2 + center_offset_y)]
+
+            # Build the polygon
+            vx0 = sensor_center[1] - sensor_size[1] / 2.0
+            vx = sensor_center[1] + sensor_size[1] / 2.0
+            vy0 = sensor_center[0] - sensor_size[0] / 2.0
+            vy = sensor_center[0] + sensor_size[0] / 2.0
+            vertex_x = [vx0, vx, vx, vx0]
+            vertex_y = [vy0, vy0, vy, vy]
             for i in range(0, 4):
                 currentSensorPolygon.addVertex(QPoint(vertex_x[i], vertex_y[i]))
             currentSensorPolygon.addLine(settings['peak_expected_relative_location'])
