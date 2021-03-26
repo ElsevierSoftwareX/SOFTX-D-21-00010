@@ -11,89 +11,270 @@
 #  *******************************************************************************
 
 import multiprocessing
+from pypocquant.lib.settings import default_settings
+
+defaults = default_settings()
 
 params = [
     {
-        'name': 'Runtime parameters', 'type': 'group', 'children':
+        'name': 'Runtime parameters',
+        'type': 'group',
+        'children':
         [
-            {'name': 'Number of cores (max={})'.format(multiprocessing.cpu_count()), 'type': 'int', 'value': 2,
-             'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"},
-            {'name': 'QC', 'type': 'bool', 'value': True, 'tip': "Save quality control images"},
-            {'name': 'Verbose', 'type': 'bool', 'value': True, 'tip': "Print useful information"}
+            {
+                'name': 'Number of cores (max={})'.format(multiprocessing.cpu_count()),
+                'type': 'int',
+                'value': 2,
+                'limits': (1, multiprocessing.cpu_count()), 'default': 1, 'tip': "Number of cores to use for processing"
+            },
+            {
+                'name': 'QC',
+                'type': 'bool',
+                'value': defaults['qc'],
+                'tip': "Save quality control images"
+            },
+            {
+                'name': 'Verbose',
+                'type': 'bool',
+                'value': defaults['verbose'],
+                'tip': "Print useful information"
+            }
         ]
     },
     {
-        'name': 'Basic parameters', 'type': 'group', 'children':
+        'name': 'Basic parameters',
+        'type': 'group',
+        'children':
         [
-            {'name': 'Number of sensor bands', 'type': 'int', 'value': 3, 'default': 3, 'limits': (1, 100),
-             'tip': "Number of bands on the sensor."},
-            {'name': 'Control band index', 'type': 'int', 'value': -1, 'default': -1, 'limits': (-1, 100),
-             'tip': "Index of the control band (set to -1 for right-most position)"},
-            {'name': 'Sensor band names', 'type': 'group', 'children':
+            {
+                'name': 'Number of sensor bands',
+                'type': 'int',
+                'value': len(defaults['peak_expected_relative_location']),
+                'default': len(defaults['peak_expected_relative_location']),
+                'limits': (1, 100),
+                'tip': "Number of bands on the sensor."
+            },
+            {
+                'name': 'Control band index',
+                'type': 'int',
+                'value': defaults['control_band_index'],
+                'default': defaults['control_band_index'],
+                'limits': (-1, 100),
+                'tip': "Index of the control band (set to -1 for right-most position)"
+            },
+            {
+                'name': 'Sensor band names',
+                'type': 'group',
+                'children':
                 [
-                    {'name': '0', 'type': 'str', 'value': 'igm'},
-                    {'name': '1', 'type': 'str', 'value': 'igg'},
-                    {'name': '2', 'type': 'str', 'value': 'ctl'}
+                    {
+                        'name': '0',
+                        'type': 'str',
+                        'value': defaults['sensor_band_names'][0]
+                    },
+                    {
+                        'name': '1',
+                        'type': 'str',
+                        'value': defaults['sensor_band_names'][1]
+                    },
+                    {
+                        'name': '2',
+                        'type': 'str',
+                        'value': defaults['sensor_band_names'][2]
+                    }
                 ]
              },
-            {'name': 'Band expected relative location', 'type': 'group', 'children':
+            {
+                'name': 'Band expected relative location',
+                'type': 'group',
+                'children':
                 [
-                    {'name': '0', 'type': 'float', 'value': 0.25, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': '1', 'type': 'float', 'value': 0.53, 'step': 0.05, 'limits': (0, 1)},
-                    {'name': '2', 'type': 'float', 'value': 0.79, 'step': 0.05, 'limits': (0, 1)},
+                    {
+                        'name': '0',
+                        'type': 'float',
+                        'value': defaults['peak_expected_relative_location'][0],
+                        'step': 0.05,
+                        'limits': (0, 1)
+                    },
+                    {
+                        'name': '1',
+                        'type': 'float',
+                        'value': defaults['peak_expected_relative_location'][1],
+                        'step': 0.05,
+                        'limits': (0, 1)
+                    },
+                    {
+                        'name': '2',
+                        'type': 'float',
+                        'value': defaults['peak_expected_relative_location'][2],
+                        'step': 0.05,
+                        'limits': (0, 1)
+                    },
                 ]
              },
-            {'name': 'Sensor center', 'type': 'group', 'children':
+            {
+                'name': 'Sensor center',
+                'type': 'group',
+                'children':
                 [
-                    {'name': 'y', 'type': 'int', 'value': 10},
-                    {'name': 'x', 'type': 'int', 'value': 10}
+                    {
+                        'name': 'y',
+                        'type': 'int',
+                        'value': defaults['sensor_center'][0],
+                    },
+                    {
+                        'name': 'x',
+                        'type': 'int',
+                        'value': defaults['sensor_center'][1]
+                    }
                 ]
             },
-            {'name': 'Sensor size', 'type': 'group', 'children':
+            {
+                'name': 'Sensor size',
+                'type': 'group',
+                'children':
                 [
-                    {'name': 'height', 'type': 'int', 'value': 10},
-                    {'name': 'width', 'type': 'int', 'value': 10}
+                    {
+                        'name': 'height',
+                        'type': 'int',
+                        'value': defaults['sensor_size'][0]
+                    },
+                    {
+                        'name': 'width',
+                        'type': 'int',
+                        'value': defaults['sensor_size'][1]
+                    }
                 ]
             },
-            {'name': 'Sensor border', 'type': 'group', 'children':
+            {
+                'name': 'Sensor border',
+                'type': 'group',
+                'children':
                 [
-                    {'name': 'y', 'type': 'int', 'value': 7},
-                    {'name': 'x', 'type': 'int', 'value': 7},
+                    {
+                        'name': 'y',
+                        'type': 'int',
+                        'value': defaults['sensor_border'][0]
+                    },
+                    {
+                        'name': 'x',
+                        'type': 'int',
+                        'value': defaults['sensor_border'][1]
+                    },
                 ]
             },
-            {'name': 'Perform sensor search', 'type': 'bool', 'value': True, 'tip': "Search sensor in box"},
-            {'name': 'QR code border', 'type': 'int', 'value': 40},
-            {'name': 'Subtract background', 'type': 'bool', 'value': True, 'tip': "Subtract background from signal"}
-        ]},
+            {
+                'name': 'Perform sensor search',
+                'type': 'bool',
+                'value': defaults['perform_sensor_search'],
+                'tip': "Search sensor in box"
+            },
+            {
+                'name': 'QR code border',
+                'type': 'int',
+                'value': defaults['qr_code_border']
+            },
+            {
+                'name': 'Subtract background',
+                'type': 'bool',
+                'value': defaults['subtract_background'],
+                'tip': "Subtract background from signal"
+            }
+        ]
+    },
     {
-        'name': 'Advanced parameters', 'type': 'group', 'children':
+        'name': 'Advanced parameters',
+        'type': 'group',
+        'children':
         [
-            {'name': 'Sensor search area', 'type': 'group', 'children':
+            {
+                'name': 'Sensor search area',
+                'type': 'group',
+                'children':
                 [
-                    {'name': 'y', 'type': 'int', 'value': 7},
-                    {'name': 'x', 'type': 'int', 'value': 7},
+                    {
+                        'name': 'y',
+                        'type': 'int',
+                        'value': defaults['sensor_search_area'][0]
+                    },
+                    {
+                        'name': 'x',
+                        'type': 'int',
+                        'value': defaults['sensor_search_area'][1]
+                    },
                 ]
              },
-            {'name': 'Sensor threshold factor', 'type': 'float', 'value': 2.0, 'step': 0.1},
-            {'name': 'Raw auto stretch', 'type': 'bool', 'value': False,
-             'tip': "Set to true if raw image intensities should be auto-stretched"},
-            {'name': 'Raw auto wb', 'type': 'bool', 'value': False,
-             'tip': "Set true if raw image white balance should be set automatically"},
-            {'name': 'Try to correct strip orientation', 'type': 'bool', 'value': False,
-             'tip': "Will try to find the injection inlet to assess orientation."},
-            {'name': 'Strip orientation correction search rectangles', 'type': 'group', 'children':
+            {
+                'name': 'Sensor threshold factor',
+                'type': 'float',
+                'value': float(defaults['sensor_thresh_factor']),
+                'step': 0.1
+            },
+            {
+                'name': 'Raw auto stretch',
+                'type': 'bool',
+                'value': defaults['raw_auto_stretch'],
+                'tip': "Set to true if raw image intensities should be auto-stretched"
+            },
+            {
+                'name': 'Raw auto wb',
+                'type': 'bool',
+                'value': defaults['raw_auto_wb'],
+                'tip': "Set true if raw image white balance should be set automatically"
+            },
+            {
+                'name': 'Try to correct strip orientation',
+                'type': 'bool',
+                'value': defaults['strip_try_correct_orientation'],
+                'tip': "Will try to find the injection inlet to assess orientation."
+            },
+            {
+                'name': 'Strip orientation correction search rectangles',
+                'type': 'group',
+                'children':
                 [
-                    {'name': 'Relative height factor', 'type': 'float', 'value': 0.52, 'step': 0.01, 'limits': (0, 1)},
-                    {'name': 'Relative center cut-off', 'type': 'float', 'value': 0.15, 'step': 0.01, 'limits': (0, 1)},
-                    {'name': 'Relative border cut-off', 'type': 'float', 'value': 0.09, 'step': 0.01, 'limits': (0, 1)},
+                    {
+                        'name': 'Relative height factor',
+                        'type': 'float',
+                        'value': defaults['strip_try_correct_orientation_rects'][0],
+                        'step': 0.01,
+                        'limits': (0, 1)
+                    },
+                    {
+                        'name': 'Relative center cut-off',
+                        'type': 'float',
+                        'value': defaults['strip_try_correct_orientation_rects'][1],
+                        'step': 0.01,
+                        'limits': (0, 1)
+                    },
+                    {
+                        'name': 'Relative border cut-off',
+                        'type': 'float',
+                        'value': defaults['strip_try_correct_orientation_rects'][2],
+                        'step': 0.01,
+                        'limits': (0, 1)
+                    },
                 ]
              },
-            {'name': 'Strip text to search (orientation)', 'type': 'str', 'value': '', 'default': '',
-             'tip': "Use prominent text such as COVID"},
-            {'name': 'Strip text is on the right', 'type': 'bool', 'value': False,
-             'tip': "Set true if test is right of the sensor"},
-            {'name': 'Force FID search', 'type': 'bool', 'value': False,
-             'tip': "Set true to force FID search if the QR code with patient data is not present"}
+            {
+                'name': 'Strip text to search (orientation)',
+                'type': 'str',
+                'value': defaults['strip_text_to_search'],
+                'default': '',
+                'tip': "Use prominent text such as COVID"
+            },
+            {
+                'name': 'Strip text is on the right',
+                'type': 'bool',
+                'value': defaults['strip_text_on_right'],
+                'tip': "Set true if test is right of the sensor"
+            },
+            {
+                'name': 'Force FID search',
+                'type': 'bool',
+                'value': defaults['force_fid_search'],
+                'tip': "Set true to force FID search if the QR code with patient data is not present"
+            }
         ]
     }
 ]
